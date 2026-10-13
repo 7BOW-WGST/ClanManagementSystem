@@ -7,9 +7,15 @@
     "typecheck": "bun check"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@types/pg": "^8.23.1"
   },
   "peerDependencies": {
     "typescript": "^7"
+  },
+  "dependencies": {
+    "hono": "^4.13.13",
+    "kysely": "^0.29.6",
+    "pg": "^8.23.1"
   }
 }
