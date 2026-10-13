@@ -24,7 +24,7 @@ bun install
 
 ### 3. Database configuration
 
-Create a local PostgreSQL database (e.g., `test_cms_db`) and ensure your connection settings in `.env` match your local database credentials.
+Create a local PostgreSQL database (e.g., `clan_management`) and copy `.env.example` to `.env`, setting `DATABASE_URL` to match your local database credentials.
 
 ## Building and Validation
 

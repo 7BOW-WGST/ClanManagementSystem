@@ -23,7 +23,7 @@ A lightweight, server-rendered clan ERP and management dashboard designed for a 
 ### Prerequisites
 
 - Installed **Bun** runtime
-- Active local **PostgreSQL** instance (e.g. database `test_clan_db`)
+- Active local **PostgreSQL** instance (e.g. database `clan_management`)
 
 ### Step-by-Step
 
@@ -40,13 +40,17 @@ A lightweight, server-rendered clan ERP and management dashboard designed for a 
    bun install
    ```
 
-3. **Run the development server (Hot Reload):**
+3. **Configure the environment:**
+
+   Copy `.env.example` to `.env` and set `DATABASE_URL` to match your local PostgreSQL instance.
+
+4. **Run the development server (Hot Reload):**
 
    ```cmd
    bun run --watch src/index.tsx
    ```
 
-   Access the dashboard at `http://localhost:3000`.
+   > **Note:** the application is currently a scaffold. The Hono server, routes, and dashboard are not implemented yet.
 
 ## Documentation & Development
 
