@@ -6,7 +6,7 @@ A lightweight, server-rendered clan ERP and management dashboard designed for a 
 
 - **Member Management:** Tracks community members, lifecycle events (joins, leaves, kicks), rank changes, awards, and statuses.
 - **Multi-Platform Accounts:** Distinguishes concepts of member identity from external platform and game accounts - supporting Discord, War Thunder, Arma 3 Units and Steam.
-- **History Trakcing:** Preserves historical records for anything that changes over time (nicknames, ranks, platform linkages and relations).
+- **History Tracking:** Preserves historical records for anything that changes over time (nicknames, ranks, platform linkages and relations).
 - **Source Auditability:** Distinguishes manual administrative entries from automated data, with manual inputs taking priority.
 - **Role-Based Access:** Secure, role-restricted dashboard access tailored for Owners, Administrators, and Members.
 
