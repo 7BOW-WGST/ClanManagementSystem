@@ -2,15 +2,15 @@
 
 A management system for a gaming clan, tracking members, their history and status, and the clan's structures, through a web dashboard. The clan is active in War Thunder and Arma 3, with a base "Multigaming" membership.
 
-This document covers product requirements and environment constraints only. The technical stack is deliberately out of scope.
+This document covers product requirements and environment constraints only. The technical stack is deliberately out of scope. Resolved domain-model decisions and their rationale are recorded in [`docs/DECISIONS.md`](./docs/DECISIONS.md).
 
 ## 1. Users & Access
 
 - Roles: **Owner**, **Administrator**, **Member**.
-- **Owner/Administrator** — manage and edit all data.
-- **Member** — logs in and views clan-wide data, read-only.
-- **Login (now):** a placeholder "login" panel that is only a role selector (Owner / Admin / Member). No real credentials.
-- **Login (later):** real authentication is planned for a later phase.
+- **Owner/Administrator** — manage and edit all data; both currently have identical rights.
+- **Member** — logs in and views clan-wide data, read-only. Members do not see kick reasons, administrative notes, audit detail, or suppressed source data.
+- **Login (now):** a placeholder "login" panel that is only a role selector (Owner / Admin / Member). No real credentials. Phase 1 is a local prototype and manual edits are treated as made by the Owner.
+- **Login (later):** real authentication is planned for a later phase, and is a prerequisite before the system is exposed beyond the local prototype.
 
 ## 2. Scope & Phasing
 
@@ -37,59 +37,67 @@ The system must eventually:
 
 - **Member** — a community identity, independent of any platform account.
 - **Platform account** — a distinct entity, separate from the member.
-  - A member may have **multiple accounts per platform** (e.g. main, alt, shared).
+  - A member may have **multiple accounts per platform**.
   - Accounts may exist **unlinked** until a member is identified.
-  - Member–account links are **time-bounded** (recorded with start and end dates where applicable).
+  - The relation between a member and an account (`main`, `alt`, or `borrowed`) is a property of the **link**, not the account; changes to it are recorded as events.
+  - An account may be `main`/`alt` for at most one member at a time and `borrowed` by several members; `main` and `alt` are mutually exclusive.
 - **Accounts vs member** — an account's nickname history belongs to the **account**; the member has a separate community **nickname history**.
 - **Sections** — Multigaming (base, every member), War Thunder, Arma 3.
+  - Section membership is **derived from membership events**, not stored separately.
   - War Thunder membership is tracked via **squadron membership events** (7BOW / 7BOWs / 7BOWr).
-  - Arma 3 membership is tracked via section membership and Arma3Units profile links.
+  - Arma 3 membership is tracked via section membership events and Arma3Units profile links.
 - **Platforms tracked:** Discord, War Thunder accounts, Arma3Units, Steam.
 
 ## 4. Phase 1 Detailed Scope (Core & Platforms)
 
 ### 4.1 Core Clan Member Identity
 
-- **Membership lifecycle:** join, rejoin, leave, kicked/removed, veteran status.
-- **Nickname history:** member's community nickname over time.
-- **Ranks & Promotions:** core rank, rank history, and promotion dates.
-- **Orders/decorations:** pool of awards and member award history.
-- **Special statuses:** veteran, leave of absence, etc.
+- **Membership lifecycle:** join, leave, kick (a rejoin is simply another join). Leave/kick implicitly ends core state and marks section memberships inactive.
+- **Nickname history:** member's community nickname over time, recorded as change events.
+- **Ranks & Promotions:** core rank; promotion and demotion are recorded as events (a demotion is a new event, never an edit).
+- **Orders/decorations:** pool of awards and member award history. Awards persist across leave and may be granted to non-members; they may be repeatable, once-only, or tiered.
+- **Special statuses:** veteran (members only; ends on leave and must be re-earned). Suspension is a separate section-scoped, time-bounded record.
 
 ### 4.2 Platform Accounts & Sections
 
-- **Discord:** Discord ID/account association, handle/username history, and mandatory presence tracking.
+- **Discord:** Discord ID/account association, handle/username history, and group membership events. No presence or activity tracking.
 - **War Thunder Section:**
-  - Section membership status.
+  - Section membership (derived from squadron membership events).
   - Game account names and previous nickname history.
   - Squadron membership events (7BOW, 7BOWs, 7BOWr).
-  - Account access type (own, main, alt, shared).
+  - Account relation (main, alt, borrowed).
 - **Arma 3 Section:**
-  - Section membership status.
+  - Section membership (derived from section membership events).
   - Arma3Units account link/name.
   - Section-specific ranks and promotions (separate from core ranks).
-  - Specializations, instructor qualifications, active/inactive status, and basic training status.
+  - Specializations, instructor qualifications, and basic training status are deferred to a later stage.
 - **Steam Platform:**
   - Account name, steamID64.
-  - Steam Group membership status events.
+  - Steam Group membership events.
 
 ## 5. History & Data Principles
 
-- **Event-based:** changes are recorded as events or time-bounded state records; current state is derived from them.
-- **Unknown/partial dates are allowed**; a missing date represents unknown historical data.
-- **Time-bounded validity:** record the start and end dates of states and relationships where known.
-- **Manual vs automated:** manual entries/corrections rank highest. Automated data ranks below them. Both are stored and **marked as manual or automated** (`source: manual` vs `auto`), remaining accessible for audit/troubleshooting. The dashboard displays data according to this hierarchy of importance (manual wins).
+- **Event-based:** all changes are recorded as append-only events, each with a single event date; current state is derived from them. The only explicitly time-bounded record is a section suspension (start and end dates).
+- **Derived durations:** an event's effective end is the date of the next event of the same kind; no end dates are stored outside suspensions.
+- **Unknown/partial dates are allowed**; a missing or partial date represents unknown historical data.
+- **Same-day events** are ordered by insertion order; the latest supersedes.
+- **Backdating is allowed:** events keep both the date the change happened and the date it was recorded.
+- **Manual vs automated:** manual entries/corrections rank highest; automated data ranks below. Both are stored and **marked as manual or automated** (`source: manual` vs `auto`), remaining accessible for audit/troubleshooting. The dashboard shows the effective value and indicates when a lower-priority source is suppressed (manual wins).
+- **Audit:** records capture the source, author, timestamp, reason, and the superseded value.
 
 ## 6. Data Entry
 
-- **Phase 1:** Manual entry by Owner/Administrators via the web dashboard to backfill and manage historical and current data.
-- **Later Phases:** Automated data arrives via the separate Discord bot and platform APIs/scrapers. Manual data takes precedence over automated data (§5).
+- **Phase 1:** Manual entry by Owner/Administrators via the web dashboard to backfill and manage historical and current data. During the local prototype, manual edits are treated as made by the Owner.
+- **Later Phases:** Automated data arrives via the separate Discord bot and platform APIs/scrapers. The bot writes only `source: auto`, never overwrites manual data, and deduplicates by natural key. Manual data takes precedence over automated data (§5).
 
 ## 7. Open Questions
 
-- Order catalog: the fixed list of orders/decorations and their requirements.
-- Special statuses: the complete list and their behavior.
-- Do awards/decorations persist across a member leaving and rejoining?
+Resolved decisions and their rationale live in [`docs/DECISIONS.md`](./docs/DECISIONS.md). Remaining open items:
+
+- Account relation types: whether an `is_owner` flag is needed, and the final set of relation types.
+- Arma 3 qualifications and specializations (deferred).
+- Award catalog: the fixed list of awards/decorations, their requirements, and which are repeatable vs once-only vs tiered.
+- Special statuses: the complete list and their behavior (currently only veteran).
 - Activity/statistics and operations details (deferred to later phases).
 
 ## 8. Out of Scope
