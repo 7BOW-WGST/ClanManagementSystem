@@ -108,7 +108,7 @@ Newer automated values are appended and retained (V4); the effective value is th
 
 ### R1 — Relation is a link property
 **Status:** Accepted
-`main` / `alt` / `borrowed` describes the member → account link, not the account itself.
+`main` / `alt` / `borrowed` describes the member → War Thunder account link, not the account itself. These relation types apply to War Thunder accounts only.
 **Rationale:** the same account can be a main for one member and borrowed by another.
 **Alternatives:** relation stored on the account (rejected — cannot express multi-member use).
 
@@ -118,7 +118,7 @@ Whether `is_owner` is needed, and the final set of account relation types, is de
 
 ### R3 — Relation constraints
 **Status:** Accepted
-An account may have any number of `borrowed` links and at most one `main` / `alt` designation; `main` and `alt` are mutually exclusive.
+A War Thunder account may have any number of `borrowed` links and at most one `main` / `alt` designation; `main` and `alt` are mutually exclusive.
 **Valid:** main of A + borrowed by B, C; alt of A + borrowed by B.
 **Invalid:** main of A + alt of B.
 

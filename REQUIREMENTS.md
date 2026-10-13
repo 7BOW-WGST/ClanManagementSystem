@@ -39,8 +39,8 @@ The system must eventually:
 - **Platform account** — a distinct entity, separate from the member.
   - A member may have **multiple accounts per platform**.
   - Accounts may exist **unlinked** until a member is identified.
-  - The relation between a member and an account (`main`, `alt`, or `borrowed`) is a property of the **link**, not the account; changes to it are recorded as events.
-  - An account may be `main`/`alt` for at most one member at a time and `borrowed` by several members; `main` and `alt` are mutually exclusive.
+  - War Thunder account relations (`main`, `alt`, or `borrowed`) apply to War Thunder accounts only. The relation is a property of the **link**, not the account; changes to it are recorded as events.
+  - A War Thunder account may be `main`/`alt` for at most one member at a time and `borrowed` by several members; `main` and `alt` are mutually exclusive.
 - **Accounts vs member** — an account's nickname history belongs to the **account**; the member has a separate community **nickname history**.
 - **Sections** — Multigaming (base, every member), War Thunder, Arma 3.
   - Section membership is **derived from membership events**, not stored separately.
