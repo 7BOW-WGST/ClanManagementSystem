@@ -1,0 +1,46 @@
+name: Bug report
+description: File a bug report to help us improve the Clan Management System
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug! Please provide as much detail as possible so we can investigate and fix the issue.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug description
+      description: A clear description of what the bug is.
+      placeholder: E.g., Attempting to change a member's rank triggers a 500 error in the dashboard...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: module
+    attributes:
+      label: Affected module / Area
+      description: Which part of the system is experiencing the issue?
+      options:
+        - "Member Management"
+        - "Authentication / Discord OAuth"
+        - "UI / Layout"
+        - "Database"
+        - "Service / Server"
+        - "Other"
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: How can we reproduce the issue?
+      placeholder: |
+        1. Go to '/members'
+        2. Click 'Edit History' for a selected member
+        3. Select the 'MemberLeft' event
+        4. Click 'Save'
+    validations:
+      required: true

@@ -1,0 +1,35 @@
+name: Feature request
+description: Suggest a new feature or improvement for the Clan Management System
+title: "[FEAT]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have an idea for a new feature? Fill out the fields below!
+
+  - type: textarea
+    id: feature
+    attributes:
+      label: Feature description
+      description: What is the proposed feature?
+      placeholder: "Describe the feature and what it should do..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Problem it solves
+      description: What problem does this feature solve, or why do you need it?
+      placeholder: "E.g., Currently X requires multiple manual steps, this feature would automate it..."
+    validations:
+      required: false
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Proposed solution (optional)
+      description: If you have an implementation idea (e.g., new database event type, new view), describe it here.
+    validations:
+      required: false
