@@ -1,8 +1,14 @@
-# 7BOW WGST Clan Management System
+<h1 align="center">7BOW WGST Clan Management System</h1>
 
-A minimalist, server-rendered clan ERP and management dashboard designed for a **War Thunder** and **Arma 3** gaming community. The system tracks member lifecycle history, community nicknames, core/section ranks, awards, and multi-platform account associations over time.
+A lightweight, server-rendered clan ERP and management dashboard designed for a **War Thunder** and **Arma 3** gaming community. The system tracks member lifecycle history, community nicknames, core/section ranks, awards, and multi-platform account associations over time.
 
----
+## Key Features
+
+- **Member Management:** Tracks community members, lifecycle events (joins, leaves, kicks), rank changes, awards, and statuses.
+- **Multi-Platform Accounts:** Distinguishes concepts of member identity from external platform and game accounts - supporting Discord, War Thunder, Arma 3 Units and Steam.
+- **History Trakcing:** Preserves historical records for anything that changes over time (nicknames, ranks, platform linkages and relations).
+- **Source Auditability:** Distinguishes manual administrative entries from automated data, with manual inputs taking priority.
+- **Role-Based Access:** Secure, role-restricted dashboard access tailored for Owners, Administrators, and Members.
 
 ## Tech Stack
 
@@ -12,9 +18,7 @@ A minimalist, server-rendered clan ERP and management dashboard designed for a *
 - **Database Driver:** `pg` (PostgreSQL running as a local Windows service)
 - **UI Framework:** Bootstrap 5 (loaded strictly via CDN)
 
----
-
-## Quick Start (Development)
+## Quick Start
 
 ### Prerequisites
 
@@ -44,27 +48,10 @@ A minimalist, server-rendered clan ERP and management dashboard designed for a *
 
    Access the dashboard at `http://localhost:3000`.
 
-4. **Type-check the codebase:**
-
-   ```cmd
-   bun x tsc --noEmit
-   ```
-
----
-
-## Core Philosophy & Principles
-
-- **Zero Bloat & SSR Native:** No heavy client-side frameworks (React, Vue, Vite) or build tools. Renders pure HTML on the server.
-- **Temporal Data Tracking:** Preserves historical states (nicknames, rank durations, membership lifecycle events) using time-bounded validity (`start_date` / `end_date`).
-- **Multi-Platform Architecture:** Separates core community identity from external platform accounts (Discord, War Thunder squadrons, Arma3Units, Steam).
-- **Auditability (`manual` vs `auto`):** Administrative manual inputs take precedence over automated bot data and are explicitly tagged to ensure source auditability.
-
----
-
-## Governance & Documentation
+## Documentation & Development
 
 AI-assisted and human contributions are governed by strict project standards:
 
-- **`AGENTS.md`** — Source of truth for AI assistants and technical standards.
-- **`REQUIREMENTS.md`** — Product requirements, domain concepts, and phasing.
-- **`CONTRIBUTING.md`** — Contribution rules and git workflow guidelines.
+- [`AGENTS.md`](./AGENTS.md) - Source of truth for AI assistants and technical standards.
+- [`REQUIREMENTS.md`](./REQUIREMENTS.md) - Product requirements, domain concepts, and phasing.
+- [`CONTRIBUTING.md`](/.github/CONTRIBUTING.md) - Contribution rules and git workflow guidelines.
