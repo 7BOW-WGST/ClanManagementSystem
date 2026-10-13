@@ -1,6 +1,6 @@
 {
   "name": "clanmanagementsystem",
-  "module": "index.ts",
+  "module": "src/index.tsx",
   "type": "module",
   "private": true,
   "scripts": {
