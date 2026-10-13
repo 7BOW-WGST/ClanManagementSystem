@@ -28,7 +28,7 @@ Create a local PostgreSQL database (e.g., `clan_management`) and copy `.env.exam
 
 ## Building and Validation
 
-Run the same checks as the CI pipelines before opening a pull request:
+Run the same check as the CI pipeline (`.github/workflows/ci.yml`) before opening a pull request:
 
 ```cmd
 bun run typecheck
