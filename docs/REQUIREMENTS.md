@@ -2,7 +2,7 @@
 
 A management system for a gaming clan, tracking members, their history and status, and the clan's structures, through a web dashboard. The clan is active in War Thunder and Arma 3, with a base "Multigaming" membership.
 
-This document covers product requirements and environment constraints only. The technical stack is deliberately out of scope. Resolved domain-model decisions and their rationale are recorded in [`docs/DECISIONS.md`](./docs/DECISIONS.md).
+This document covers product requirements and environment constraints only. The technical stack is deliberately out of scope. Resolved domain-model decisions and their rationale are recorded in [`DECISIONS.md`](./DECISIONS.md).
 
 ## 1. Users & Access
 
@@ -92,7 +92,7 @@ The system must eventually:
 
 ## 7. Open Questions
 
-Resolved decisions and their rationale live in [`docs/DECISIONS.md`](./docs/DECISIONS.md). Remaining open items:
+Resolved decisions and their rationale live in [`DECISIONS.md`](./DECISIONS.md). Remaining open items:
 
 - Account relation types: whether an `is_owner` flag is needed, and the final set of relation types.
 - Arma 3 qualifications and specializations (deferred).

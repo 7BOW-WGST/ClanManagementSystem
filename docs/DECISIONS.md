@@ -1,6 +1,6 @@
 # Clan Management System — Domain & Architecture Decisions
 
-This log records the domain-model and architecture decisions that resolve the open questions raised during the pre-implementation review. It accompanies [`REQUIREMENTS.md`](../REQUIREMENTS.md) (product scope) and [`AGENTS.md`](../AGENTS.md) (coding standards). Where this document is more specific, it takes precedence at implementation time; product scope remains in `REQUIREMENTS.md`.
+This log records the domain-model and architecture decisions that resolve the open questions raised during the pre-implementation review. It accompanies [`REQUIREMENTS.md`](./REQUIREMENTS.md) (product scope) and [`AGENTS.md`](../AGENTS.md) (coding standards). Where this document is more specific, it takes precedence at implementation time; product scope remains in `REQUIREMENTS.md`.
 
 **Status values:** `Accepted` (agreed, ready to implement), `Open` (undecided), `Superseded` (replaced by a later decision).
 
