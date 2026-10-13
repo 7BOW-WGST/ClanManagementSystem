@@ -1,0 +1,20 @@
+# Default line-ending behavior (prevents Windows/Linux conflicts)
+* text=auto eol=lf
+
+# Shell scripts and SQL stay LF
+*.sh text eol=lf
+*.sql text eol=lf
+
+# Windows scripts use CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary assets
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.woff binary
+*.woff2 binary
