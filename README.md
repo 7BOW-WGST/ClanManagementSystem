@@ -52,6 +52,6 @@ A lightweight, server-rendered clan ERP and management dashboard designed for a 
 
 AI-assisted and human contributions are governed by strict project standards:
 
-- [`AGENTS.md`](./AGENTS.md) - Source of truth for AI assistants and technical standards.
+- [`AGENTS.md`](./AGENTS.md) - Source of truth for coding standards, serving AI assistants and human contributors.
 - [`REQUIREMENTS.md`](./REQUIREMENTS.md) - Product requirements, domain concepts, and phasing.
-- [`CONTRIBUTING.md`](/.github/CONTRIBUTING.md) - Contribution rules and git workflow guidelines.
+- [`CONTRIBUTING.md`](./.github/CONTRIBUTING.md) - Contribution rules and git workflow guidelines.
