@@ -12,7 +12,7 @@ A lightweight, server-rendered clan ERP and management dashboard designed for a 
 
 ## Tech Stack
 
-- **Runtime & Package Manager:** [Bun](https://bun.sh/)
+- **Runtime & Package Manager:** [Bun](https://bun.sh/) (>= 1.4)
 - **Web Framework:** [Hono](https://hono.dev/) (Server-Side Rendering via Hono JSX)
 - **Database Query Builder:** [Kysely](https://kysely.dev/)
 - **Database Driver:** `pg` (PostgreSQL running as a local Windows service)
@@ -22,7 +22,7 @@ A lightweight, server-rendered clan ERP and management dashboard designed for a 
 
 ### Prerequisites
 
-- Installed **Bun** runtime
+- Installed **Bun** runtime (>= 1.4)
 - Active local **PostgreSQL** instance (e.g. database `clan_management`)
 
 ### Step-by-Step
