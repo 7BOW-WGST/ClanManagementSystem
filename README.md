@@ -26,7 +26,7 @@ A minimalist, server-rendered clan ERP and management dashboard designed for a *
 1. **Clone the repository:**
 
    ```cmd
-   git clone [https://github.com/7BOW-WGST/ClanManagementSystem](https://github.com/7BOW-WGST/ClanManagementSystem)
+   git clone https://github.com/7BOW-WGST/ClanManagementSystem
    cd ClanManagementSystem
    ```
 
