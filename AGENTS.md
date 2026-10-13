@@ -1,6 +1,6 @@
 # AI-Assisted Coding Standards
 
-The Clan Management System is a **minimalist, native-first, modular management platform for a gaming clan** built with **Bun, Hono JSX (SSR), Kysely, PostgreSQL**, and **Bootstrap 5 (CDN)** running directly on a local Windows environment. It tracks each member's history, status, and activity, and the clan's overall statistics, through a web dashboard.
+The Clan Management System is a **lightweight, native-first, modular management platform for a gaming clan** built with **Bun, Hono JSX (SSR), Kysely, PostgreSQL**, and **Bootstrap 5 (CDN)**. It is developed locally on Windows and deployed to a dedicated production server accessible via the internet. It tracks each member's history, status, and activity, and the clan's overall statistics, through a web dashboard.
 
 Key Domain Requirements:
 
