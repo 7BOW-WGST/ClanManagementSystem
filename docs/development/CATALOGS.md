@@ -45,7 +45,7 @@ Ascending within each corps.
 | 24 | Podpułkownik | Officer |
 | 25 | Pułkownik | Officer |
 
-### Attributes
+### Rank attributes
 
 `name`, `corps` (`enlisted` | `nco` | `warrant` | `officer`), `order`, `is_appointed`.
 
@@ -68,7 +68,7 @@ Ascending within each corps.
 
 ## Awards
 
-### Attributes
+### Award attributes
 
 `name`, `category`, `tier_group`, `tier_level`, `requirement`, `max_per_member`, `requires_reason`.
 
@@ -77,9 +77,10 @@ Ascending within each corps.
 - `requires_reason = true` means the admin must enter a reason for each grant.
 - All awards are revocable via an event and become re-grantable after revocation.
 
-### Definitions
+### Award definitions
 
 **Krzyże Zasługi** — each a separate award, no tiering, unlimited per member, reason required.
+
 | Award | Requirement |
 | --- | --- |
 | Złoty Krzyż Zasługi | Za wniesienie znacznego wkładu w rozwój brygady (najwyższa skala dokonanej rzeczy) |
@@ -87,6 +88,7 @@ Ascending within each corps.
 | Brązowy Krzyż Zasługi | Za wniesienie wkładu w rozwój brygady |
 
 **Krzyże okazjonalne** — each separate, max 1 per member, no reason; only Listopadowa is tiered.
+
 | Award | Tier | Requirement |
 | --- | --- | --- |
 | Krzyż Kampanii Listopadowej | 1 | Za znaczne przyczynienie się do zdobycia przez dywizjon 20. miejsca w rankingu w sezonie 2023-VI |
@@ -99,18 +101,21 @@ Ascending within each corps.
 | Odz. pamiątkowa "Meetup 2025" | — | Za udział w Meetupie 7BOW 2025 w Krakowie |
 
 **Za bitwy dywizjonowe** — each separate, unlimited per member, reason required.
+
 | Award | Requirement |
 | --- | --- |
 | Wojskowy Krzyż Zasługi | Za zniszczenie 8 maszyn przeciwnika w bitwie dywizjonowej przy pomocy maszyny naziemnej |
 | Lotniczy Krzyż Zasługi | Za zniszczenie 8 maszyn przeciwnika w bitwie dywizjonowej przy pomocy maszyny powietrznej |
 
 **Za wkład w sekcję Army** — each separate, max 1 per member, reason required.
+
 | Award | Requirement |
 | --- | --- |
 | Order Twórcy Misji 2023 | Za stworzenie najlepszych misji 2023 roku w jednej z 2 kategorii |
 | Order Twórcy Misji 2024 | Za stworzenie najlepszych misji 2024 roku w jednej z 2 kategorii |
 
 **Gwiazdy** — each separate, max 1 per member, no reason.
+
 | Award | Requirement |
 | --- | --- |
 | Gwiazda Lubonia | Za udział w bitwie o Luboń |
@@ -125,6 +130,7 @@ Ascending within each corps.
 | Gwiazda Hürtgen | Za udział w bitwie o Las Hürtgen |
 
 **Medale za długoletnią służbę** — tiered, max 1 per member (upgrade drops the lower degree), no reason.
+
 | Award | Tier | Requirement |
 | --- | --- | --- |
 | Medal za Długoletnią Służbę | Gold | Za 5 lat służby |
