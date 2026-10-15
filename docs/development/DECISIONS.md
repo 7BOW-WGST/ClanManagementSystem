@@ -17,10 +17,12 @@ All changes are recorded as append-only events, each with a single `event_date`;
 **Alternatives:** per-attribute time-bounded interval rows (rejected — ambiguous "no end date" semantics and complex in-place updates).
 
 ### H2 — Interval end bounds
-**Status:** Superseded — by H1/S1. Interval bounds apply only to suspensions.
+**Status:** Superseded
+Superseded by H1/S1. Interval bounds apply only to suspensions.
 
 ### H3 — Open vs unknown end date
-**Status:** Superseded — by H1. Derived end dates come from the next event in the stream; no stored end date outside suspensions.
+**Status:** Superseded
+Superseded by H1. Derived end dates come from the next event in the stream; no stored end date outside suspensions.
 
 ### H4 — Overlaps
 **Status:** Accepted
@@ -116,29 +118,36 @@ member lifecycle (join/leave/kick); member nickname; core rank; Arma 3 rank; vet
 ## 5. Change Auditing & Priority (A)
 
 ### A1 — Override granularity
-**Status:** Accepted — manual overrides apply at the field / derived-value level, not to whole entities.
+**Status:** Accepted
+Manual overrides apply at the field / derived-value level, not to whole entities.
 
 ### A2 — Manual priority
-**Status:** Accepted — manual values beat automated values until explicitly withdrawn (no expiry); see CS1 for the recency rule.
+**Status:** Accepted
+Manual values beat automated values until explicitly withdrawn (no expiry); see CS1 for the recency rule.
 
 ### A3 — Withdrawal
-**Status:** Accepted — withdrawing an override reverts to the retained automated value (V5).
+**Status:** Accepted
+Withdrawing an override reverts to the retained automated value (V5).
 
 ### A4 — Conflicting manual values
-**Status:** Accepted — latest `recorded_at` wins; both entries are retained (V3).
+**Status:** Accepted
+Latest `recorded_at` wins; both entries are retained (V3).
 
 ### A5 — Dashboard transparency
-**Status:** Accepted — the dashboard shows the effective value plus a "lower-priority source suppressed" indicator with a drill-down to suppressed data.
+**Status:** Accepted
+The dashboard shows the effective value plus a "lower-priority source suppressed" indicator with a drill-down to suppressed data.
 
 ### A6 — Audit fields
 **Status:** Accepted
 Records carry `source`, `created_by`, `recorded_at`, and (where applicable) `reason`; there is **no `supersedes_id`** (precedence in CS1 resolves versions). During the prototype, manual edits are attributed to the Owner.
 
 ### A7 — Automated updates
-**Status:** Accepted — newer automated values are appended and retained (V4); the effective value is the newest automated value unless a manual override exists.
+**Status:** Accepted
+Newer automated values are appended and retained (V4); the effective value is the newest automated value unless a manual override exists.
 
 ### A8 — Grant reasons
-**Status:** Accepted — a reason is required per grant for three categories only: **Krzyże Zasługi**, **Za wkład w sekcję Army**, and **Za bitwy dywizjonowe**.
+**Status:** Accepted
+A reason is required per grant for three categories only: **Krzyże Zasługi**, **Za wkład w sekcję Army**, and **Za bitwy dywizjonowe**.
 
 ---
 
@@ -159,36 +168,44 @@ A War Thunder account may have any number of `borrowed` links and at most one `m
 **Invalid:** main of A + alt of B; two `main` accounts for A.
 
 ### R4 — Provisional accounts
-**Status:** Accepted — accounts may exist without a known platform identifier (`platform_id` nullable) until identified.
+**Status:** Accepted
+Accounts may exist without a known platform identifier (`platform_id` nullable) until identified.
 
 ### R5 — Duplicate handling
-**Status:** Accepted — unique `(platform, platform_id)` when known; a new-account event attaches to the existing account. Provisional accounts may duplicate; an admin merge re-points events and retires the duplicate. Fuzzy auto-detection is deferred.
+**Status:** Accepted
+Unique `(platform, platform_id)` when known; a new-account event attaches to the existing account. Provisional accounts may duplicate; an admin merge re-points events and retires the duplicate. Fuzzy auto-detection is deferred.
 
 ### R6 — War Thunder membership derivation
 **Status:** Accepted
 A member's War Thunder membership derives from any active War Thunder account link with an active squadron membership event. Only `main`/`alt` links contribute — `borrowed` grants no membership. A member holds **one active squadron** at a time; if accounts disagree, the conflict is flagged and the most recent squadron event wins.
 
 ### R7 — No presence tracking
-**Status:** Accepted — Discord presence/activity is not tracked; members being on Discord is context only.
+**Status:** Accepted
+Discord presence/activity is not tracked; members being on Discord is context only.
 
 ### R8 — Discord and Steam membership
-**Status:** Accepted — group joins/leaves are events; Discord handle/ID and Steam name/steamID64 history are tracked.
+**Status:** Accepted
+Group joins/leaves are events; Discord handle/ID and Steam name/steamID64 history are tracked.
 
 ### R9 — Sharing scope
-**Status:** Accepted — sharing/`borrowed` is War Thunder-only; Discord, Steam, and Arma3Units accounts each belong to exactly one member.
+**Status:** Accepted
+Sharing/`borrowed` is War Thunder-only; Discord, Steam, and Arma3Units accounts each belong to exactly one member.
 
 ### R10 — Stable identifier vs name
-**Status:** Accepted — each account stores a stable, normalized `platform_id` (null when unknown) separately from its changeable display name.
+**Status:** Accepted
+Each account stores a stable, normalized `platform_id` (null when unknown) separately from its changeable display name.
 
 ### S — Sections
-**Status:** Accepted — Sections are Multigaming (core), War Thunder, and Arma 3. Section membership derives from membership events; leaving/being kicked **closes** section memberships (see M2) and rejoining requires a fresh section/squadron event.
+**Status:** Accepted
+Sections are Multigaming (core), War Thunder, and Arma 3. Section membership derives from membership events; leaving/being kicked **closes** section memberships (see M2) and rejoining requires a fresh section/squadron event.
 
 ---
 
 ## 7. Membership, Ranks & Statuses (M)
 
 ### M1 — Lifecycle events
-**Status:** Accepted — lifecycle events are join, leave, and kick. A rejoin is simply another join event.
+**Status:** Accepted
+Lifecycle events are join, leave, and kick. A rejoin is simply another join event.
 
 ### M2 — Leave/kick effects
 **Status:** Accepted
@@ -199,10 +216,12 @@ Leave/kick ends core derived state (core rank, veteran, core statuses) **and for
 Rejoining starts privileges from scratch. **Identity persists** (community nickname history and awards), and awards are never lost on leave. Non-member award recipients are modeled as **members** (the identity root), so awards always reference a member row.
 
 ### M4 — Veteran
-**Status:** Accepted — veteran is a special status, only possible for clan members; it ends on leave/kick and must be re-earned after rejoining.
+**Status:** Accepted
+Veteran is a special status, only possible for clan members; it ends on leave/kick and must be re-earned after rejoining.
 
 ### M5 — Special statuses
-**Status:** Accepted — multiple special statuses may coexist; currently **only veteran** exists. Suspension is not a special status (see S1).
+**Status:** Accepted
+Multiple special statuses may coexist; currently **only veteran** exists. Suspension is not a special status (see S1).
 
 ### M6 — Rank catalog and streams
 **Status:** Accepted
@@ -213,7 +232,8 @@ One shared rank catalog (attributes and ordering in [`CATALOGS.md`](./CATALOGS.m
 Awards are tied to the core member identity and have no section association. Awards may be separate/once-only or tiered, with a per-member limit (`max_per_member`: unlimited or 1). Tiered awards upgrade (the lower degree is dropped). Revocation is an event and is re-grantable. Definitions in [`CATALOGS.md`](./CATALOGS.md).
 
 ### M8 — Arma 3 qualifications
-**Status:** Open — qualification/specialization decisions are postponed to a later stage.
+**Status:** Open
+Qualification/specialization decisions are postponed to a later stage.
 
 ### S1 — Suspension
 **Status:** Accepted
@@ -224,60 +244,76 @@ Suspension is a section-scoped interval with a start date, a **nullable end date
 ## 8. Catalogs (C)
 
 ### C1 — Rank catalog
-**Status:** Accepted — one shared, seeded catalog (`name`, `corps`, `order`, `is_appointed`); no icons. Rules: officer ranks are appointed by the Pułkownik and not activity-driven; warrant ranks are non-linear; Elew must advance within 2 months (warning). Full list in [`CATALOGS.md`](./CATALOGS.md).
+**Status:** Accepted
+One shared, seeded catalog (`name`, `corps`, `order`, `is_appointed`); no icons. Rules: officer ranks are appointed by the Pułkownik and not activity-driven; warrant ranks are non-linear; Elew must advance within 2 months (warning). Full list in [`CATALOGS.md`](./CATALOGS.md).
 
 ### C2 — Award catalog
-**Status:** Accepted — one flat, seeded catalog (`name`, `category`, `tier_group`, `tier_level`, `requirement`, `max_per_member`, `requires_reason`). Categories and per-award limits/tiers/reason flags are in [`CATALOGS.md`](./CATALOGS.md); catalog changes are manual in Phase 1.
+**Status:** Accepted
+One flat, seeded catalog (`name`, `category`, `tier_group`, `tier_level`, `requirement`, `max_per_member`, `requires_reason`). Categories and per-award limits/tiers/reason flags are in [`CATALOGS.md`](./CATALOGS.md); catalog changes are manual in Phase 1.
 
 ---
 
 ## 9. Prototype & Access (X)
 
 ### X1 — Prototype scope
-**Status:** Accepted — Phase 1 is a local/controlled prototype. The role selector is **dev-only**: gated by an environment flag and stored server-side; it is unavailable in production.
+**Status:** Accepted
+Phase 1 is a local/controlled prototype. The role selector is **dev-only**: gated by an environment flag and stored server-side; it is unavailable in production.
 
 ### X2 — Authentication
-**Status:** Accepted — real authentication is a prerequisite before production / internet exposure.
+**Status:** Accepted
+Real authentication is a prerequisite before production / internet exposure.
 
 ### X3 — Member visibility
-**Status:** Accepted — members view clan-wide data read-only, excluding kick reasons, administrative notes, audit detail, and suppressed source data. Exclusions are enforced **in server responses**, not merely hidden in the UI.
+**Status:** Accepted
+Members view clan-wide data read-only, excluding kick reasons, administrative notes, audit detail, and suppressed source data. Exclusions are enforced **in server responses**, not merely hidden in the UI.
 
 ### X4 — Owner vs Administrator
-**Status:** Accepted — identical rights for now; a finer split is deferred.
+**Status:** Accepted
+Identical rights for now; a finer split is deferred.
 
 ### X5 — Server-side hardening
-**Status:** Accepted — server-side authorization (re-checked per module), form validation, and same-site/CSRF POST protection are non-negotiable.
+**Status:** Accepted
+Server-side authorization (re-checked per module), form validation, and same-site/CSRF POST protection are non-negotiable.
 
 ### X6 — Listen address
-**Status:** Accepted — the local prototype binds an explicit address (`127.0.0.1:3000`).
+**Status:** Accepted
+The local prototype binds an explicit address (`127.0.0.1:3000`).
 
 ---
 
 ## 10. Database, Operations & Concurrency (D)
 
 ### D1 — Keys and defaults
-**Status:** Accepted — `SERIAL` / `Generated<number>` primary keys; `source` NOT NULL default `manual`; natural unique keys where stable.
+**Status:** Accepted
+`SERIAL` / `Generated<number>` primary keys; `source` NOT NULL default `manual`; natural unique keys where stable.
 
 ### D2 — Retention
-**Status:** Accepted — soft-delete / retention for historical records; no cascading hard deletes.
+**Status:** Accepted
+Soft-delete / retention for historical records; no cascading hard deletes.
 
 ### D3 — Transactions
-**Status:** Accepted — multi-table mutations are wrapped in Kysely transactions.
+**Status:** Accepted
+Multi-table mutations are wrapped in Kysely transactions.
 
 ### D4 — Optimistic locking
-**Status:** Accepted — mutable/edit rows carry `updated_at`.
+**Status:** Accepted
+Mutable/edit rows carry `updated_at`.
 
 ### D5 — Migrations
-**Status:** Accepted — Kysely `Migrator` with timestamped migration files, run via a Bun script.
+**Status:** Accepted
+Kysely `Migrator` with timestamped migration files, run via a Bun script.
 
 ### D6 — Seed data
-**Status:** Accepted — sections, rank catalog, and award catalog are seeded via migration/script.
+**Status:** Accepted
+Sections, rank catalog, and award catalog are seeded via migration/script.
 
 ### D7 — Backups
-**Status:** Accepted — PostgreSQL `pg_dump`; restore steps are documented in the repo.
+**Status:** Accepted
+PostgreSQL `pg_dump`; restore steps are documented in the repo.
 
 ### D8 — Bot boundary
-**Status:** Accepted — the future bot writes only `source: auto`, never overwrites manual data, and deduplicates via natural keys / idempotency keys.
+**Status:** Accepted
+The future bot writes only `source: auto`, never overwrites manual data, and deduplicates via natural keys / idempotency keys.
 
 ### D9 — Concurrency enforcement
 **Status:** Accepted
@@ -288,13 +324,16 @@ Suspension is a section-scoped interval with a start date, a **nullable end date
 ## 11. Configuration & CI (E)
 
 ### E1 — Startup configuration
-**Status:** Accepted — validate `DATABASE_URL` at startup (fail fast); host/port from environment; handle DB errors; close the connection pool on exit.
+**Status:** Accepted
+Validate `DATABASE_URL` at startup (fail fast); host/port from environment; handle DB errors; close the connection pool on exit.
 
 ### E2 — Migration & seed scripts
-**Status:** Accepted — running migrations and seeding are repeatable and idempotent from a clean database.
+**Status:** Accepted
+Running migrations and seeding are repeatable and idempotent from a clean database.
 
 ### E3 — CI
-**Status:** Accepted — CI installs with `bun install --frozen-lockfile` and runs on **both Ubuntu and Windows**, matching the Windows deployment target.
+**Status:** Accepted
+CI installs with `bun install --frozen-lockfile` and runs on **both Ubuntu and Windows**, matching the Windows deployment target.
 
 ---
 
@@ -313,7 +352,8 @@ Implementation order:
 Acceptance criteria and scenario outcomes are in [`ACCEPTANCE.md`](./ACCEPTANCE.md).
 
 ### P2 — Versions
-**Status:** Accepted — Bun `>= 1.4`; PostgreSQL 18.
+**Status:** Accepted
+Bun `>= 1.4`; PostgreSQL 18.
 
 ---
 
