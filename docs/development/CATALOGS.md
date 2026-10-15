@@ -101,9 +101,9 @@ Arma 3 stream:
 
 | Award | Requirement |
 | --- | --- |
-| Złoty Krzyż Zasługi | Za wniesienie znacznego wkładu w rozwój brygady (najwyższa skala dokonanej rzeczy) |
-| Srebrny Krzyż Zasługi | Za wniesienie znacznego wkładu w rozwój brygady |
-| Brązowy Krzyż Zasługi | Za wniesienie wkładu w rozwój brygady |
+| Złoty Krzyż Zasługi | Za wniesienie znacznego wkładu w rozwój brygady (najwyższa skala) |
+| Srebrny Krzyż Zasługi | Za wniesienie znacznego wkładu w rozwój brygady (środkowa skala) |
+| Brązowy Krzyż Zasługi | Za wniesienie znacznego wkładu w rozwój brygady (najniższa skala) |
 
 **Krzyże okazjonalne** — each separate, max 1 per member, no reason; only Listopadowa is tiered.
 
