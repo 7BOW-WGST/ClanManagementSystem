@@ -1,0 +1,85 @@
+Odznaczenia są formą wyróżnienia pewnych osiągnięć lub wydarzeń. Ich kolor oparty jest na ich realnych odpowiednikach i nie wyznacza ich wagi względem innych odznaczeń.
+⠀
+:Blok:KRZYŻE ZASŁUGI
+Nadawane za wniesienie znacznego wkładu w rozwój brygady. Dostępne są w 3 stopniach, w zależności od skali dokonanej rzeczy.
+
+@🥇 Złoty Krzyż Zasługi   👤 ×1
+⠀⠀ODZNACZONY: @KKamilS
+@🥈 Srebrny Krzyż Zasługi   👤 ×1
+⠀⠀ODZNACZONY: @adresip
+@🥉 Brązowy Krzyż Zasługi   👤 ×1
+⠀⠀ODZNACZONY: @BercikV
+⠀
+:Blok:KRZYŻE OKAZJONALNE
+Unikatowe odznaczenia nadawane dla upamiętnienia specjalnych wydarzeń.
+
+@🎖️ Krzyż Kampanii Listopadowej   👤 ×28
+⠀⠀Za znaczne przyczynienie się do zdobycia przez dywizjon po raz pierwszy 20. miejsca w rankingu w sezonie 2023-VI
+@🎖️ Krzyż Kampanii Listopadowej   👤 ×18
+⠀⠀Za pomoc w zdobyciu przez dywizjon po raz pierwszy 20. miejsca w rankingu w sezonie 2023-VI
+@🎖️ Krzyż Kampanii Styczniowej   👤 ×24
+⠀⠀Za znaczne przyczynienie się do zdobycia przez dywizjon po raz pierwszy 50. miejsca w rankingu w sezonie 2022-I
+@🎖️ Krzyż Kampanii Sierpniowej   👤 ×12
+⠀⠀Za przyczynienie się do zdobycia przez dywizjon po raz pierwszy 100. miejsca w rankingu w sezonie 2020-IV
+@🎖️ Krzyż Turnieju PA3T 2023   👤 ×9
+⠀⠀Za udział w turnieju Polish Arma 3 Tournament 2023 jako część składu meczowego
+@🏅 Odz. pamiątkowa "Meetup 2023"   👤 ×13
+⠀⠀Za udział w Meetupie 7BOW 2023 w Poznaniu
+@🏅 Odz. pamiątkowa "Meetup 2024"   👤 ×23
+⠀⠀Za udział w Meetupie 7BOW 2024 w Warszawie
+@🏅 Odz. pamiątkowa "Meetup 2025"﻿   👤 ×0
+⠀⠀Za udział w Meetupie 7BOW 2025 w Krakowie
+⠀
+:Blok:ODZNACZENIA ZA BITWY DYWIZJONOWE
+Odznaczenia nadawane ze wyjątkowe wyniki w bitwach dywizjonowych.
+
+@🥉 Wojskowy Krzyż Zasługi   👤 ×0
+⠀⠀Za zniszczenie 8 maszyn przeciwnika w bitwie dywizjonowej przy pomocy maszyny naziemnej, możliwe do otrzymania 2 razy
+⠀⠀ODZNACZENI: -
+@🥈 Lotniczy Krzyż Zasługi   👤 ×3
+⠀⠀Za zniszczenie 8 maszyn przeciwnika w bitwie dywizjonowej przy pomocy maszyny powietrznej, możliwe do otrzymania 2 razy
+⠀⠀ODZNACZENI: @Kosiarz2037, @-S_Ä_S_İ_N-(Anty k*fola), @Kraws
+⠀
+:Blok:ODZNACZENIA ZA WKŁAD W SEKCJĘ ARMY
+Odznaczenia wyróżniające missionmakerów sekcji ArmA III.
+
+@🏅 Order Twórcy Misji 2023   👤 ×2
+⠀⠀Za stworzenie najlepszych misji 2023 roku w jednej z 2 kategorii
+⠀⠀ODZNACZENI: @Heajir (Maid-san), @Ventlej_PL
+@🏅 Order Twórcy Misji 2024   👤 ×2
+⠀⠀Za stworzenie najlepszych misji 2024 roku w jednej z 2 kategorii
+⠀⠀ODZNACZENI: @𝓡𝓞𝓝𝓘𝓥(𝓐𝓷𝓽𝔂 𝓴*𝓯𝓸𝓵𝓪), @Zbeszek
+⠀
+:Blok:GWIAZDY
+Upamiętniające udział w ważniejszych bitwach i kampaniach historycznych.
+
+@🥇 Gwiazda Lubonia   👤 ×7
+⠀⠀Za udział w bitwie o Luboń - pierwszej pancernej bitwie pół-historycznej, a zarazem pierwszym evencie w dywizjonie
+@🥇 Gwiazda Studzianek   👤 ×7
+⠀⠀Za udział w bitwie pod Studziankami - pierwszej pancernej bitwie historycznej - bazowanej na prawdziwej bitwie
+@🥇 Gwiazda Egiptu   👤 ×3
+⠀⠀Za udział w I bitwie pod El Alamein - pierwszej lotniczej bitwie historycznej
+@🥇 Gwiazda Tomaszowa   👤 ×11
+⠀⠀Za udział w bitwie pod Tomaszowem Lubelskim - z okazji 2. rocznicy powstania brygady
+@🥇 Gwiazda El Alamein   👤 ×11
+⠀⠀Za udział w II bitwie pod El Alamein - pierwszej bitwie na customowej mapie, z okazji 1. rocznicy powstania dywizjonu
+@🥇 Gwiazda Falaise   👤 ×19
+⠀⠀Za udział w kotle Falaise - z okazji 2. rocznicy powstania dywizjonu
+@🥇 Gwiazda Kurska   👤 ×18
+⠀⠀Za udział w Bitwie na łuku kurskim - z okazji 3. rocznicy powstania dywizjonu oraz pierwszym evencie organizowanym w HBG
+@🥇 Gwiazda Lipska   👤 ×11
+⠀⠀Za udział w bombardowaniu Lipska - pierwszej lotniczej bitwie historycznej na niestandardowym scenariuszu
+@🥇 Gwiazda Renu   👤 ×22
+⠀⠀Za udział w przekraczaniu Renu - z okazji 4. rocznicy powstania dywizjonu
+@🥇 Gwiazda Hürtgen﻿   👤 ×25
+⠀⠀Za udział w bitwie o Las Hürtgen - pierwszej bitwie w formacie międzyklanowym, z okazji 5. rocznicy powstania dywizjonu
+⠀
+:Blok:MEDALE ZA DŁUGOLETNIĄ SŁUŻBĘ
+Nadawane za długie członkostwo w brygadzie, dostępne w 3 stopniach, w zależności od długości.
+
+@🥇 Medal za Długoletnią Służbę   👤 ×8
+⠀⠀Za 5 lat służby
+@🥈 Medal za Długoletnią Służbę   👤 ×68
+⠀⠀Za 2 lata służby
+@🥉 Medal za Długoletnią Służbę   👤 ×41
+⠀⠀Za rok służby

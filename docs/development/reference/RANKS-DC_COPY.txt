@@ -1,0 +1,48 @@
+Awanse są w naszej brygadzie nadawane przede wszystkim za aktywność. Mowa tu zarówno o aktywności w grze i na Discordzie, udziale w bitwach dywizjonowych, jak i we wszelkiego rodzaju eventach przez nas organizowanych. Dodatkowo, brane pod uwagę są również umiejętności, czy w dużej mierze - zachowanie.
+⠀
+:Blok:KORPUS OFICERÓW
+Stopnie oficerskie są u nas stopniami dowódczymi. Oficerowie odpowiadają za zarządzanie brygadą i są jej głównymi reprezentantami. Nadawane są one za decyzją pułkownika i nie stanowią elementu ścieżki stopni związanych z aktywnością.
+
+:x306Pulkownik: @Pułkownik
+:x305Podpulkownik: @Podpułkownik
+:x304Major: @Major
+:x303Kapitan: @Kapitan
+:x302Porucznik: @Porucznik
+:x301Podporucznik: @Podporucznik
+
+:x300Podchorazy: @Podchorąży
+- Tytuł nadawany jest jako początkowy okres próbny, przed pełnoprawnym awansem do korpusu.
+⠀
+:Blok:KORPUS CHORĄŻYCH
+Stopnie chorążych mają za cel wyróżnić osoby najbardziej zaangażowane, wnoszące swój wkład w rozwój brygady, pomagające w jej prowadzeniu, czy organizacji wydarzeń i aktywności. Nie są one traktowane liniowo i mogą zostać nadane niezależnie od wcześniejszego stopnia.
+
+:x215StarszyChorazySztabowy: @Starszy Chorąży Sztabowy
+:x214ChorazySztabowy: @Chorąży Sztabowy
+:x212MlodszyChorazySztabowy: @Młodszy Chorąży Sztabowy
+:x211StarszyChorazy: @Starszy Chorąży
+:x210Chorazy: @Chorąży
+:x209MlodszyChorazy: @Młodszy Chorąży
+⠀
+:Blok:KORPUS PODOFICERÓW
+Stopnie podoficerskie przeznaczone są dla aktywniejszych spośród graczy. W ich przypadku samo granie w grę już nie wystarczy - podoficerowie są ludźmi zaangażowanymi w życie brygady i aktywnie w nim uczestniczącymi.
+
+:x208StarszySierzantSztabowy: @Starszy Sierżant Sztabowy
+:x207SierzantSztabowy: @Sierżant Sztabowy
+:x206StarszySierzant: @Starszy Sierżant
+:x205Sierzant: @Sierżant
+:x204StarszyPlutonowy: @Starszy Plutonowy
+:x203Plutonowy: @Plutonowy
+:x202StarszyKapral: @Starszy Kapral
+:x201Kapral: @Kapral
+⠀
+:Blok:KORPUS SZEREGOWYCH
+Stopnie szeregowe są pierwszymi, najniższymi z rang. Przeznaczone są dla osób mniej zaangażowanych lub dla tych, które nie są w brygadzie jeszcze na tyle długo, by móc przedostać się do następnego korpusu.
+
+:x103StarszySzeregowySpecjalista: @Starszy Szeregowy Specjalista¹
+:x102StarszySzeregowy: @Starszy Szeregowy
+:x101Szeregowy: @Szeregowy
+
+:x100Elew: @Elew
+- Jest to tytuł stanowiący u nas pierwszą rangę po dołączeniu. Nowi członkowie w ciągu 2 miesięcy muszą z niego awansować, aby pozostać w brygadzie.
+
+¹ - stopień ten nadawany jest osobom przez długi czas udzielającym się w brygadzie, jednak nie na tyle regularnie, by przejść do korpusu podoficerów.
