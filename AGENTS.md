@@ -6,7 +6,7 @@ This file is the **canonical source of truth** for coding standards in the Clan 
 
 - **Applies to:** AI-assisted and manual development across the whole repository.
 - **Precedence:** a direct user instruction > this file > [`CONTRIBUTING.md`](./.github/CONTRIBUTING.md) > general defaults.
-- **Out of scope:** product requirements and phasing live in [`REQUIREMENTS.md`](./docs/REQUIREMENTS.md); setup instructions live in [`README.md`](./README.md) and [`CONTRIBUTING.md`](./.github/CONTRIBUTING.md).
+- **Out of scope:** product requirements and phasing live in [`REQUIREMENTS.md`](./docs/development/REQUIREMENTS.md); setup instructions live in [`README.md`](./README.md) and [`CONTRIBUTING.md`](./.github/CONTRIBUTING.md).
 
 ---
 
@@ -14,7 +14,7 @@ This file is the **canonical source of truth** for coding standards in the Clan 
 
 The Clan Management System is a **lightweight, native-first, modular management platform for a gaming clan**, built with **Bun, Hono JSX (SSR), Kysely, PostgreSQL**, and **Bootstrap 5 (CDN)**. It is developed locally on Windows and deployed to a dedicated production server. It tracks each member's history, status, and activity, and the clan's overall statistics, through a web dashboard.
 
-Key domain requirements (see [`REQUIREMENTS.md`](./docs/REQUIREMENTS.md) for detail):
+Key domain requirements (see [`REQUIREMENTS.md`](./docs/development/REQUIREMENTS.md) for detail):
 
 - **Temporal Data (History Tracking):** tracks complex historical changes (e.g. nicknames, ranks, status changes with start/end dates).
 - **Multi-Platform Architecture:** distinguishes core member identity from external platforms: **Discord**, **War Thunder**, **Arma 3**, and **Steam**.

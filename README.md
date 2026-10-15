@@ -57,6 +57,10 @@ A lightweight, server-rendered clan ERP and management dashboard designed for a 
 AI-assisted and human contributions are governed by strict project standards:
 
 - [`AGENTS.md`](./AGENTS.md) - Source of truth for coding standards, serving AI assistants and human contributors.
-- [`REQUIREMENTS.md`](./docs/REQUIREMENTS.md) - Product requirements, domain concepts, and phasing.
-- [`docs/DECISIONS.md`](./docs/DECISIONS.md) - Resolved domain-model and architecture decisions.
+- [`docs/development/`](./docs/development) - Development documentation:
+  - [`REQUIREMENTS.md`](./docs/development/REQUIREMENTS.md) - Product requirements, domain concepts, and phasing.
+  - [`DECISIONS.md`](./docs/development/DECISIONS.md) - Domain-model and architecture decisions.
+  - [`DATA_MODEL.md`](./docs/development/DATA_MODEL.md) - Database design dictionary.
+  - [`CATALOGS.md`](./docs/development/CATALOGS.md) - Rank and award catalog definitions.
+  - [`ACCEPTANCE.md`](./docs/development/ACCEPTANCE.md) - Acceptance criteria and example histories.
 - [`CONTRIBUTING.md`](./.github/CONTRIBUTING.md) - Contribution rules and git workflow guidelines.
