@@ -54,7 +54,7 @@ The system must eventually:
 
 - **Membership lifecycle:** join, leave, kick (a rejoin is simply another join). Leave/kick ends core state and closes all section memberships; rejoining requires a fresh section/squadron event.
 - **Nickname history:** member's community nickname over time, recorded as change events.
-- **Ranks & Promotions:** core rank drawn from a shared rank catalog; promotion and demotion are recorded as events (a demotion is a new event, never an edit). Arma 3 uses the same catalog but an independent rank stream (§4.2).
+- **Ranks & Promotions:** core rank drawn from a shared rank catalog; promotion and demotion are recorded as events (a demotion is a new event, never an edit). Arma 3 uses the same catalog but an independent rank stream (§4.2). In the core ranks, Starszy Szeregowy Specjalista is an optional, usually-skipped step for long-serving but irregular members.
 - **Orders/decorations:** pool of awards and member award history. Awards are always tied to the core member identity (non-member recipients are recorded as members), persist across leave, and may be repeatable, once-only, or tiered (see [`CATALOGS.md`](./CATALOGS.md)).
 - **Special statuses:** veteran (members only; ends on leave and must be re-earned). Suspension is a separate section-scoped, time-bounded record.
 
@@ -70,8 +70,8 @@ The system must eventually:
 - **Arma 3 Section:**
   - Section membership (derived from section membership events).
   - Arma3Units account link/name.
-  - Ranks use the shared catalog but an independent promotion stream (unrelated to core ranks).
-  - Specializations, instructor qualifications, and basic training status are deferred to a later stage.
+  - Ranks use the shared catalog but an independent promotion stream (unrelated to core ranks). Elew here means basic training is unfinished, and the member is auto-promoted to Szeregowy on completion; Starszy Szeregowy Specjalista is a normal rank.
+  - Specializations, instructor qualifications, and basic training tracking are deferred to a later stage.
 - **Steam Platform:**
   - Account name, steamID64.
   - Steam Group membership events.

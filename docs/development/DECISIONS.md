@@ -225,7 +225,7 @@ Multiple special statuses may coexist; currently **only veteran** exists. Suspen
 
 ### M6 — Rank catalog and streams
 **Status:** Accepted
-One shared rank catalog (attributes and ordering in [`CATALOGS.md`](./CATALOGS.md)). Core and Arma 3 sections use the same rank definitions but run **independent, unrelated promotion streams**. War Thunder has no separate rank catalog. Promotions/demotions are events; a demotion is a new event, never an edit.
+One shared rank catalog (attributes and ordering in [`CATALOGS.md`](./CATALOGS.md)). Core and Arma 3 sections use the same rank definitions but run **independent, unrelated promotion streams**; rank **behavior is stream-specific** and documented, not stored as rank attributes. War Thunder has no separate rank catalog. Promotions may **skip ranks** (no adjacency requirement); promotions/demotions are events (a demotion is a new event, never an edit). The catalog is **append-only** (ranks added over time, never removed or renamed); `introduced_at` supports validation/display.
 
 ### M7 — Awards
 **Status:** Accepted
@@ -245,11 +245,11 @@ Suspension is a section-scoped interval with a start date, a **nullable end date
 
 ### C1 — Rank catalog
 **Status:** Accepted
-One shared, seeded catalog (`name`, `corps`, `order`, `is_appointed`); no icons. Rules: officer ranks are appointed by the Pułkownik and not activity-driven; warrant ranks are non-linear; Elew must advance within 2 months (warning). Full list in [`CATALOGS.md`](./CATALOGS.md).
+One shared, seeded catalog (`name`, `corps`, `order`, `introduced_at`); no icons. Officer-ness derives from `corps = officer` (no `is_appointed`). Behavior is stream-specific: **core** — officer ranks appointed by the Pułkownik and not activity-driven, warrant ranks non-linear, Elew has the 2-month warning, Starszy Szeregowy Specjalista is an optional/usually-skipped step; **Arma 3** — Starszy Szeregowy Specjalista is normal and Elew auto-promotes to Szeregowy when basic training completes (automation deferred). Full list in [`CATALOGS.md`](./CATALOGS.md).
 
 ### C2 — Award catalog
 **Status:** Accepted
-One flat, seeded catalog (`name`, `category`, `tier_group`, `tier_level`, `requirement`, `max_per_member`, `requires_reason`). Categories and per-award limits/tiers/reason flags are in [`CATALOGS.md`](./CATALOGS.md); catalog changes are manual in Phase 1.
+One flat, seeded catalog (`name`, `category`, `tier_group`, `tier_level`, `requirement`, `max_per_member`, `requires_reason`, `introduced_at`). Categories and per-award limits/tiers/reason flags are in [`CATALOGS.md`](./CATALOGS.md); catalog changes are manual in Phase 1.
 
 ---
 

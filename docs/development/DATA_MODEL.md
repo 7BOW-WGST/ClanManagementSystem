@@ -68,7 +68,8 @@ Community nickname history.
 
 ### `ranks` (catalog)
 
-- `id` PK, `name`, `corps` (`enlisted` | `nco` | `warrant` | `officer`), `order`, `is_appointed` (bool)
+- `id` PK, `name`, `corps` (`enlisted` | `nco` | `warrant` | `officer`), `order`, `introduced_at` (nullable)
+- officer-ness derives from `corps = officer`; promotions may skip ranks (no adjacency requirement); the catalog is append-only
 
 ### `core_promotion_events`
 
@@ -120,7 +121,7 @@ Awards are tied to the core member identity and have **no section association**.
 
 ### `awards` (catalog)
 
-- `id` PK, `name`, `category`, `tier_group` (nullable), `tier_level` (nullable), `requirement`, `max_per_member` (nullable int; NULL = unlimited), `requires_reason` (bool)
+- `id` PK, `name`, `category`, `tier_group` (nullable), `tier_level` (nullable), `requirement`, `max_per_member` (nullable int; NULL = unlimited), `requires_reason` (bool), `introduced_at` (nullable)
 - definitions in [`CATALOGS.md`](./CATALOGS.md)
 
 ### `award_events`
