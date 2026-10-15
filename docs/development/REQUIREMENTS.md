@@ -52,10 +52,10 @@ The system must eventually:
 
 ### 4.1 Core Clan Member Identity
 
-- **Membership lifecycle:** join, leave, kick (a rejoin is simply another join). Leave/kick implicitly ends core state and marks section memberships inactive.
+- **Membership lifecycle:** join, leave, kick (a rejoin is simply another join). Leave/kick ends core state and closes all section memberships; rejoining requires a fresh section/squadron event.
 - **Nickname history:** member's community nickname over time, recorded as change events.
-- **Ranks & Promotions:** core rank; promotion and demotion are recorded as events (a demotion is a new event, never an edit).
-- **Orders/decorations:** pool of awards and member award history. Awards persist across leave and may be granted to non-members; they may be repeatable, once-only, or tiered.
+- **Ranks & Promotions:** core rank drawn from a shared rank catalog; promotion and demotion are recorded as events (a demotion is a new event, never an edit). Arma 3 uses the same catalog but an independent rank stream (§4.2).
+- **Orders/decorations:** pool of awards and member award history. Awards are always tied to the core member identity (non-member recipients are recorded as members), persist across leave, and may be repeatable, once-only, or tiered (see [`CATALOGS.md`](./CATALOGS.md)).
 - **Special statuses:** veteran (members only; ends on leave and must be re-earned). Suspension is a separate section-scoped, time-bounded record.
 
 ### 4.2 Platform Accounts & Sections
@@ -66,10 +66,11 @@ The system must eventually:
   - Game account names and previous nickname history.
   - Squadron membership events (7BOW, 7BOWs, 7BOWr).
   - Account relation (main, alt, borrowed).
+  - No separate War Thunder rank catalog (War Thunder uses the core ranks).
 - **Arma 3 Section:**
   - Section membership (derived from section membership events).
   - Arma3Units account link/name.
-  - Section-specific ranks and promotions (separate from core ranks).
+  - Ranks use the shared catalog but an independent promotion stream (unrelated to core ranks).
   - Specializations, instructor qualifications, and basic training status are deferred to a later stage.
 - **Steam Platform:**
   - Account name, steamID64.
@@ -79,11 +80,11 @@ The system must eventually:
 
 - **Event-based:** all changes are recorded as append-only events, each with a single event date; current state is derived from them. The only explicitly time-bounded record is a section suspension (start and end dates).
 - **Derived durations:** an event's effective end is the date of the next event of the same kind; no end dates are stored outside suspensions.
-- **Unknown/partial dates are allowed**; a missing or partial date represents unknown historical data.
+- **Unknown/partial dates are allowed** and carry an explicit precision (day/month/year/unknown); a day is never fabricated, and an undated event never becomes the current value.
 - **Same-day events** are ordered by insertion order; the latest supersedes.
 - **Backdating is allowed:** events keep both the date the change happened and the date it was recorded.
 - **Manual vs automated:** manual entries/corrections rank highest; automated data ranks below. Both are stored and **marked as manual or automated** (`source: manual` vs `auto`), remaining accessible for audit/troubleshooting. The dashboard shows the effective value and indicates when a lower-priority source is suppressed (manual wins).
-- **Audit:** records capture the source, author, timestamp, reason, and the superseded value.
+- **Audit:** records capture the source, author, and timestamp, plus a reason for grants and corrections that require one.
 
 ## 6. Data Entry
 
@@ -92,12 +93,9 @@ The system must eventually:
 
 ## 7. Open Questions
 
-Resolved decisions and their rationale live in [`DECISIONS.md`](./DECISIONS.md). Remaining open items:
+Resolved decisions and their rationale live in [`DECISIONS.md`](./DECISIONS.md); catalog contents live in [`CATALOGS.md`](./CATALOGS.md). Remaining open items:
 
-- Account relation types: whether an `is_owner` flag is needed, and the final set of relation types.
 - Arma 3 qualifications and specializations (deferred).
-- Award catalog: the fixed list of awards/decorations, their requirements, and which are repeatable vs once-only vs tiered.
-- Special statuses: the complete list and their behavior (currently only veteran).
 - Activity/statistics and operations details (deferred to later phases).
 
 ## 8. Out of Scope
