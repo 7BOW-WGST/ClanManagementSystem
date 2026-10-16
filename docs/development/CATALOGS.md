@@ -117,6 +117,7 @@ Arma 3 stream:
 | Odz. pamiątkowa "Meetup 2023" | — | Za udział w Meetupie 7BOW 2023 w Poznaniu |
 | Odz. pamiątkowa "Meetup 2024" | — | Za udział w Meetupie 7BOW 2024 w Warszawie |
 | Odz. pamiątkowa "Meetup 2025" | — | Za udział w Meetupie 7BOW 2025 w Krakowie |
+| Odz. pamiątkowa "Meetup 2026" | — | Za udział w Meetupie 7BOW 2026 w Gdańsku |
 
 **Za bitwy dywizjonowe** — each separate, unlimited per member, reason required.
 
@@ -146,6 +147,7 @@ Arma 3 stream:
 | Gwiazda Lipska | Za udział w bombardowaniu Lipska |
 | Gwiazda Renu | Za udział w przekraczaniu Renu |
 | Gwiazda Hürtgen | Za udział w bitwie o Las Hürtgen |
+| Gwiazda Witebska | Za udział w bitwie pod Witebskiem |
 
 **Medale za długoletnią służbę** — tiered, max 1 per member (upgrade drops the lower degree), no reason.
 
