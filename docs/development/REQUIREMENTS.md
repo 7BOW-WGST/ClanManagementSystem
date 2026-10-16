@@ -83,7 +83,7 @@ The system must eventually:
 - **Unknown/partial dates are allowed** and carry an explicit precision (day/month/year/unknown); a day is never fabricated, and an undated event never becomes the current value.
 - **Same-day events** are ordered by insertion order; the latest supersedes.
 - **Backdating is allowed:** events keep both the date the change happened and the date it was recorded.
-- **Manual vs automated:** manual entries/corrections rank highest; automated data ranks below. Both are stored and **marked as manual or automated** (`source: manual` vs `auto`), remaining accessible for audit/troubleshooting. The dashboard shows the effective value and indicates when a lower-priority source is suppressed (manual wins).
+- **Manual vs automated:** manual and automated entries are both historical events; the effective value follows chronology, and `manual` wins only when competing at the same date. Both are stored and **marked as manual or automated** (`source: manual` vs `auto`), remaining accessible for audit/troubleshooting. The dashboard shows the effective value and indicates when a lower-priority same-date source is suppressed.
 - **Audit:** records capture the source, author, and timestamp, plus a reason for grants and corrections that require one.
 
 ## 6. Data Entry
