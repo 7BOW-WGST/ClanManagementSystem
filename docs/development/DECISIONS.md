@@ -31,21 +31,18 @@ Overlap constraints apply only to suspensions; overlapping suspensions for the s
 
 ### H5 — Same-day ordering
 **Status:** Accepted
-Multiple events on the same date are ordered by insertion (`recorded_at`, then `id`); the later one wins.
+Multiple events on the same date are ordered by insertion (`recorded_at`); the later one wins.
 
 ### H6 — Backdating
 **Status:** Accepted
 Events store `event_date` (real-world) separately from `recorded_at` (system). A backdated event is inserted as-is; derived state recomputes on read. Ordering is validated and contradictions are flagged for admin review, not blocked.
 **Rationale:** with event sourcing, backdating is a pure insert; nothing needs rewriting.
 
-### H7 — Revision and priority variants
+### H7 — Revision and priority
 **Status:** Accepted
-- **V1** auto → add manual: manual wins, automated value retained.
-- **V2** manual → edit manual: newest wins, old value discarded (a correction).
-- **V3** manual → add manual: newest wins, old value retained (new information).
-- **V4** auto → auto append: newest automated value is appended and retained.
-- **V5** manual → withdraw: override removed, retained automated value becomes effective again.
-- Date-only and value fixes are treated as **V2 corrections**; no history is preserved for clerical-error fixes.
+Every change is an event; there is no persistent override. Two variants matter:
+- **Add** (manual or automated): append the event; earlier events remain. CS1 decides the effective value.
+- **Correction**: fix a mistaken value via MO1 — an in-place update, or a soft-delete + re-add. No history is kept for clerical fixes.
 **Alternatives:** fully immutable audit of every edit (rejected — overkill for clerical fixes).
 
 ### H8 — Validity vs recorded dates
@@ -54,7 +51,14 @@ Every event keeps `event_date` (real-world) and `recorded_at` (system), plus `so
 
 ### H9 — Partial and unknown dates
 **Status:** Accepted
-`event_date` is stored with an `event_date_precision` of `day` | `month` | `year` | `unknown`; a day is never fabricated (e.g. unknown days are not coerced to the first of the month). An event with `unknown` precision is displayed as undated and is **excluded from determining current state**, so an undated old entry can never look current. Events with a `future` event date are rejected. `event_date` is a calendar date (no timezone); `recorded_at` is stored in **UTC**. An "as-of date" view is deferred.
+`event_date` is stored as a canonical `DATE` (nullable) plus an `event_date_precision` of `day` | `month` | `year` | `unknown`. For `month`/`year` the canonical value is the first day of the period; that day is never displayed or treated as precise — a day is never fabricated.
+- **Comparison:** events are ordered by canonical `event_date`; precision does not affect ordering (ties resolved by CS1).
+- **Unknown:** an event with `unknown` precision is displayed as undated and is **excluded from determining current state**, so it can never look current.
+- **Undated-only stream:** if a stream has no dated events, current state falls back to the latest `recorded_at`, flagged as date-unknown.
+- **Future:** events dated later than the server-local "today" are rejected.
+- `event_date` is a calendar date; `recorded_at` is UTC. "Today" uses the server-local timezone (`Europe/Warsaw`).
+- Precision applies to other historical dates: `created_event_date`, suspension `start_date`/`end_date`; `introduced_at` is year precision.
+- An "as-of date" view is deferred.
 
 ### H10 — Per-domain event tables
 **Status:** Accepted
@@ -73,11 +77,12 @@ Current state is computed from events on read; no materialized snapshots in Phas
 ### CS1 — Deterministic precedence
 **Status:** Accepted
 For any derived value, the effective record is chosen in this order:
-1. Exclude soft-deleted / withdrawn records.
+1. Exclude soft-deleted records.
 2. Latest `event_date` wins.
 3. On the same date, `manual` outranks `auto`.
-4. Still tied: later `recorded_at`, then `id`.
-**Consequence:** an older manual entry (e.g. a backfilled 2020 nickname) does **not** become current over newer reality (a 2025 nickname); manual only wins at equal recency. `A2` is read accordingly.
+4. Still tied: later `recorded_at`.
+**Consequence:** an older manual entry (e.g. a backfilled 2020 nickname) does **not** become current over newer reality (a 2025 nickname); manual wins only at equal recency. Manual and automated entries are ordinary historical events — there is no persistent override.
+**Note:** cross-table same-day ordering relies on `recorded_at` (UTC); two events sharing the exact same timestamp are non-deterministic (accepted for now).
 
 ### CS2 — Timestamp naming
 **Status:** Accepted
@@ -89,16 +94,15 @@ Insert time is `recorded_at` everywhere; edits use `updated_at`. The earlier `cr
 
 ### MO1 — Mutation taxonomy
 **Status:** Accepted
-Exactly five mutation operations are allowed, each with defined persistence:
+Exactly four mutation operations are allowed, each with defined persistence:
 - **Create event** — append; prior records remain.
 - **Correct value** — in-place update, no history (clerical fixes only).
-- **Withdraw override** — remove/disable the manual value; the retained automated value resurfaces.
 - **Soft-delete entry** — set `deleted_at` + reason; retained for audit, excluded from derivation.
 - **Merge accounts** — re-point events to the canonical account, write a merge-audit row, soft-delete the duplicate.
 
 ### MO2 — Append-only scope
 **Status:** Accepted
-"Append-only" applies to reality events. MO1's correct/withdraw/soft-delete/merge are the only bounded exceptions. D2 retention covers reality records and soft-deletes, not clerical corrections.
+"Append-only" applies to reality events. MO1's correct/soft-delete/merge are the only bounded exceptions. D2 retention covers reality records and soft-deletes, not clerical corrections.
 
 ---
 
@@ -111,39 +115,39 @@ member lifecycle (join/leave/kick); member nickname; core rank; Arma 3 rank; vet
 
 ### ES2 — Closing rule
 **Status:** Accepted
-"End = next event in the same stream" applies **per stream only**. Repeatable awards are **per-instance streams**: a re-grant does not close a prior grant; a revocation closes a specific instance.
+"End = next event in the same stream" applies **per stream only**. Repeatable awards are **per-instance streams**: a re-grant does not close a prior grant; a revocation or upgrade targets a specific grant via `target_event_id` (see M7).
 
 ---
 
 ## 5. Change Auditing & Priority (A)
 
-### A1 — Override granularity
+### A1 — Granularity
 **Status:** Accepted
-Manual overrides apply at the field / derived-value level, not to whole entities.
+Values are evented per stream; the effective value is decided per field/stream, not per whole entity.
 
 ### A2 — Manual priority
 **Status:** Accepted
-Manual values beat automated values until explicitly withdrawn (no expiry); see CS1 for the recency rule.
+Manual and automated entries are peers in the same event stream. `manual` only outranks `auto` as a same-date tie-break (CS1); there is no persistent or expiry-free override.
 
 ### A3 — Withdrawal
-**Status:** Accepted
-Withdrawing an override reverts to the retained automated value (V5).
+**Status:** Superseded
+Superseded by the historical-event-only model (CS1/A2): there is no persistent override to withdraw.
 
 ### A4 — Conflicting manual values
 **Status:** Accepted
-Latest `recorded_at` wins; both entries are retained (V3).
+Latest `recorded_at` wins; both entries are retained.
 
 ### A5 — Dashboard transparency
 **Status:** Accepted
-The dashboard shows the effective value plus a "lower-priority source suppressed" indicator with a drill-down to suppressed data.
+At a same-date tie, the dashboard shows the effective (manual) value plus a "lower-priority source suppressed" indicator with a drill-down to the suppressed record.
 
 ### A6 — Audit fields
 **Status:** Accepted
-Records carry `source`, `created_by`, `recorded_at`, and (where applicable) `reason`; there is **no `supersedes_id`** (precedence in CS1 resolves versions). During the prototype, manual edits are attributed to the Owner.
+Records carry `source`, `created_by`, `recorded_at`, and (where applicable) `reason`; there is **no `supersedes_id`** (CS1 resolves versions). Soft-deletable rows carry `deleted_at`; mutable rows carry `updated_at`. During the prototype `created_by` is the concrete value `owner`. A correction records its reason and author even though the previous value is not kept.
 
 ### A7 — Automated updates
 **Status:** Accepted
-Newer automated values are appended and retained (V4); the effective value is the newest automated value unless a manual override exists.
+Automated values are appended and retained; the effective value is decided solely by CS1 — there is no override that blocks a newer event.
 
 ### A8 — Grant reasons
 **Status:** Accepted
@@ -155,7 +159,7 @@ A reason is required per grant for three categories only: **Krzyże Zasługi**, 
 
 ### R1 — Relation is a link property
 **Status:** Accepted
-`main` / `alt` / `borrowed` describes the member → **War Thunder** account link, not the account itself. These relation types apply to War Thunder accounts only.
+Accounts of every platform can be linked to a member (see R11). `main` / `alt` / `borrowed` describes the member → **War Thunder** account link, not the account itself; these relation types apply to War Thunder accounts only.
 
 ### R2 — Relation type set
 **Status:** Accepted
@@ -195,6 +199,10 @@ Sharing/`borrowed` is War Thunder-only; Discord, Steam, and Arma3Units accounts 
 **Status:** Accepted
 Each account stores a stable, normalized `platform_id` (null when unknown) separately from its changeable display name.
 
+### R11 — Unified account linking
+**Status:** Accepted
+All four platforms use one `account_link_events` table. Each event has an `action` of `link` | `unlink` | `relation_change`; `relation` (`main`/`alt`/`borrowed`) is present for War Thunder only. Unlinking is an event, so history is preserved (accounts are never silently detached). The stream key is `(account_id, member_id)`, allowing multiple parallel `borrowed` links. Links are identity-scoped: they belong to the person and survive leaving the clan.
+
 ### S — Sections
 **Status:** Accepted
 Sections are Multigaming (core), War Thunder, and Arma 3. Section membership derives from membership events; leaving/being kicked **closes** section memberships (see M2) and rejoining requires a fresh section/squadron event.
@@ -209,11 +217,11 @@ Lifecycle events are join, leave, and kick. A rejoin is simply another join even
 
 ### M2 — Leave/kick effects
 **Status:** Accepted
-Leave/kick ends core derived state (core rank, veteran, core statuses) **and forces section memberships closed**. Rejoining requires a fresh section/squadron event; nothing is restored automatically.
+Leave/kick ends core derived state (core rank, veteran, core statuses), resets the Arma 3 rank, **closes section memberships**, and voids suspensions. Rejoining requires a fresh section/squadron event; nothing is restored automatically.
 
 ### M3 — Rejoin and identity
 **Status:** Accepted
-Rejoining starts privileges from scratch. **Identity persists** (community nickname history and awards), and awards are never lost on leave. Non-member award recipients are modeled as **members** (the identity root), so awards always reference a member row.
+Rejoining starts privileges from scratch. **Identity persists** (community nickname history, account links, and awards), and awards are never lost on leave. Non-member award recipients are modeled as **members** (the identity root), so awards always reference a member row.
 
 ### M4 — Veteran
 **Status:** Accepted
@@ -229,15 +237,19 @@ One shared rank catalog (attributes and ordering in [`CATALOGS.md`](./CATALOGS.m
 
 ### M7 — Awards
 **Status:** Accepted
-Awards are tied to the core member identity and have no section association. Awards may be separate/once-only or tiered, with a per-member limit (`max_per_member`: unlimited or 1). Tiered awards upgrade (the lower degree is dropped). Revocation is an event and is re-grantable. Definitions in [`CATALOGS.md`](./CATALOGS.md).
+Awards are tied to the core member identity and have no section association. Awards may be separate/once-only or tiered, with a per-member limit (`max_per_member`: unlimited or 1) and a per-tier-group limit (max one). Each `grant` event row **is** the award instance; a `revoke` or `upgrade` event carries `target_event_id` referencing the grant it applies to, and "active" is derived (a grant with no later revoke targeting it). Tiered upgrades create a higher-tier grant referencing the lower one, which is closed. Revocation is an event and is re-grantable. Definitions in [`CATALOGS.md`](./CATALOGS.md).
 
 ### M8 — Arma 3 qualifications
 **Status:** Open
 Qualification/specialization decisions are postponed to a later stage.
 
+### M9 — Join and reset scope
+**Status:** Accepted
+A join implies the entry core rank (Elew) by default; further promotions are explicit events (promotions may skip ranks). Leave/kick resets, for derived state: core rank, veteran, Arma 3 rank, section memberships, and suspensions (voided). Account links and identity persist. Section closure on leave is a **projection** effect — no synthetic section events are generated. A War Thunder account may remain in a squadron after the person leaves; the membership reset does not fabricate a squadron leave.
+
 ### S1 — Suspension
 **Status:** Accepted
-Suspension is a section-scoped interval with a start date, a **nullable end date** (null = ongoing/indefinite), reason, and source. Overlapping suspensions for the same member + section are disallowed, enforced by a DB constraint + transaction.
+Suspension is a section-scoped interval with a start date, a **nullable end date** (null = ongoing/indefinite), reason, and source. Start/end carry precision like any historical date. Overlapping suspensions for the same member + section are disallowed, enforced by a DB constraint + transaction.
 
 ---
 
@@ -318,6 +330,10 @@ The future bot writes only `source: auto`, never overwrites manual data, and ded
 ### D9 — Concurrency enforcement
 **Status:** Accepted
 `updated_at` alone cannot enforce set-level rules. The following are enforced inside transactions (with DB constraints/indexes where possible): one active `main`/`alt` per account, one `main` per member, award per-member limits, and no overlapping suspensions. Form-level validation is not sufficient.
+
+### D10 — Backfill vs constraints
+**Status:** Accepted
+Constraints that define current state (account exclusivity, award limits, suspension overlap) are enforced for the state they create. An event (backfill, correction, or merge) that would violate a constraint only in the **past** is accepted with a **warning** and surfaced in an admin conflict view (H6), not blocked. Validation evaluates the projection at the edited event's `event_date`. A blocking-vs-warning catalog is maintained in [`DATA_MODEL.md`](./DATA_MODEL.md).
 
 ---
 
