@@ -33,7 +33,7 @@ Key domain requirements (see [`REQUIREMENTS.md`](./docs/development/REQUIREMENTS
 
 ## 4. Tech Stack & Environment
 
-- **Runtime & Package Manager:** Bun (latest)
+- **Runtime & Package Manager:** Bun (>= 1.4)
 - **Web Framework:** Hono (using JSX for HTML SSR)
 - **Database Query Builder:** Kysely
 - **Database Driver:** `pg` (PostgreSQL running as a local Windows service)
@@ -70,7 +70,7 @@ Key domain requirements (see [`REQUIREMENTS.md`](./docs/development/REQUIREMENTS
 - **Database Types:** use Kysely's `Generated<T>` type for auto-incrementing primary keys (`SERIAL`).
 - **Naming Conventions:**
   - Database tables and columns: `snake_case`
-  - TypeScript interfaces and properties: `PascalCase` / `camelCase` matching table definitions.
+  - TypeScript interface names: `PascalCase`; interface property names: `snake_case`, matching the column names exactly (Kysely uses property names as column names — no implicit mapping or CamelCase plugin).
 
 ### 6.3 Hono & JSX
 
