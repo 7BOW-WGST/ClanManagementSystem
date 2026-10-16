@@ -44,13 +44,31 @@ A lightweight, server-rendered clan ERP and management dashboard designed for a 
 
    Copy `.env.example` to `.env` and set `DATABASE_URL` to match your local PostgreSQL instance.
 
-4. **Run the development server (Hot Reload):**
+4. **Prepare the database:**
 
    ```cmd
-   bun run --watch src/index.tsx
+   bun run migrate
+   bun run seed
    ```
 
-   > **Note:** the application is currently a scaffold. The Hono server, routes, and dashboard are not implemented yet.
+5. **Run the development server (Hot Reload):**
+
+   ```cmd
+   bun run dev
+   ```
+
+   Open `http://localhost:3000`. Use `bun run test` to run the test suite.
+
+### Scripts
+
+| Command | Purpose |
+| --- | --- |
+| `bun run dev` | Development server with hot reload |
+| `bun run start` | Start the server once |
+| `bun run migrate` | Apply database migrations |
+| `bun run seed` | Seed catalog data (sections) |
+| `bun run test` | Run tests (`bun:test`) |
+| `bun run typecheck` | Type-check the project |
 
 ## Documentation & Development
 
@@ -63,4 +81,5 @@ AI-assisted and human contributions are governed by strict project standards:
   - [`DATA_MODEL.md`](./docs/development/DATA_MODEL.md) - Database design dictionary.
   - [`CATALOGS.md`](./docs/development/CATALOGS.md) - Rank and award catalog definitions.
   - [`ACCEPTANCE.md`](./docs/development/ACCEPTANCE.md) - Acceptance criteria and example histories.
+  - [`ROADMAP.md`](./docs/development/ROADMAP.md) - Implementation milestones and vertical slices.
 - [`CONTRIBUTING.md`](./.github/CONTRIBUTING.md) - Contribution rules and git workflow guidelines.

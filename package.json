@@ -7,6 +7,11 @@
     "bun": ">=1.4.0"
   },
   "scripts": {
+    "dev": "bun run --watch src/index.tsx",
+    "start": "bun run src/index.tsx",
+    "migrate": "bun run src/migrate.ts",
+    "seed": "bun run src/seed.ts",
+    "test": "bun test",
     "typecheck": "bun x tsc --noEmit"
   },
   "devDependencies": {
