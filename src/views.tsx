@@ -1,6 +1,6 @@
 import type { FC, PropsWithChildren } from 'hono/jsx'
 import { formatEventDate } from './date'
-import type { MemberStatus, MemberSummary, NicknameEvent } from './members'
+import type { LifecycleEvent, MemberDetail, MemberStatus, MemberSummary, NicknameEvent } from './members'
 import type { Role } from './role'
 
 // Shared page shell (Bootstrap 5 via CDN).
@@ -46,6 +46,23 @@ function NicknameHistory(props: { events: NicknameEvent[] }) {
       {props.events.map((event) => (
         <li class="list-group-item">
           {event.nickname}{' '}
+          <span class="text-muted">({formatEventDate(event.event_date, event.event_date_precision)})</span>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+// Render the lifecycle history (or a placeholder when empty).
+function LifecycleHistory(props: { events: LifecycleEvent[] }) {
+  if (props.events.length === 0) {
+    return <p class="text-muted">No lifecycle events.</p>
+  }
+  return (
+    <ul class="list-group">
+      {props.events.map((event) => (
+        <li class="list-group-item">
+          {event.type}{' '}
           <span class="text-muted">({formatEventDate(event.event_date, event.event_date_precision)})</span>
         </li>
       ))}
@@ -113,5 +130,70 @@ export const MemberNewPage: FC<{ role: Role; error?: string; nickname?: string; 
         Create
       </button>
     </form>
+  </Layout>
+)
+
+// Member detail page: projected state, history, and event forms.
+export const MemberDetailPage: FC<{ role: Role; member: MemberDetail; error?: string }> = (props) => (
+  <Layout title={`Member #${props.member.id}`} role={props.role}>
+    <h1 class="h3">Member #{props.member.id}</h1>
+    <p>
+      Current nickname: <strong>{props.member.nickname ?? '—'}</strong> · Status: {statusBadge(props.member.status)}
+    </p>
+    {props.error ? <div class="alert alert-danger">{props.error}</div> : null}
+
+    <div class="row">
+      <div class="col-md-6">
+        <h2 class="h5">Add nickname</h2>
+        <form method="post" action={`/members/${props.member.id}/nickname`}>
+          <div class="mb-3">
+            <label class="form-label" for="nickname">
+              Nickname
+            </label>
+            <input class="form-control" id="nickname" name="nickname" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="nickname_date">
+              Date (blank = unknown)
+            </label>
+            <input class="form-control" id="nickname_date" name="event_date" />
+          </div>
+          <button class="btn btn-primary" type="submit">
+            Add
+          </button>
+        </form>
+
+        <h2 class="h5 mt-4">Nickname history</h2>
+        <NicknameHistory events={props.member.nicknames} />
+      </div>
+
+      <div class="col-md-6">
+        <h2 class="h5">Add lifecycle event</h2>
+        <form method="post" action={`/members/${props.member.id}/lifecycle`}>
+          <div class="mb-3">
+            <label class="form-label" for="type">
+              Type
+            </label>
+            <select class="form-select" id="type" name="type">
+              <option value="join">join</option>
+              <option value="leave">leave</option>
+              <option value="kick">kick</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="lifecycle_date">
+              Date (blank = unknown)
+            </label>
+            <input class="form-control" id="lifecycle_date" name="event_date" />
+          </div>
+          <button class="btn btn-primary" type="submit">
+            Add
+          </button>
+        </form>
+
+        <h2 class="h5 mt-4">Lifecycle history</h2>
+        <LifecycleHistory events={props.member.lifecycle} />
+      </div>
+    </div>
   </Layout>
 )

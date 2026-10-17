@@ -19,6 +19,14 @@ export interface MemberSummary {
   status: MemberStatus
 }
 
+export interface MemberDetail {
+  id: number
+  nickname: string | null
+  status: MemberStatus
+  nicknames: NicknameEvent[]
+  lifecycle: LifecycleEvent[]
+}
+
 // Type guard narrowing a string to a known lifecycle type.
 export function isLifecycleType(value: string | undefined): value is LifecycleType {
   return value !== undefined && lifecycleTypes.some((type) => type === value)
@@ -53,6 +61,44 @@ export async function listMembers(db: Kysely<Database>): Promise<MemberSummary[]
   }))
 }
 
+// Load a single member with its full nickname + lifecycle history, or undefined when not found.
+export async function getMemberDetail(db: Kysely<Database>, id: number): Promise<MemberDetail | undefined> {
+  const member = await db
+    .selectFrom('members')
+    .select('id')
+    .where('id', '=', id)
+    .where('deleted_at', 'is', null)
+    .executeTakeFirst()
+
+  if (!member) {
+    return undefined
+  }
+
+  const nicknames = await db
+    .selectFrom('member_nickname_events')
+    .selectAll()
+    .where('member_id', '=', id)
+    .orderBy('event_date', 'asc')
+    .orderBy('id', 'asc')
+    .execute()
+
+  const lifecycle = await db
+    .selectFrom('member_lifecycle_events')
+    .selectAll()
+    .where('member_id', '=', id)
+    .orderBy('event_date', 'asc')
+    .orderBy('id', 'asc')
+    .execute()
+
+  return {
+    id: member.id,
+    nickname: pickEffective(nicknames)?.nickname ?? null,
+    status: statusFromLifecycle(lifecycle),
+    nicknames,
+    lifecycle,
+  }
+}
+
 // Create a member (identity row) and, optionally, its first nickname event.
 export async function createMember(
   db: Kysely<Database>,
@@ -85,6 +131,22 @@ export async function addNicknameEvent(
     .values({
       member_id: input.memberId,
       nickname: input.nickname,
+      event_date: input.eventDate,
+      event_date_precision: input.precision,
+    })
+    .execute()
+}
+
+// Append a lifecycle event (join / leave / kick) to a member.
+export async function addLifecycleEvent(
+  db: Kysely<Database>,
+  input: { memberId: number; type: LifecycleType; eventDate: string | null; precision: EventDatePrecision },
+): Promise<void> {
+  await db
+    .insertInto('member_lifecycle_events')
+    .values({
+      member_id: input.memberId,
+      type: input.type,
       event_date: input.eventDate,
       event_date_precision: input.precision,
     })
