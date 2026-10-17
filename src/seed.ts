@@ -1,6 +1,7 @@
 import { closeDb, db } from './db'
 import { seedDatabase } from './seed-data'
 
+// Run seeding
 try {
   await seedDatabase(db)
   console.log('seed complete')

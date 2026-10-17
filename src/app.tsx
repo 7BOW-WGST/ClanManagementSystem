@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 
-export const app = new Hono()
+export const app = new Hono() // Create a new Hono application/router instance
 
 app.get('/', (c) =>
   c.html(
