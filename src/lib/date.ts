@@ -72,3 +72,15 @@ export function today(): string {
 export function isFutureDate(date: string): boolean {
   return date > today()
 }
+
+// Parse and validate an event-date form field, rejecting dates in the future.
+export function parseEventDateField(raw: string): ParsedDate {
+  const parsed = parsePartialDate(raw)
+  if (!parsed.ok) {
+    return parsed
+  }
+  if (parsed.date !== null && isFutureDate(parsed.date)) {
+    return { ok: false, error: 'Date cannot be in the future.' }
+  }
+  return parsed
+}

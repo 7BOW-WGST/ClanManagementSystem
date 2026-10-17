@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import { getDb } from '../db/client'
-import { isFutureDate, parsePartialDate, type ParsedDate } from '../lib/date'
+import { parseEventDateField } from '../lib/date'
 import { currentRole, requireRole } from '../lib/role'
 import { stringField } from '../lib/validation'
 import {
@@ -22,18 +22,6 @@ function parseId(raw: string | undefined): number | undefined {
   return Number.isInteger(id) && id > 0 ? id : undefined
 }
 
-// Parse and validate an event-date form field, rejecting future dates.
-function parseDateField(raw: string): ParsedDate {
-  const parsed = parsePartialDate(raw)
-  if (!parsed.ok) {
-    return parsed
-  }
-  if (parsed.date !== null && isFutureDate(parsed.date)) {
-    return { ok: false, error: 'Date cannot be in the future.' }
-  }
-  return parsed
-}
-
 // Members list.
 memberRoutes.get('/members', async (c) => {
   const members = await listMembers(getDb())
@@ -50,7 +38,7 @@ memberRoutes.post('/members', requireRole('owner', 'admin'), async (c) => {
   const body = await c.req.parseBody()
   const nickname = stringField(body, 'nickname')
   const dateRaw = stringField(body, 'nickname_date') ?? ''
-  const parsed = parseDateField(dateRaw)
+  const parsed = parseEventDateField(dateRaw)
 
   if (!parsed.ok) {
     return c.html(<MemberNewPage role={currentRole(c)} error={parsed.error} nickname={nickname} date={dateRaw} />, 400)
@@ -83,7 +71,7 @@ memberRoutes.post('/members/:id/nickname', requireRole('owner', 'admin'), async 
 
   const body = await c.req.parseBody()
   const nickname = stringField(body, 'nickname')
-  const parsed = parseDateField(stringField(body, 'event_date') ?? '')
+  const parsed = parseEventDateField(stringField(body, 'event_date') ?? '')
 
   if (!nickname) {
     return c.html(<MemberDetailPage role={currentRole(c)} member={member} error="Nickname is required." />, 400)
@@ -106,7 +94,7 @@ memberRoutes.post('/members/:id/lifecycle', requireRole('owner', 'admin'), async
 
   const body = await c.req.parseBody()
   const type = stringField(body, 'type')
-  const parsed = parseDateField(stringField(body, 'event_date') ?? '')
+  const parsed = parseEventDateField(stringField(body, 'event_date') ?? '')
 
   if (!isLifecycleType(type)) {
     return c.html(<MemberDetailPage role={currentRole(c)} member={member} error="Choose a lifecycle type." />, 400)

@@ -19,6 +19,34 @@ export interface Section {
   name: string
 }
 
+// External platforms a member can have an account on.
+export type Platform = 'discord' | 'warthunder' | 'arma3units' | 'steam'
+
+export interface Account {
+  id: Generated<number>
+  platform: Platform
+  platform_id: string | null
+  created_event_date: string | null
+  created_event_date_precision: EventDatePrecision | null
+  recorded_at: Generated<Date>
+  source: Generated<Source>
+  updated_at: Generated<Date>
+  deleted_at: Date | null
+}
+
+export interface AccountNameEvent {
+  id: Generated<number>
+  account_id: number
+  name: string
+  event_date: string | null
+  event_date_precision: EventDatePrecision
+  recorded_at: Generated<Date>
+  source: Generated<Source>
+  created_by: Generated<string>
+  reason: string | null
+  deleted_at: Date | null
+}
+
 export interface MemberNicknameEvent {
   id: Generated<number>
   member_id: number
@@ -50,4 +78,6 @@ export interface Database {
   sections: Section
   member_nickname_events: MemberNicknameEvent
   member_lifecycle_events: MemberLifecycleEvent
+  accounts: Account
+  account_name_events: AccountNameEvent
 }
