@@ -1,25 +1,29 @@
 import { Hono } from 'hono'
+import { setCookie } from 'hono/cookie'
+import { sameSiteGuard } from './middleware'
+import { isRole } from './role'
 
-export const app = new Hono() // Create a new Hono application/router instance
+// Create a new Hono application/router instance
+export const app = new Hono()
 
-app.get('/', (c) =>
-  c.html(
-    <html lang="en">
-      <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>Clan Management System</title>
-        <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        />
-      </head>
-      <body>
-        <main class="container py-4">
-          <h1 class="h3">Clan Management System</h1>
-          <p class="text-muted mb-0">Phase 1 skeleton. The members module comes next.</p>
-        </main>
-      </body>
-    </html>,
-  ),
-)
+// Apply shared middleware to every route.
+app.use('*', sameSiteGuard)
+
+// Health check (no database access).
+app.get('/health', (c) => c.text('ok'))
+
+// Home redirects to the members list.
+app.get('/', (c) => c.redirect('/members'))
+
+// Dev-only role switcher: sets the role cookie read by currentRole.
+app.get('/dev/role/:role', (c) => {
+  if (process.env.DEV_ROLE_SELECTOR !== 'true') {
+    return c.notFound()
+  }
+  const role = c.req.param('role')
+  if (!isRole(role)) {
+    return c.text('Unknown role', 400)
+  }
+  setCookie(c, 'role', role, { httpOnly: true, sameSite: 'Lax', path: '/' })
+  return c.redirect('/members')
+})
