@@ -26,7 +26,7 @@ Key domain requirements (see [`REQUIREMENTS.md`](./docs/development/REQUIREMENTS
 
 - **Zero Bloat & No Overengineering:** do not install new packages or external libraries unless explicitly instructed by the user. Rely on Bun's native APIs and existing packages.
 - **No Heavy Front-end Frameworks:** this is a **Server-Side Rendered (SSR)** application using **Hono JSX**. Do NOT introduce React, Vue, Svelte, Tailwind build tools, Vite, or client-side bundlers.
-- **Flat Project Structure:** keep the code base clean, simple, and flat inside `src/`. Avoid deeply nested directories or unnecessary abstraction layers (e.g. no `adapters/`, `factories/`, `use-cases/` for simple CRUD tasks).
+- **Shallow, Domain-Oriented Structure:** keep the code base simple and organized by domain inside `src/` (`src/db/`, `src/lib/`, and one folder per domain such as `src/members/`). Avoid deep nesting or unnecessary abstraction layers (e.g. no `adapters/`, `factories/`, `use-cases/` for simple CRUD tasks).
 - **Direct & Predictable:** code must be simple enough to be completely understood at a glance. No hidden framework "magic".
 
 ---
@@ -44,9 +44,16 @@ Key domain requirements (see [`REQUIREMENTS.md`](./docs/development/REQUIREMENTS
 
 ## 5. Project Structure
 
-- Everything core lives flat inside `src/`.
-- `src/index.tsx` — Hono application entry point (routes and server bootstrap).
-- `src/db.ts` — Kysely database interface and table types. Every database table must be declared here.
+Core code lives under `src/`, organized by domain with a small shared core:
+
+- `src/index.tsx` — Hono server bootstrap (starts the HTTP server).
+- `src/app.tsx` — Hono app creation, global middleware, and mounting of domain routers.
+- `src/config.ts` — environment configuration.
+- `src/db/` — database: `client.ts` (Kysely instance), `pg.ts`, `types.ts` (table interfaces), `migrations.ts` + `migrations/`, and the `migrate.ts` / `seed.ts` scripts.
+- `src/lib/` — shared helpers (`date.ts`, `projection.ts`, `validation.ts`, `role.ts`, `middleware.ts`, `layout.tsx`).
+- `src/<domain>/` — one folder per domain holding `data.ts`, `routes.tsx`, and `views.tsx` (e.g. `src/members/`).
+
+Every database table must have its interface declared in `src/db/types.ts`.
 
 ---
 
@@ -66,7 +73,7 @@ Key domain requirements (see [`REQUIREMENTS.md`](./docs/development/REQUIREMENTS
 ### 6.2 Database & Kysely
 
 - **Explicit Queries:** all PostgreSQL queries must be executed via the Kysely query builder. Do not write raw SQL string concatenations or introduce ORMs (e.g. Prisma, Drizzle).
-- **Schema Synchronization:** every database table must have its corresponding interface declared in `src/db.ts`.
+- **Schema Synchronization:** every database table must have its corresponding interface declared in `src/db/types.ts`.
 - **Database Types:** use Kysely's `Generated<T>` type for auto-incrementing primary keys (`SERIAL`).
 - **Naming Conventions:**
   - Database tables and columns: `snake_case`
@@ -112,7 +119,7 @@ When validating or running code, use these exact commands:
 ## 8. Agent Behavioral Guidelines
 
 1. **Strict Anti-Hallucination Policy:** never guess, assume, or fabricate database table names, column schemas, Kysely interface properties, API response shapes, or non-existent framework features.
-2. **Verify Before Proposing:** always double-check TypeScript syntax, types in `src/db.ts`, and imports against existing codebase conventions before outputting code.
+2. **Verify Before Proposing:** always double-check TypeScript syntax, types in `src/db/types.ts`, and imports against existing codebase conventions before outputting code.
 3. **Ask When Uncertain:** if precise data, schema definitions, or environment details are missing, or a rule cannot be met, ask the user directly for clarification instead of generating speculative code.
 4. **Surgical Changes:** make minimal, focused edits. Do not rewrite surrounding code or refactor unrelated logic unless asked.
 5. **Respect Environment Constraints:** the host system is Windows. Avoid assuming Linux-specific shell syntax (e.g. use PowerShell/CMD compatible commands when suggesting CLI operations).
@@ -125,7 +132,7 @@ When validating or running code, use these exact commands:
 | Always | Never |
 | --- | --- |
 | Use the Kysely query builder | Write raw SQL string concatenations, or add ORMs |
-| Declare every table in `src/db.ts` | Fabricate table/column/interface names |
+| Declare every table in `src/db/types.ts` | Fabricate table/column/interface names |
 | Use `Generated<T>` for `SERIAL` keys | Bypass types with `any` or `as unknown` |
 | Use type-only imports (`type X`) | Use uppercase JSX attributes |
 | Use native forms + `c.req.parseBody()` | Add React/Vue/Svelte/hooks or client bundlers |

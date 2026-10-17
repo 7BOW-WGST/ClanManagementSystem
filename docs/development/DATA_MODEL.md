@@ -1,6 +1,6 @@
 # Clan Management System — Data Model
 
-This is the design dictionary for the database. It is the reference for the Kysely interfaces in [`src/db.ts`](../../src/db.ts) and the source for migrations. Rationale for each rule lives in [`DECISIONS.md`](./DECISIONS.md); catalog contents live in [`CATALOGS.md`](./CATALOGS.md).
+This is the design dictionary for the database. It is the reference for the Kysely interfaces in [`src/db/types.ts`](../../src/db/types.ts) and the source for the migrations in `src/db/migrations/`. Rationale for each rule lives in [`DECISIONS.md`](./DECISIONS.md); catalog contents live in [`CATALOGS.md`](./CATALOGS.md).
 
 ## Conventions
 
