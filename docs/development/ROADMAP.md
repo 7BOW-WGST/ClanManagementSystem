@@ -35,10 +35,11 @@ This is the working plan for implementation. It turns the milestones in [`ACCEPT
 
 ### M1 — Members core (ACCEPTANCE Step 2)
 
-- **1.1 Members list + create** — list (empty state) and create form; server-side validation; dev role selector + `requireRole`.
-- **1.2 Membership lifecycle** — `member_lifecycle_events` (join/leave/kick); derive current status; member detail.
-- **1.3 Nickname history** — `member_nickname_events`; current nickname; timeline with date-precision input.
-- **1.4 Projection module** — CS1 + partial-date handling as a shared, unit-tested module (verification cases 1–2).
+- **1.0 Projection + date modules** — shared CS1 projection (`src/projection.ts`) and partial-date handling (`src/date.ts`); unit-tested (verification cases 1–2).
+- **1.1 Request infra** — dev role cookie (`/dev/role/:role`) + `currentRole`/`requireRole`, a same-site POST guard, and validation helpers.
+- **1.2 Members list + create** — `member_nickname_events` migration; list (empty state) and create form (identity + optional first nickname).
+- **1.3 Membership lifecycle + detail** — `member_lifecycle_events` (join/leave/kick); member detail with derived current status.
+- **1.4 Timeline + verification** — member timeline (nickname + lifecycle) and the case-1–2 tests.
 
 ### M2 — Accounts and linking (ACCEPTANCE Step 3)
 
@@ -72,8 +73,8 @@ This is the working plan for implementation. It turns the milestones in [`ACCEPT
 
 ## Verification backlog (mapped to slices)
 
-1. Manual/auto, event-date, correction variants → M1.4.
-2. Day/month/year/unknown dates, future rejection, undated-only fallback → M1.4.
+1. Manual/auto, event-date, correction variants → M1.0.
+2. Day/month/year/unknown dates, future rejection, undated-only fallback → M1.0.
 3. join → promotion → sections → leave/kick → rejoin (same-day) → M3.
 4. Backdated add/correction/soft-delete across the membership cycle → M4.2.
 5. Link/unlink per platform; `borrowed` grants no WT membership → M2.4.
