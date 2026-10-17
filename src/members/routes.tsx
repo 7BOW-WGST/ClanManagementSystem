@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
 import { getDb } from '../db/client'
+import { memberAccountViews, type MemberAccountView } from '../accounts/data'
 import { parseEventDateField } from '../lib/date'
 import { currentRole, requireRole } from '../lib/role'
 import { stringField } from '../lib/validation'
@@ -10,6 +11,7 @@ import {
   getMemberDetail,
   isLifecycleType,
   listMembers,
+  type MemberDetail,
 } from './data'
 import { MemberDetailPage, MemberListPage, MemberNewPage } from './views'
 
@@ -20,6 +22,19 @@ export const memberRoutes = new Hono()
 function parseId(raw: string | undefined): number | undefined {
   const id = Number(raw)
   return Number.isInteger(id) && id > 0 ? id : undefined
+}
+
+// Load a member detail plus the data its page needs.
+async function detailContext(
+  id: number,
+): Promise<{ member: MemberDetail; accounts: MemberAccountView[] } | undefined> {
+  const db = getDb()
+  const member = await getMemberDetail(db, id)
+  if (!member) {
+    return undefined
+  }
+  const accounts = await memberAccountViews(db, id)
+  return { member, accounts }
 }
 
 // Members list.
@@ -44,7 +59,11 @@ memberRoutes.post('/members', requireRole('owner', 'admin'), async (c) => {
     return c.html(<MemberNewPage role={currentRole(c)} error={parsed.error} nickname={nickname} date={dateRaw} />, 400)
   }
 
-  const id = await createMember(getDb(), { nickname: nickname ?? null, eventDate: parsed.date, precision: parsed.precision })
+  const id = await createMember(getDb(), {
+    nickname: nickname ?? null,
+    eventDate: parsed.date,
+    precision: parsed.precision,
+  })
   return c.redirect(`/members/${id}`)
 })
 
@@ -54,18 +73,18 @@ memberRoutes.get('/members/:id', async (c) => {
   if (id === undefined) {
     return c.notFound()
   }
-  const member = await getMemberDetail(getDb(), id)
-  if (!member) {
+  const context = await detailContext(id)
+  if (!context) {
     return c.notFound()
   }
-  return c.html(<MemberDetailPage role={currentRole(c)} member={member} />)
+  return c.html(<MemberDetailPage role={currentRole(c)} member={context.member} accounts={context.accounts} />)
 })
 
 // Add a nickname event to a member.
 memberRoutes.post('/members/:id/nickname', requireRole('owner', 'admin'), async (c) => {
   const id = parseId(c.req.param('id'))
-  const member = id === undefined ? undefined : await getMemberDetail(getDb(), id)
-  if (id === undefined || !member) {
+  const context = id === undefined ? undefined : await detailContext(id)
+  if (id === undefined || !context) {
     return c.notFound()
   }
 
@@ -74,10 +93,16 @@ memberRoutes.post('/members/:id/nickname', requireRole('owner', 'admin'), async 
   const parsed = parseEventDateField(stringField(body, 'event_date') ?? '')
 
   if (!nickname) {
-    return c.html(<MemberDetailPage role={currentRole(c)} member={member} error="Nickname is required." />, 400)
+    return c.html(
+      <MemberDetailPage role={currentRole(c)} member={context.member} accounts={context.accounts} error="Nickname is required." />,
+      400,
+    )
   }
   if (!parsed.ok) {
-    return c.html(<MemberDetailPage role={currentRole(c)} member={member} error={parsed.error} />, 400)
+    return c.html(
+      <MemberDetailPage role={currentRole(c)} member={context.member} accounts={context.accounts} error={parsed.error} />,
+      400,
+    )
   }
 
   await addNicknameEvent(getDb(), { memberId: id, nickname, eventDate: parsed.date, precision: parsed.precision })
@@ -87,8 +112,8 @@ memberRoutes.post('/members/:id/nickname', requireRole('owner', 'admin'), async 
 // Add a lifecycle event (join / leave / kick) to a member.
 memberRoutes.post('/members/:id/lifecycle', requireRole('owner', 'admin'), async (c) => {
   const id = parseId(c.req.param('id'))
-  const member = id === undefined ? undefined : await getMemberDetail(getDb(), id)
-  if (id === undefined || !member) {
+  const context = id === undefined ? undefined : await detailContext(id)
+  if (id === undefined || !context) {
     return c.notFound()
   }
 
@@ -97,10 +122,16 @@ memberRoutes.post('/members/:id/lifecycle', requireRole('owner', 'admin'), async
   const parsed = parseEventDateField(stringField(body, 'event_date') ?? '')
 
   if (!isLifecycleType(type)) {
-    return c.html(<MemberDetailPage role={currentRole(c)} member={member} error="Choose a lifecycle type." />, 400)
+    return c.html(
+      <MemberDetailPage role={currentRole(c)} member={context.member} accounts={context.accounts} error="Choose a lifecycle type." />,
+      400,
+    )
   }
   if (!parsed.ok) {
-    return c.html(<MemberDetailPage role={currentRole(c)} member={member} error={parsed.error} />, 400)
+    return c.html(
+      <MemberDetailPage role={currentRole(c)} member={context.member} accounts={context.accounts} error={parsed.error} />,
+      400,
+    )
   }
 
   await addLifecycleEvent(getDb(), { memberId: id, type, eventDate: parsed.date, precision: parsed.precision })

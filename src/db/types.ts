@@ -47,6 +47,27 @@ export interface AccountNameEvent {
   deleted_at: Date | null
 }
 
+// Actions on a member <-> account link stream.
+export type LinkAction = 'link' | 'unlink' | 'relation_change'
+
+// War Thunder account relation (see DECISIONS R2).
+export type Relation = 'main' | 'alt' | 'borrowed'
+
+export interface AccountLinkEvent {
+  id: Generated<number>
+  account_id: number
+  member_id: number
+  action: LinkAction
+  relation: Relation | null
+  event_date: string | null
+  event_date_precision: EventDatePrecision
+  recorded_at: Generated<Date>
+  source: Generated<Source>
+  created_by: Generated<string>
+  reason: string | null
+  deleted_at: Date | null
+}
+
 export interface MemberNicknameEvent {
   id: Generated<number>
   member_id: number
@@ -80,4 +101,5 @@ export interface Database {
   member_lifecycle_events: MemberLifecycleEvent
   accounts: Account
   account_name_events: AccountNameEvent
+  account_link_events: AccountLinkEvent
 }

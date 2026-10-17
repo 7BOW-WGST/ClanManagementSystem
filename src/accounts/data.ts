@@ -1,13 +1,26 @@
 import type { Kysely, Selectable } from 'kysely'
-import type { Account, AccountNameEvent, Database, EventDatePrecision, Platform } from '../db/types'
+import type {
+  Account,
+  AccountLinkEvent,
+  AccountNameEvent,
+  Database,
+  EventDatePrecision,
+  Platform,
+  Relation,
+} from '../db/types'
 import { pickEffective } from '../lib/projection'
+import { listMembers } from '../members/data'
 
 // The four external platforms an account can belong to.
 export const platforms = ['discord', 'warthunder', 'arma3units', 'steam'] as const
 
-// A stored account / name row (ids and defaults resolved by the database).
+// A stored account / name / link row (ids and defaults resolved by the database).
 export type AccountRow = Selectable<Account>
 export type AccountNameEventRow = Selectable<AccountNameEvent>
+export type AccountLinkEventRow = Selectable<AccountLinkEvent>
+
+// The set of War Thunder relations (see DECISIONS R2).
+export const relations = ['main', 'alt', 'borrowed'] as const
 
 export interface AccountSummary {
   id: number
@@ -26,9 +39,45 @@ export interface AccountDetail {
   names: AccountNameEventRow[]
 }
 
+// An active member <-> account link.
+export interface ActiveLink {
+  accountId: number
+  memberId: number
+  relation: Relation | null
+}
+
+// An active link of an account, with the member's display label.
+export interface AccountLinkView {
+  memberId: number
+  memberNickname: string | null
+  relation: Relation | null
+}
+
+// An active account of a member, with the account's display data.
+export interface MemberAccountView {
+  accountId: number
+  platform: Platform
+  platformId: string | null
+  name: string | null
+  relation: Relation | null
+}
+
+export interface LinkInput {
+  accountId: number
+  memberId: number
+  relation: Relation | null
+  eventDate: string | null
+  precision: EventDatePrecision
+}
+
 // Type guard narrowing a string to a known platform.
 export function isPlatform(value: string | undefined): value is Platform {
   return value !== undefined && platforms.some((platform) => platform === value)
+}
+
+// Type guard narrowing a string to a known War Thunder relation.
+export function isRelation(value: string | undefined): value is Relation {
+  return value !== undefined && relations.some((relation) => relation === value)
 }
 
 // Project the current display name from an account's name events.
@@ -82,11 +131,7 @@ export async function getAccountDetail(db: Kysely<Database>, id: number): Promis
 }
 
 // Check whether a (platform, platform_id) pair is already used by a live account.
-export async function platformIdTaken(
-  db: Kysely<Database>,
-  platform: Platform,
-  platformId: string,
-): Promise<boolean> {
+export async function platformIdTaken(db: Kysely<Database>, platform: Platform, platformId: string): Promise<boolean> {
   const existing = await db
     .selectFrom('accounts')
     .select('id')
@@ -151,4 +196,233 @@ export async function addAccountNameEvent(
       event_date_precision: input.precision,
     })
     .execute()
+}
+
+// Group link events by stream (account + member) and keep the active ones (latest action is not an unlink).
+function activeLinkStates(events: AccountLinkEventRow[]): ActiveLink[] {
+  const byStream = new Map<string, AccountLinkEventRow[]>()
+  for (const event of events) {
+    const key = `${event.account_id}:${event.member_id}`
+    const list = byStream.get(key) ?? []
+    list.push(event)
+    byStream.set(key, list)
+  }
+
+  const active: ActiveLink[] = []
+  for (const list of byStream.values()) {
+    const effective = pickEffective(list)
+    if (effective && effective.action !== 'unlink') {
+      active.push({ accountId: effective.account_id, memberId: effective.member_id, relation: effective.relation })
+    }
+  }
+  return active
+}
+
+// Active links of an account.
+export async function activeLinksForAccount(db: Kysely<Database>, accountId: number): Promise<ActiveLink[]> {
+  const events = await db.selectFrom('account_link_events').selectAll().where('account_id', '=', accountId).execute()
+  return activeLinkStates(events)
+}
+
+// Active links of a member (across all accounts).
+export async function activeLinksForMember(db: Kysely<Database>, memberId: number): Promise<ActiveLink[]> {
+  const events = await db.selectFrom('account_link_events').selectAll().where('member_id', '=', memberId).execute()
+  return activeLinkStates(events)
+}
+
+// Active links of an account with the member's current nickname.
+export async function accountLinkViews(db: Kysely<Database>, accountId: number): Promise<AccountLinkView[]> {
+  const links = await activeLinksForAccount(db, accountId)
+  const members = await listMembers(db)
+  const nicknameById = new Map(members.map((member) => [member.id, member.nickname]))
+
+  return links.map((link) => ({
+    memberId: link.memberId,
+    memberNickname: nicknameById.get(link.memberId) ?? null,
+    relation: link.relation,
+  }))
+}
+
+// Active accounts of a member with each account's display data.
+export async function memberAccountViews(db: Kysely<Database>, memberId: number): Promise<MemberAccountView[]> {
+  const links = await activeLinksForMember(db, memberId)
+  const accountIds = [...new Set(links.map((link) => link.accountId))]
+  if (accountIds.length === 0) {
+    return []
+  }
+
+  const accounts = await db
+    .selectFrom('accounts')
+    .selectAll()
+    .where('id', 'in', accountIds)
+    .where('deleted_at', 'is', null)
+    .execute()
+  const names = await db.selectFrom('account_name_events').selectAll().where('account_id', 'in', accountIds).execute()
+
+  return accounts.map((account) => ({
+    accountId: account.id,
+    platform: account.platform,
+    platformId: account.platform_id,
+    name: currentName(names.filter((row) => row.account_id === account.id)),
+    relation: links.find((link) => link.accountId === account.id)?.relation ?? null,
+  }))
+}
+
+// Validate a proposed relation against the constraints in R3/R9.
+async function relationError(
+  db: Kysely<Database>,
+  account: AccountRow,
+  memberId: number,
+  relation: Relation | null,
+): Promise<string | undefined> {
+  const isWarThunder = account.platform === 'warthunder'
+
+  if (!isWarThunder && relation !== null) {
+    return 'Relations apply to War Thunder accounts only.'
+  }
+  if (isWarThunder && relation === null) {
+    return 'Choose a War Thunder relation (main, alt or borrowed).'
+  }
+
+  // Non-War Thunder accounts may have at most one active member.
+  if (!isWarThunder) {
+    const links = await activeLinksForAccount(db, account.id)
+    if (links.some((link) => link.memberId !== memberId)) {
+      return 'This account is already linked to another member.'
+    }
+  }
+
+  // A War Thunder account may have at most one main/alt link.
+  if (relation === 'main' || relation === 'alt') {
+    const links = await activeLinksForAccount(db, account.id)
+    if (links.some((link) => link.memberId !== memberId && (link.relation === 'main' || link.relation === 'alt'))) {
+      return 'This account already has a main or alt relation.'
+    }
+  }
+
+  // A member may hold at most one main account.
+  if (relation === 'main') {
+    const links = await activeLinksForMember(db, memberId)
+    if (links.some((link) => link.accountId !== account.id && link.relation === 'main')) {
+      return 'This member already has a main account.'
+    }
+  }
+
+  return undefined
+}
+
+// Link an account to a member (transactional, with a row lock to serialize concurrent edits).
+export async function linkAccount(db: Kysely<Database>, input: LinkInput): Promise<string | undefined> {
+  return db.transaction().execute(async (trx) => {
+    const account = await trx
+      .selectFrom('accounts')
+      .selectAll()
+      .where('id', '=', input.accountId)
+      .where('deleted_at', 'is', null)
+      .forUpdate()
+      .executeTakeFirst()
+    if (!account) {
+      return 'Account not found.'
+    }
+    await trx.selectFrom('members').select('id').where('id', '=', input.memberId).forUpdate().executeTakeFirst()
+
+    const links = await activeLinksForAccount(trx, input.accountId)
+    if (links.some((link) => link.memberId === input.memberId)) {
+      return 'This member is already linked to the account.'
+    }
+
+    const error = await relationError(trx, account, input.memberId, input.relation)
+    if (error) {
+      return error
+    }
+
+    await trx
+      .insertInto('account_link_events')
+      .values({
+        account_id: input.accountId,
+        member_id: input.memberId,
+        action: 'link',
+        relation: input.relation,
+        event_date: input.eventDate,
+        event_date_precision: input.precision,
+      })
+      .execute()
+    return undefined
+  })
+}
+
+// Change the relation of an existing member link.
+export async function changeRelation(db: Kysely<Database>, input: LinkInput): Promise<string | undefined> {
+  return db.transaction().execute(async (trx) => {
+    const account = await trx
+      .selectFrom('accounts')
+      .selectAll()
+      .where('id', '=', input.accountId)
+      .where('deleted_at', 'is', null)
+      .forUpdate()
+      .executeTakeFirst()
+    if (!account) {
+      return 'Account not found.'
+    }
+
+    const links = await activeLinksForAccount(trx, input.accountId)
+    if (!links.some((link) => link.memberId === input.memberId)) {
+      return 'The member is not linked to the account.'
+    }
+
+    const error = await relationError(trx, account, input.memberId, input.relation)
+    if (error) {
+      return error
+    }
+
+    await trx
+      .insertInto('account_link_events')
+      .values({
+        account_id: input.accountId,
+        member_id: input.memberId,
+        action: 'relation_change',
+        relation: input.relation,
+        event_date: input.eventDate,
+        event_date_precision: input.precision,
+      })
+      .execute()
+    return undefined
+  })
+}
+
+// Unlink an account from a member (recorded as an event so history is preserved).
+export async function unlinkAccount(
+  db: Kysely<Database>,
+  input: { accountId: number; memberId: number; eventDate: string | null; precision: EventDatePrecision },
+): Promise<string | undefined> {
+  return db.transaction().execute(async (trx) => {
+    const account = await trx
+      .selectFrom('accounts')
+      .select('id')
+      .where('id', '=', input.accountId)
+      .where('deleted_at', 'is', null)
+      .forUpdate()
+      .executeTakeFirst()
+    if (!account) {
+      return 'Account not found.'
+    }
+
+    const links = await activeLinksForAccount(trx, input.accountId)
+    if (!links.some((link) => link.memberId === input.memberId)) {
+      return 'The member is not linked to the account.'
+    }
+
+    await trx
+      .insertInto('account_link_events')
+      .values({
+        account_id: input.accountId,
+        member_id: input.memberId,
+        action: 'unlink',
+        relation: null,
+        event_date: input.eventDate,
+        event_date_precision: input.precision,
+      })
+      .execute()
+    return undefined
+  })
 }

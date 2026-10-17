@@ -1,4 +1,5 @@
 import type { FC } from 'hono/jsx'
+import type { MemberAccountView } from '../accounts/data'
 import { formatEventDate } from '../lib/date'
 import { Layout } from '../lib/layout'
 import type { Role } from '../lib/role'
@@ -107,14 +108,31 @@ export const MemberNewPage: FC<{ role: Role; error?: string; nickname?: string; 
   </Layout>
 )
 
-// Member detail page: projected state, history, and event forms.
-export const MemberDetailPage: FC<{ role: Role; member: MemberDetail; error?: string }> = (props) => (
+// Member detail page: projected state, history, accounts, and event forms.
+export const MemberDetailPage: FC<{ role: Role; member: MemberDetail; accounts: MemberAccountView[]; error?: string }> = (props) => (
   <Layout title={`Member #${props.member.id}`} role={props.role}>
     <h1 class="h3">Member #{props.member.id}</h1>
     <p>
       Current nickname: <strong>{props.member.nickname ?? '—'}</strong> · Status: {statusBadge(props.member.status)}
     </p>
     {props.error ? <div class="alert alert-danger">{props.error}</div> : null}
+
+    <h2 class="h5 mt-4">Accounts</h2>
+    {props.accounts.length === 0 ? (
+      <p class="text-muted">No linked accounts.</p>
+    ) : (
+      <ul class="list-group">
+        {props.accounts.map((account) => (
+          <li class="list-group-item">
+            <a href={`/accounts/${account.accountId}`}>{account.platform}</a>{' '}
+            <span class="text-muted">
+              {account.platformId ?? '—'} · {account.name ?? '—'}
+              {account.relation ? ` · ${account.relation}` : ''}
+            </span>
+          </li>
+        ))}
+      </ul>
+    )}
 
     <div class="row">
       <div class="col-md-6">

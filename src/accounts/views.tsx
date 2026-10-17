@@ -2,20 +2,61 @@ import type { FC } from 'hono/jsx'
 import { formatEventDate } from '../lib/date'
 import { Layout } from '../lib/layout'
 import type { Role } from '../lib/role'
-import type { AccountDetail, AccountSummary } from './data'
-import { platforms } from './data'
+import type { MemberSummary } from '../members/data'
+import type { AccountDetail, AccountLinkView, AccountSummary } from './data'
+import { platforms, relations } from './data'
 
 // Render the display-name history (or a placeholder when empty).
-function NameHistory(props: { name: string; detail: AccountDetail }) {
-  if (props.detail.names.length === 0) {
+function NameHistory(props: { events: AccountDetail['names'] }) {
+  if (props.events.length === 0) {
     return <p class="text-muted">No name events.</p>
   }
   return (
     <ul class="list-group">
-      {props.detail.names.map((event) => (
+      {props.events.map((event) => (
         <li class="list-group-item">
           {event.name}{' '}
           <span class="text-muted">({formatEventDate(event.event_date, event.event_date_precision)})</span>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+// Render the active member links with relation/unlink actions.
+function MemberLinks(props: { account: AccountDetail; links: AccountLinkView[] }) {
+  if (props.links.length === 0) {
+    return <p class="text-muted">Not linked to any member.</p>
+  }
+  return (
+    <ul class="list-group">
+      {props.links.map((link) => (
+        <li class="list-group-item d-flex align-items-center gap-2">
+          <span>
+            {link.memberNickname ?? `Member #${link.memberId}`}
+            {link.relation ? <span class="text-muted"> · {link.relation}</span> : null}
+          </span>
+          {props.account.platform === 'warthunder' ? (
+            <form class="ms-auto d-flex gap-2" method="post" action={`/accounts/${props.account.id}/relation`}>
+              <input type="hidden" name="member_id" value={link.memberId} />
+              <select class="form-select form-select-sm" name="relation">
+                {relations.map((relation) => (
+                  <option value={relation} selected={link.relation === relation}>
+                    {relation}
+                  </option>
+                ))}
+              </select>
+              <button class="btn btn-sm btn-outline-secondary" type="submit">
+                Change
+              </button>
+            </form>
+          ) : null}
+          <form method="post" action={`/accounts/${props.account.id}/unlink`}>
+            <input type="hidden" name="member_id" value={link.memberId} />
+            <button class="btn btn-sm btn-outline-danger" type="submit">
+              Unlink
+            </button>
+          </form>
         </li>
       ))}
     </ul>
@@ -119,18 +160,61 @@ export const AccountNewPage: FC<{
   </Layout>
 )
 
-// Account detail page: identifiers, name history, and the add-name form.
-export const AccountDetailPage: FC<{ role: Role; account: AccountDetail; error?: string }> = (props) => (
+// Account detail page: identifiers, member links, name history, and forms.
+export const AccountDetailPage: FC<{
+  role: Role
+  account: AccountDetail
+  links: AccountLinkView[]
+  members: MemberSummary[]
+  error?: string
+}> = (props) => (
   <Layout title={`Account #${props.account.id}`} role={props.role}>
     <h1 class="h3">Account #{props.account.id}</h1>
     <p>
       Platform: <strong>{props.account.platform}</strong> · Identifier:{' '}
-      <strong>{props.account.platform_id ?? '—'}</strong> · Current name:{' '}
-      <strong>{props.account.name ?? '—'}</strong>
+      <strong>{props.account.platform_id ?? '—'}</strong> · Current name: <strong>{props.account.name ?? '—'}</strong>
     </p>
     {props.error ? <div class="alert alert-danger">{props.error}</div> : null}
 
-    <h2 class="h5">Add name</h2>
+    <h2 class="h5">Member links</h2>
+    <MemberLinks account={props.account} links={props.links} />
+
+    <h2 class="h5 mt-4">Link a member</h2>
+    <form method="post" action={`/accounts/${props.account.id}/link`}>
+      <div class="mb-3">
+        <label class="form-label" for="member_id">
+          Member
+        </label>
+        <select class="form-select" id="member_id" name="member_id">
+          {props.members.map((member) => (
+            <option value={member.id}>{member.nickname ?? `Member #${member.id}`}</option>
+          ))}
+        </select>
+      </div>
+      {props.account.platform === 'warthunder' ? (
+        <div class="mb-3">
+          <label class="form-label" for="relation">
+            Relation
+          </label>
+          <select class="form-select" id="relation" name="relation">
+            {relations.map((relation) => (
+              <option value={relation}>{relation}</option>
+            ))}
+          </select>
+        </div>
+      ) : null}
+      <div class="mb-3">
+        <label class="form-label" for="link_date">
+          Date (blank = unknown)
+        </label>
+        <input class="form-control" id="link_date" name="event_date" />
+      </div>
+      <button class="btn btn-primary" type="submit">
+        Link
+      </button>
+    </form>
+
+    <h2 class="h5 mt-4">Add name</h2>
     <form method="post" action={`/accounts/${props.account.id}/name`}>
       <div class="mb-3">
         <label class="form-label" for="name">
@@ -150,6 +234,6 @@ export const AccountDetailPage: FC<{ role: Role; account: AccountDetail; error?:
     </form>
 
     <h2 class="h5 mt-4">Name history</h2>
-    <NameHistory name={props.account.name ?? ''} detail={props.account} />
+    <NameHistory events={props.account.names} />
   </Layout>
 )
