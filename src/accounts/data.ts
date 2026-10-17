@@ -426,3 +426,108 @@ export async function unlinkAccount(
     return undefined
   })
 }
+
+// Derive the active links that would exist after merging the duplicate into the canonical account.
+async function mergedActiveLinks(
+  db: Kysely<Database>,
+  canonicalId: number,
+  duplicateId: number,
+): Promise<ActiveLink[]> {
+  const events = await db
+    .selectFrom('account_link_events')
+    .selectAll()
+    .where('account_id', 'in', [canonicalId, duplicateId])
+    .execute()
+  return activeLinkStates(events.map((event) => ({ ...event, account_id: canonicalId })))
+}
+
+// Check whether merging would violate the current-state relation constraints (R3/R9).
+async function mergeConflict(
+  db: Kysely<Database>,
+  canonical: AccountRow,
+  duplicateId: number,
+  links: ActiveLink[],
+): Promise<string | undefined> {
+  if (canonical.platform === 'warthunder') {
+    const mainAlt = links.filter((link) => link.relation === 'main' || link.relation === 'alt')
+    if (mainAlt.length > 1) {
+      return 'The merge would create more than one main/alt link on the account.'
+    }
+    for (const link of links.filter((candidate) => candidate.relation === 'main')) {
+      const memberLinks = await activeLinksForMember(db, link.memberId)
+      if (
+        memberLinks.some(
+          (candidate) =>
+            candidate.relation === 'main' && candidate.accountId !== canonical.id && candidate.accountId !== duplicateId,
+        )
+      ) {
+        return 'The merge would create a second main account for a member.'
+      }
+    }
+  } else if (links.length > 1) {
+    return 'The merge would link the account to more than one member.'
+  }
+
+  return undefined
+}
+
+// Merge a duplicate account into a canonical account: re-point history, retire the duplicate,
+// and record the merge. Blocked when it would violate current-state constraints.
+export async function mergeAccounts(
+  db: Kysely<Database>,
+  input: { canonicalId: number; duplicateId: number; reason: string | null },
+): Promise<string | undefined> {
+  if (input.canonicalId === input.duplicateId) {
+    return 'Choose two different accounts.'
+  }
+
+  return db.transaction().execute(async (trx) => {
+    // Lock both accounts in a stable order to avoid deadlocks.
+    const ids = [input.canonicalId, input.duplicateId].sort((a, b) => a - b)
+    const locked = await trx
+      .selectFrom('accounts')
+      .selectAll()
+      .where('id', 'in', ids)
+      .where('deleted_at', 'is', null)
+      .orderBy('id')
+      .forUpdate()
+      .execute()
+    if (locked.length !== 2) {
+      return 'Account not found.'
+    }
+    const canonical = locked.find((account) => account.id === input.canonicalId)
+    if (!canonical) {
+      return 'Account not found.'
+    }
+
+    const conflict = await mergeConflict(trx, canonical, input.duplicateId, await mergedActiveLinks(trx, input.canonicalId, input.duplicateId))
+    if (conflict) {
+      return conflict
+    }
+
+    // Re-point history to the canonical account.
+    await trx
+      .updateTable('account_name_events')
+      .set({ account_id: input.canonicalId })
+      .where('account_id', '=', input.duplicateId)
+      .execute()
+    await trx
+      .updateTable('account_link_events')
+      .set({ account_id: input.canonicalId })
+      .where('account_id', '=', input.duplicateId)
+      .execute()
+
+    // Retire the duplicate and record the merge.
+    await trx.updateTable('accounts').set({ deleted_at: new Date() }).where('id', '=', input.duplicateId).execute()
+    await trx
+      .insertInto('account_merge_audit')
+      .values({
+        canonical_account_id: input.canonicalId,
+        merged_account_id: input.duplicateId,
+        reason: input.reason,
+      })
+      .execute()
+
+    return undefined
+  })
+}

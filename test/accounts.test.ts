@@ -9,6 +9,7 @@ import {
   linkAccount,
   listAccounts,
   memberAccountViews,
+  mergeAccounts,
   platformIdTaken,
   unlinkAccount,
 } from '../src/accounts/data'
@@ -159,5 +160,32 @@ describe.skipIf(!dbConfigured)('accounts', () => {
 
     const links = await activeLinksForAccount(db, account)
     expect(links[0]?.relation).toBe('main')
+  })
+
+  test('merges a duplicate account and preserves its history', async () => {
+    await resetTestDb(db)
+    const canonical = await newAccount('steam', 'steam-1')
+    const duplicate = await newAccount('steam', 'steam-2')
+    await addAccountNameEvent(db, { accountId: canonical, name: 'Primary', eventDate: '2020-01-01', precision: 'day' })
+    await addAccountNameEvent(db, { accountId: duplicate, name: 'Duplicate', eventDate: '2021-01-01', precision: 'day' })
+
+    expect(await mergeAccounts(db, { canonicalId: canonical, duplicateId: duplicate, reason: 'same person' })).toBeUndefined()
+
+    const detail = await getAccountDetail(db, canonical)
+    expect(detail?.names).toHaveLength(2)
+    expect(detail?.name).toBe('Duplicate')
+    expect(await getAccountDetail(db, duplicate)).toBeUndefined()
+  })
+
+  test('blocks a merge that would create two main/alt links on one account', async () => {
+    await resetTestDb(db)
+    const canonical = await newAccount('warthunder', 'wt-6')
+    const duplicate = await newAccount('warthunder', 'wt-7')
+    const firstMember = await newMember('A')
+    const secondMember = await newMember('B')
+    await link(canonical, firstMember, 'alt')
+    await link(duplicate, secondMember, 'main')
+
+    expect(await mergeAccounts(db, { canonicalId: canonical, duplicateId: duplicate, reason: null })).toBeDefined()
   })
 })

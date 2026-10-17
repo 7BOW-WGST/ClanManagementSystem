@@ -68,6 +68,16 @@ export interface AccountLinkEvent {
   deleted_at: Date | null
 }
 
+export interface AccountMergeAudit {
+  id: Generated<number>
+  canonical_account_id: number
+  merged_account_id: number
+  reason: string | null
+  recorded_at: Generated<Date>
+  created_by: Generated<string>
+  source: Generated<Source>
+}
+
 export interface MemberNicknameEvent {
   id: Generated<number>
   member_id: number
@@ -102,4 +112,5 @@ export interface Database {
   accounts: Account
   account_name_events: AccountNameEvent
   account_link_events: AccountLinkEvent
+  account_merge_audit: AccountMergeAudit
 }

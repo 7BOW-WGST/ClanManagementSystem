@@ -6,6 +6,7 @@ import * as createMemberLifecycleEvents from './migrations/20260101000003_create
 import * as createAccounts from './migrations/20260101000004_create_accounts'
 import * as createAccountNameEvents from './migrations/20260101000005_create_account_name_events'
 import * as createAccountLinkEvents from './migrations/20260101000006_create_account_link_events'
+import * as createAccountMergeAudit from './migrations/20260101000007_create_account_merge_audit'
 
 const migrations: Record<string, Migration> = {
   '20260101000000_create_members': createMembers,
@@ -15,6 +16,7 @@ const migrations: Record<string, Migration> = {
   '20260101000004_create_accounts': createAccounts,
   '20260101000005_create_account_name_events': createAccountNameEvents,
   '20260101000006_create_account_link_events': createAccountLinkEvents,
+  '20260101000007_create_account_merge_audit': createAccountMergeAudit,
 }
 
 export const migrationProvider: MigrationProvider = {

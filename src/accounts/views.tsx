@@ -166,6 +166,7 @@ export const AccountDetailPage: FC<{
   account: AccountDetail
   links: AccountLinkView[]
   members: MemberSummary[]
+  others: AccountSummary[]
   error?: string
 }> = (props) => (
   <Layout title={`Account #${props.account.id}`} role={props.role}>
@@ -232,6 +233,35 @@ export const AccountDetailPage: FC<{
         Add
       </button>
     </form>
+
+    {props.others.length > 0 ? (
+      <div>
+        <h2 class="h5 mt-4">Merge another account into this one</h2>
+        <form method="post" action={`/accounts/${props.account.id}/merge`}>
+          <div class="mb-3">
+            <label class="form-label" for="duplicate_id">
+              Account to merge in
+            </label>
+            <select class="form-select" id="duplicate_id" name="duplicate_id">
+              {props.others.map((other) => (
+                <option value={other.id}>
+                  #{other.id} · {other.platform} · {other.name ?? other.platform_id ?? '—'}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="merge_reason">
+              Reason (optional)
+            </label>
+            <input class="form-control" id="merge_reason" name="reason" />
+          </div>
+          <button class="btn btn-outline-danger" type="submit">
+            Merge
+          </button>
+        </form>
+      </div>
+    ) : null}
 
     <h2 class="h5 mt-4">Name history</h2>
     <NameHistory events={props.account.names} />
