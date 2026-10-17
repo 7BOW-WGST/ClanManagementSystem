@@ -1,9 +1,9 @@
 import { Kysely, PostgresDialect, sql } from 'kysely'
 import { Migrator } from 'kysely/migration'
 import { Pool } from 'pg'
-import { migrationProvider } from '../src/migrations'
-import '../src/pg' // register the DATE type parser
-import type { Database } from '../src/types'
+import { migrationProvider } from '../src/db/migrations'
+import '../src/db/pg' // register the DATE type parser
+import type { Database } from '../src/db/types'
 
 // Helper functions for setting up and managing the test database
 function resolveTestUrl(): { url: string; database: string } {

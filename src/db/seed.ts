@@ -1,4 +1,4 @@
-import { closeDb, getDb } from './db'
+import { closeDb, getDb } from './client'
 import { seedDatabase } from './seed-data'
 
 try {

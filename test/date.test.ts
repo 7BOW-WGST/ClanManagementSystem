@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { formatEventDate, isFutureDate, parsePartialDate, today } from '../src/date'
+import { formatEventDate, isFutureDate, parsePartialDate, today } from '../src/lib/date'
 
 describe('parsePartialDate', () => {
   test('empty input means an unknown date', () => {

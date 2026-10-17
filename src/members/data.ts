@@ -1,6 +1,6 @@
 import type { Kysely, Selectable } from 'kysely'
-import { pickEffective } from './projection'
-import type { Database, EventDatePrecision, MemberLifecycleEvent, MemberNicknameEvent } from './types'
+import { pickEffective } from '../lib/projection'
+import type { Database, EventDatePrecision, MemberLifecycleEvent, MemberNicknameEvent } from '../db/types'
 
 // Derived membership status of a member.
 export type MemberStatus = 'active' | 'left' | 'kicked' | 'unknown'

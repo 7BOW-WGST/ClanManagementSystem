@@ -1,6 +1,6 @@
 import { app } from './app'
 import { getConfig } from './config'
-import { closeDb } from './db'
+import { closeDb } from './db/client'
 
 // Validate configuration up front so the server fails fast before binding a port.
 const config = getConfig()

@@ -1,4 +1,4 @@
-import type { EventDatePrecision } from './types'
+import type { EventDatePrecision } from '../db/types'
 
 // Minimal shape shared by every event record used for projection.
 export interface ProjectableRecord {

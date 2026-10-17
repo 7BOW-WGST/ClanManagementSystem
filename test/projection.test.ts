@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { pickEffective, type ProjectableRecord } from '../src/projection'
+import { pickEffective, type ProjectableRecord } from '../src/lib/projection'
 
 // Build a minimal projectable record for the tests.
 function record(overrides: Partial<ProjectableRecord> & { label: string }): ProjectableRecord & { label: string } {

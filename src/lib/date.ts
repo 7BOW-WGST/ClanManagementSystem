@@ -1,4 +1,4 @@
-import type { EventDatePrecision } from './types'
+import type { EventDatePrecision } from '../db/types'
 
 // Result of parsing a partial date field.
 export type ParsedDate =

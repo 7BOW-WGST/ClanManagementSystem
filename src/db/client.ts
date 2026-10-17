@@ -1,6 +1,6 @@
 import { Kysely, PostgresDialect } from 'kysely'
 import { Pool } from 'pg'
-import { getConfig } from './config'
+import { getConfig } from '../config'
 import './pg'
 import type { Database } from './types'
 

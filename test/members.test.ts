@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
 import type { Kysely } from 'kysely'
-import { addLifecycleEvent, addNicknameEvent, createMember, getMemberDetail, listMembers } from '../src/members'
-import type { Database } from '../src/types'
+import { addLifecycleEvent, addNicknameEvent, createMember, getMemberDetail, listMembers } from '../src/members/data'
+import type { Database } from '../src/db/types'
 import { createTestDb, resetTestDb } from './setup'
 
 const dbConfigured = Boolean(process.env.TEST_DATABASE_URL ?? process.env.DATABASE_URL)
