@@ -1,6 +1,9 @@
 import { app } from './app'
-import { config } from './config'
+import { getConfig } from './config'
 import { closeDb } from './db'
+
+// Validate configuration up front so the server fails fast before binding a port.
+const config = getConfig()
 
 // Start the Bun HTTP server
 const server = Bun.serve({

@@ -1,9 +1,8 @@
-import { closeDb, db } from './db'
+import { closeDb, getDb } from './db'
 import { seedDatabase } from './seed-data'
 
-// Run seeding
 try {
-  await seedDatabase(db)
+  await seedDatabase(getDb())
   console.log('seed complete')
 } catch (err) {
   console.error(err)

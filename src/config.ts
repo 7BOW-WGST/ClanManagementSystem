@@ -1,5 +1,12 @@
 // Validate environment variables before starting the application.
 
+export interface Config {
+  databaseUrl: string
+  host: string
+  port: number
+  devRoleSelector: boolean
+}
+
 // Validate the DATABASE_URL environment variable.
 function resolveDatabaseUrl(value: string | undefined): string {
   // Check if the value is undefined or empty.
@@ -35,10 +42,18 @@ function resolvePort(value: string | undefined): number {
   return port
 }
 
-// Export config object with validated environment variables.
-export const config = {
-  databaseUrl: resolveDatabaseUrl(process.env.DATABASE_URL),
-  host: process.env.HOST ?? '127.0.0.1',
-  port: resolvePort(process.env.PORT),
-  devRoleSelector: process.env.DEV_ROLE_SELECTOR === 'true',
-} as const
+let cachedConfig: Config | undefined
+
+// Build the config once and cache it. Throws on the first call when the environment is invalid,
+// so entry points (server, migrate, seed) fail fast without making the app un-importable in tests.
+export function getConfig(): Config {
+  if (!cachedConfig) {
+    cachedConfig = {
+      databaseUrl: resolveDatabaseUrl(process.env.DATABASE_URL),
+      host: process.env.HOST ?? '127.0.0.1',
+      port: resolvePort(process.env.PORT),
+      devRoleSelector: process.env.DEV_ROLE_SELECTOR === 'true',
+    }
+  }
+  return cachedConfig
+}

@@ -1,8 +1,8 @@
 import { Migrator } from 'kysely/migration'
-import { closeDb, db } from './db'
+import { closeDb, getDb } from './db'
 import { migrationProvider } from './migrations'
 
-const migrator = new Migrator({ db, provider: migrationProvider }) // Wire the migrator to the DB + provider
+const migrator = new Migrator({ db: getDb(), provider: migrationProvider }) // Wire the migrator to the DB + provider
 
 // Run the migrations
 try {
