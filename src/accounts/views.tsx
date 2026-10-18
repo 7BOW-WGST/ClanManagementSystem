@@ -1,6 +1,8 @@
 import type { FC } from 'hono/jsx'
+import { DateInput } from '../lib/date-input'
 import { formatEventDate } from '../lib/date'
 import { Layout } from '../lib/layout'
+import { Pager } from '../lib/pager'
 import type { Role } from '../lib/role'
 import type { MemberSummary } from '../members/data'
 import type { AccountDetail, AccountLinkView, AccountSummary } from './data'
@@ -51,7 +53,11 @@ function MemberLinks(props: { account: AccountDetail; links: AccountLinkView[] }
               </button>
             </form>
           ) : null}
-          <form method="post" action={`/accounts/${props.account.id}/unlink`}>
+          <form
+            method="post"
+            action={`/accounts/${props.account.id}/unlink`}
+            onsubmit="return confirm('Unlink this member from the account?')"
+          >
             <input type="hidden" name="member_id" value={link.memberId} />
             <button class="btn btn-sm btn-outline-danger" type="submit">
               Unlink
@@ -64,8 +70,8 @@ function MemberLinks(props: { account: AccountDetail; links: AccountLinkView[] }
 }
 
 // Accounts list page.
-export const AccountListPage: FC<{ role: Role; accounts: AccountSummary[] }> = (props) => (
-  <Layout title="Accounts" role={props.role}>
+export const AccountListPage: FC<{ role: Role; accounts: AccountSummary[]; page: number; totalPages: number; flash?: string }> = (props) => (
+  <Layout title="Accounts" role={props.role} flash={props.flash}>
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h1 class="h3 mb-0">Accounts</h1>
       <a class="btn btn-primary" href="/accounts/new">
@@ -100,20 +106,24 @@ export const AccountListPage: FC<{ role: Role; accounts: AccountSummary[] }> = (
         </tbody>
       </table>
     )}
+    <Pager page={props.page} totalPages={props.totalPages} basePath="/accounts" />
   </Layout>
 )
 
 // New account form.
 export const AccountNewPage: FC<{
   role: Role
+  flash?: string
   error?: string
   platform?: string
   platformId?: string
   name?: string
   nameDate?: string
+  nameDatePrecision?: string
   createdDate?: string
+  createdDatePrecision?: string
 }> = (props) => (
-  <Layout title="New account" role={props.role}>
+  <Layout title="New account" role={props.role} flash={props.flash}>
     <h1 class="h3">New account</h1>
     {props.error ? <div class="alert alert-danger">{props.error}</div> : null}
     <form method="post" action="/accounts">
@@ -141,18 +151,8 @@ export const AccountNewPage: FC<{
         </label>
         <input class="form-control" id="name" name="name" value={props.name ?? ''} />
       </div>
-      <div class="mb-3">
-        <label class="form-label" for="name_date">
-          Name date (YYYY, YYYY-MM or YYYY-MM-DD; blank = unknown)
-        </label>
-        <input class="form-control" id="name_date" name="name_date" value={props.nameDate ?? ''} />
-      </div>
-      <div class="mb-3">
-        <label class="form-label" for="created_date">
-          Account created date (optional)
-        </label>
-        <input class="form-control" id="created_date" name="created_date" value={props.createdDate ?? ''} />
-      </div>
+      <DateInput name="name_date" label="Name date" value={props.nameDate} precision={props.nameDatePrecision} />
+      <DateInput name="created_date" label="Account created date" value={props.createdDate} precision={props.createdDatePrecision} />
       <button class="btn btn-primary" type="submit">
         Create
       </button>
@@ -167,9 +167,10 @@ export const AccountDetailPage: FC<{
   links: AccountLinkView[]
   members: MemberSummary[]
   others: AccountSummary[]
+  flash?: string
   error?: string
 }> = (props) => (
-  <Layout title={`Account #${props.account.id}`} role={props.role}>
+  <Layout title={`Account #${props.account.id}`} role={props.role} flash={props.flash}>
     <h1 class="h3">Account #{props.account.id}</h1>
     <p>
       Platform: <strong>{props.account.platform}</strong> · Identifier:{' '}
@@ -204,12 +205,7 @@ export const AccountDetailPage: FC<{
           </select>
         </div>
       ) : null}
-      <div class="mb-3">
-        <label class="form-label" for="link_date">
-          Date (blank = unknown)
-        </label>
-        <input class="form-control" id="link_date" name="event_date" />
-      </div>
+      <DateInput name="event_date" />
       <button class="btn btn-primary" type="submit">
         Link
       </button>
@@ -223,12 +219,7 @@ export const AccountDetailPage: FC<{
         </label>
         <input class="form-control" id="name" name="name" />
       </div>
-      <div class="mb-3">
-        <label class="form-label" for="name_date">
-          Date (blank = unknown)
-        </label>
-        <input class="form-control" id="name_date" name="event_date" />
-      </div>
+      <DateInput name="event_date" />
       <button class="btn btn-primary" type="submit">
         Add
       </button>
@@ -237,7 +228,11 @@ export const AccountDetailPage: FC<{
     {props.others.length > 0 ? (
       <div>
         <h2 class="h5 mt-4">Merge another account into this one</h2>
-        <form method="post" action={`/accounts/${props.account.id}/merge`}>
+        <form
+          method="post"
+          action={`/accounts/${props.account.id}/merge`}
+          onsubmit="return confirm('Merge the selected account into this one? This cannot be undone.')"
+        >
           <div class="mb-3">
             <label class="form-label" for="duplicate_id">
               Account to merge in

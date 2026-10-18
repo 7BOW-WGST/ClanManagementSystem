@@ -48,6 +48,10 @@ This is the working plan for implementation. It turns the milestones in [`ACCEPT
 - **2.3 Account merge** — canonical selection, re-point events, `account_merge_audit`.
 - **2.4 Constraint tests** — integration tests (verification cases 5, 7, 8).
 
+### M2.5 — Web foundations
+
+- **Shared UI behaviors** — domain navigation in the layout, a no-JS date-precision input, list pagination, and cookie-based flash messages with confirm-on-destructive-actions; retrofitted onto the members and accounts screens.
+
 ### M3 — Sections, ranks, statuses, awards (ACCEPTANCE Step 4)
 
 - **3.1 Section membership** — sections + WT squadron membership events → derived section membership.

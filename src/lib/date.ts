@@ -84,3 +84,39 @@ export function parseEventDateField(raw: string): ParsedDate {
   }
   return parsed
 }
+
+// Parse a date value given an explicit precision, rejecting mismatches and future dates.
+export function parseDateInput(precision: string, value: string): ParsedDate {
+  if (precision === 'unknown') {
+    return { ok: true, date: null, precision: 'unknown' }
+  }
+
+  const trimmed = value.trim()
+  if (trimmed === '') {
+    return { ok: false, error: 'Enter a date or choose "unknown".' }
+  }
+
+  let matches = false
+  if (precision === 'year') {
+    matches = /^\d{4}$/.test(trimmed)
+  } else if (precision === 'month') {
+    matches = /^\d{4}-\d{2}$/.test(trimmed)
+  } else if (precision === 'day') {
+    matches = /^\d{4}-\d{2}-\d{2}$/.test(trimmed)
+  } else {
+    return { ok: false, error: 'Choose a date precision.' }
+  }
+
+  if (!matches) {
+    return { ok: false, error: 'Date does not match the chosen precision.' }
+  }
+
+  const parsed = parsePartialDate(trimmed)
+  if (!parsed.ok) {
+    return parsed
+  }
+  if (parsed.date !== null && isFutureDate(parsed.date)) {
+    return { ok: false, error: 'Date cannot be in the future.' }
+  }
+  return parsed
+}

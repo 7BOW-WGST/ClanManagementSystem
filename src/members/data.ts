@@ -1,6 +1,7 @@
 import type { Kysely, Selectable } from 'kysely'
-import { pickEffective } from '../lib/projection'
 import type { Database, EventDatePrecision, MemberLifecycleEvent, MemberNicknameEvent } from '../db/types'
+import type { ListOptions } from '../lib/pagination'
+import { pickEffective } from '../lib/projection'
 
 // Derived membership status of a member.
 export type MemberStatus = 'active' | 'left' | 'kicked' | 'unknown'
@@ -47,18 +48,41 @@ export function statusFromLifecycle(events: LifecycleEvent[]): MemberStatus {
   return 'kicked'
 }
 
-// List all members with their derived (projected) nickname and status. Events are fetched in
-// bulk to avoid a query per member (N+1).
-export async function listMembers(db: Kysely<Database>): Promise<MemberSummary[]> {
-  const members = await db.selectFrom('members').select('id').where('deleted_at', 'is', null).orderBy('id').execute()
-  const nicknames = await db.selectFrom('member_nickname_events').selectAll().execute()
-  const lifecycle = await db.selectFrom('member_lifecycle_events').selectAll().execute()
+// List members with their derived (projected) nickname and status. Events for the listed page are
+// fetched in bulk to avoid a query per member (N+1).
+export async function listMembers(db: Kysely<Database>, options: ListOptions = {}): Promise<MemberSummary[]> {
+  const members = await db
+    .selectFrom('members')
+    .select('id')
+    .where('deleted_at', 'is', null)
+    .orderBy('id')
+    .limit(options.limit ?? null)
+    .offset(options.offset ?? 0)
+    .execute()
+
+  if (members.length === 0) {
+    return []
+  }
+
+  const ids = members.map((member) => member.id)
+  const nicknames = await db.selectFrom('member_nickname_events').selectAll().where('member_id', 'in', ids).execute()
+  const lifecycle = await db.selectFrom('member_lifecycle_events').selectAll().where('member_id', 'in', ids).execute()
 
   return members.map((member) => ({
     id: member.id,
     nickname: pickEffective(nicknames.filter((row) => row.member_id === member.id))?.nickname ?? null,
     status: statusFromLifecycle(lifecycle.filter((row) => row.member_id === member.id)),
   }))
+}
+
+// Count live members (for pagination).
+export async function countMembers(db: Kysely<Database>): Promise<number> {
+  const row = await db
+    .selectFrom('members')
+    .select((eb) => eb.fn.countAll().as('count'))
+    .where('deleted_at', 'is', null)
+    .executeTakeFirstOrThrow()
+  return Number(row.count)
 }
 
 // Load a single member with its full nickname + lifecycle history, or undefined when not found.

@@ -8,6 +8,7 @@ import type {
   Platform,
   Relation,
 } from '../db/types'
+import type { ListOptions } from '../lib/pagination'
 import { pickEffective } from '../lib/projection'
 import { listMembers } from '../members/data'
 
@@ -86,9 +87,22 @@ export function currentName(events: AccountNameEventRow[]): string | null {
 }
 
 // List accounts with their derived current display name.
-export async function listAccounts(db: Kysely<Database>): Promise<AccountSummary[]> {
-  const accounts = await db.selectFrom('accounts').selectAll().where('deleted_at', 'is', null).orderBy('id').execute()
-  const names = await db.selectFrom('account_name_events').selectAll().execute()
+export async function listAccounts(db: Kysely<Database>, options: ListOptions = {}): Promise<AccountSummary[]> {
+  const accounts = await db
+    .selectFrom('accounts')
+    .selectAll()
+    .where('deleted_at', 'is', null)
+    .orderBy('id')
+    .limit(options.limit ?? null)
+    .offset(options.offset ?? 0)
+    .execute()
+
+  if (accounts.length === 0) {
+    return []
+  }
+
+  const ids = accounts.map((account) => account.id)
+  const names = await db.selectFrom('account_name_events').selectAll().where('account_id', 'in', ids).execute()
 
   return accounts.map((account) => ({
     id: account.id,
@@ -96,6 +110,16 @@ export async function listAccounts(db: Kysely<Database>): Promise<AccountSummary
     platform_id: account.platform_id,
     name: currentName(names.filter((row) => row.account_id === account.id)),
   }))
+}
+
+// Count live accounts (for pagination).
+export async function countAccounts(db: Kysely<Database>): Promise<number> {
+  const row = await db
+    .selectFrom('accounts')
+    .select((eb) => eb.fn.countAll().as('count'))
+    .where('deleted_at', 'is', null)
+    .executeTakeFirstOrThrow()
+  return Number(row.count)
 }
 
 // Load one account with its display-name history, or undefined when not found.

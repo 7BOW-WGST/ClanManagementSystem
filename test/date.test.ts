@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { formatEventDate, isFutureDate, parsePartialDate, today } from '../src/lib/date'
+import { formatEventDate, isFutureDate, parseDateInput, parsePartialDate, today } from '../src/lib/date'
 
 describe('parsePartialDate', () => {
   test('empty input means an unknown date', () => {
@@ -28,6 +28,31 @@ describe('parsePartialDate', () => {
 
   test('rejects free-form input', () => {
     expect(parsePartialDate('17/05/2024').ok).toBe(false)
+  })
+})
+
+describe('parseDateInput', () => {
+  test('unknown precision clears the date', () => {
+    expect(parseDateInput('unknown', 'whatever')).toEqual({ ok: true, date: null, precision: 'unknown' })
+  })
+
+  test('accepts values matching the precision', () => {
+    expect(parseDateInput('year', '2024')).toEqual({ ok: true, date: '2024-01-01', precision: 'year' })
+    expect(parseDateInput('month', '2024-05')).toEqual({ ok: true, date: '2024-05-01', precision: 'month' })
+    expect(parseDateInput('day', '2024-05-17')).toEqual({ ok: true, date: '2024-05-17', precision: 'day' })
+  })
+
+  test('rejects a value that does not match the precision', () => {
+    expect(parseDateInput('year', '2024-05').ok).toBe(false)
+    expect(parseDateInput('month', '2024').ok).toBe(false)
+  })
+
+  test('rejects an empty value for a known precision', () => {
+    expect(parseDateInput('day', '').ok).toBe(false)
+  })
+
+  test('rejects a future date', () => {
+    expect(parseDateInput('day', '2999-01-01').ok).toBe(false)
   })
 })
 

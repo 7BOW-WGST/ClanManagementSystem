@@ -1,6 +1,8 @@
 import { Hono, type Context } from 'hono'
 import { getDb } from '../db/client'
-import { parseEventDateField } from '../lib/date'
+import { parseDateInput } from '../lib/date'
+import { consumeFlash, setFlash } from '../lib/flash'
+import { pageCount, pageParams } from '../lib/pagination'
 import { currentRole, requireRole } from '../lib/role'
 import { stringField } from '../lib/validation'
 import { listMembers, type MemberSummary } from '../members/data'
@@ -8,6 +10,7 @@ import {
   accountLinkViews,
   addAccountNameEvent,
   changeRelation,
+  countAccounts,
   createAccount,
   getAccountDetail,
   isPlatform,
@@ -68,8 +71,12 @@ function renderDetail(c: Context, context: DetailContext, error: string) {
 
 // Accounts list.
 accountRoutes.get('/accounts', async (c) => {
-  const accounts = await listAccounts(getDb())
-  return c.html(<AccountListPage role={currentRole(c)} accounts={accounts} />)
+  const { page, limit, offset } = pageParams(c)
+  const db = getDb()
+  const [accounts, total] = await Promise.all([listAccounts(db, { limit, offset }), countAccounts(db)])
+  return c.html(
+    <AccountListPage role={currentRole(c)} accounts={accounts} page={page} totalPages={pageCount(total, limit)} flash={consumeFlash(c)} />,
+  )
 })
 
 // New account form.
@@ -83,8 +90,8 @@ accountRoutes.post('/accounts', requireRole('owner', 'admin'), async (c) => {
   const platform = stringField(body, 'platform')
   const platformId = stringField(body, 'platform_id')
   const name = stringField(body, 'name')
-  const nameDateRaw = stringField(body, 'name_date') ?? ''
-  const createdDateRaw = stringField(body, 'created_date') ?? ''
+  const nameDate = parseDateInput(stringField(body, 'name_date_precision') ?? 'unknown', stringField(body, 'name_date') ?? '')
+  const createdDate = parseDateInput(stringField(body, 'created_date_precision') ?? 'unknown', stringField(body, 'created_date') ?? '')
 
   // Re-render the form with the submitted values on validation failure.
   const rerender = (error: string) =>
@@ -95,8 +102,10 @@ accountRoutes.post('/accounts', requireRole('owner', 'admin'), async (c) => {
         platform={platform}
         platformId={platformId}
         name={name}
-        nameDate={nameDateRaw}
-        createdDate={createdDateRaw}
+        nameDate={stringField(body, 'name_date')}
+        nameDatePrecision={stringField(body, 'name_date_precision')}
+        createdDate={stringField(body, 'created_date')}
+        createdDatePrecision={stringField(body, 'created_date_precision')}
       />,
       400,
     )
@@ -104,13 +113,9 @@ accountRoutes.post('/accounts', requireRole('owner', 'admin'), async (c) => {
   if (!isPlatform(platform)) {
     return rerender('Choose a platform.')
   }
-
-  const nameDate = parseEventDateField(nameDateRaw)
   if (!nameDate.ok) {
     return rerender(nameDate.error)
   }
-
-  const createdDate = parseEventDateField(createdDateRaw)
   if (!createdDate.ok) {
     return rerender(createdDate.error)
   }
@@ -129,6 +134,7 @@ accountRoutes.post('/accounts', requireRole('owner', 'admin'), async (c) => {
     createdDate: createdDate.date,
     createdPrecision: createdDate.date === null ? null : createdDate.precision,
   })
+  setFlash(c, 'Account created.')
   return c.redirect(`/accounts/${id}`)
 })
 
@@ -149,6 +155,7 @@ accountRoutes.get('/accounts/:id', async (c) => {
       links={context.links}
       members={context.members}
       others={context.others}
+      flash={consumeFlash(c)}
     />,
   )
 })
@@ -164,7 +171,7 @@ accountRoutes.post('/accounts/:id/link', requireRole('owner', 'admin'), async (c
   const body = await c.req.parseBody()
   const memberId = parseId(stringField(body, 'member_id'))
   const relationRaw = stringField(body, 'relation')
-  const parsed = parseEventDateField(stringField(body, 'event_date') ?? '')
+  const parsed = parseDateInput(stringField(body, 'event_date_precision') ?? 'unknown', stringField(body, 'event_date') ?? '')
 
   if (memberId === undefined) {
     return renderDetail(c, context, 'Choose a member.')
@@ -189,6 +196,7 @@ accountRoutes.post('/accounts/:id/link', requireRole('owner', 'admin'), async (c
   if (error) {
     return renderDetail(c, context, error)
   }
+  setFlash(c, 'Member linked.')
   return c.redirect(`/accounts/${id}`)
 })
 
@@ -203,7 +211,7 @@ accountRoutes.post('/accounts/:id/relation', requireRole('owner', 'admin'), asyn
   const body = await c.req.parseBody()
   const memberId = parseId(stringField(body, 'member_id'))
   const relationRaw = stringField(body, 'relation')
-  const parsed = parseEventDateField(stringField(body, 'event_date') ?? '')
+  const parsed = parseDateInput(stringField(body, 'event_date_precision') ?? 'unknown', stringField(body, 'event_date') ?? '')
 
   if (memberId === undefined) {
     return renderDetail(c, context, 'Choose a member.')
@@ -225,6 +233,7 @@ accountRoutes.post('/accounts/:id/relation', requireRole('owner', 'admin'), asyn
   if (error) {
     return renderDetail(c, context, error)
   }
+  setFlash(c, 'Relation changed.')
   return c.redirect(`/accounts/${id}`)
 })
 
@@ -238,7 +247,7 @@ accountRoutes.post('/accounts/:id/unlink', requireRole('owner', 'admin'), async 
 
   const body = await c.req.parseBody()
   const memberId = parseId(stringField(body, 'member_id'))
-  const parsed = parseEventDateField(stringField(body, 'event_date') ?? '')
+  const parsed = parseDateInput(stringField(body, 'event_date_precision') ?? 'unknown', stringField(body, 'event_date') ?? '')
 
   if (memberId === undefined) {
     return renderDetail(c, context, 'Choose a member.')
@@ -256,6 +265,7 @@ accountRoutes.post('/accounts/:id/unlink', requireRole('owner', 'admin'), async 
   if (error) {
     return renderDetail(c, context, error)
   }
+  setFlash(c, 'Member unlinked.')
   return c.redirect(`/accounts/${id}`)
 })
 
@@ -279,6 +289,7 @@ accountRoutes.post('/accounts/:id/merge', requireRole('owner', 'admin'), async (
   if (error) {
     return renderDetail(c, context, error)
   }
+  setFlash(c, 'Account merged.')
   return c.redirect(`/accounts/${id}`)
 })
 
@@ -292,7 +303,7 @@ accountRoutes.post('/accounts/:id/name', requireRole('owner', 'admin'), async (c
 
   const body = await c.req.parseBody()
   const name = stringField(body, 'name')
-  const parsed = parseEventDateField(stringField(body, 'event_date') ?? '')
+  const parsed = parseDateInput(stringField(body, 'event_date_precision') ?? 'unknown', stringField(body, 'event_date') ?? '')
 
   if (!name) {
     return renderDetail(c, context, 'Name is required.')
@@ -302,5 +313,6 @@ accountRoutes.post('/accounts/:id/name', requireRole('owner', 'admin'), async (c
   }
 
   await addAccountNameEvent(getDb(), { accountId: id, name, eventDate: parsed.date, precision: parsed.precision })
+  setFlash(c, 'Name added.')
   return c.redirect(`/accounts/${id}`)
 })

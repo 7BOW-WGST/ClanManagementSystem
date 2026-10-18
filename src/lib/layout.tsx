@@ -1,8 +1,14 @@
 import type { FC, PropsWithChildren } from 'hono/jsx'
 import type { Role } from './role'
 
+// Top-level navigation entries (extended as new domains are added).
+const navItems = [
+  { href: '/members', label: 'Members' },
+  { href: '/accounts', label: 'Accounts' },
+]
+
 // Shared page shell (Bootstrap 5 via CDN).
-export const Layout: FC<PropsWithChildren<{ title: string; role: Role }>> = (props) => (
+export const Layout: FC<PropsWithChildren<{ title: string; role: Role; flash?: string }>> = (props) => (
   <html lang="en">
     <head>
       <meta charset="utf-8" />
@@ -17,13 +23,18 @@ export const Layout: FC<PropsWithChildren<{ title: string; role: Role }>> = (pro
       <nav class="navbar navbar-expand bg-dark" data-bs-theme="dark">
         <div class="container">
           <a class="navbar-brand" href="/">Clan Management System</a>
-          <a class="nav-link text-light" href="/members">
-            Members
-          </a>
+          {navItems.map((item) => (
+            <a class="nav-link text-light" href={item.href}>
+              {item.label}
+            </a>
+          ))}
           <span class="navbar-text ms-auto">role: {props.role}</span>
         </div>
       </nav>
-      <main class="container py-4">{props.children}</main>
+      <main class="container py-4">
+        {props.flash ? <div class="alert alert-success">{props.flash}</div> : null}
+        {props.children}
+      </main>
     </body>
   </html>
 )

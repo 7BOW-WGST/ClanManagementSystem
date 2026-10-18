@@ -1,7 +1,9 @@
 import type { FC } from 'hono/jsx'
 import type { MemberAccountView } from '../accounts/data'
+import { DateInput } from '../lib/date-input'
 import { formatEventDate } from '../lib/date'
 import { Layout } from '../lib/layout'
+import { Pager } from '../lib/pager'
 import type { Role } from '../lib/role'
 import type { LifecycleEvent, MemberDetail, MemberStatus, MemberSummary, NicknameEvent } from './data'
 
@@ -46,8 +48,8 @@ function LifecycleHistory(props: { events: LifecycleEvent[] }) {
 }
 
 // Members list page.
-export const MemberListPage: FC<{ role: Role; members: MemberSummary[] }> = (props) => (
-  <Layout title="Members" role={props.role}>
+export const MemberListPage: FC<{ role: Role; members: MemberSummary[]; page: number; totalPages: number; flash?: string }> = (props) => (
+  <Layout title="Members" role={props.role} flash={props.flash}>
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h1 class="h3 mb-0">Members</h1>
       <a class="btn btn-primary" href="/members/new">
@@ -80,12 +82,20 @@ export const MemberListPage: FC<{ role: Role; members: MemberSummary[] }> = (pro
         </tbody>
       </table>
     )}
+    <Pager page={props.page} totalPages={props.totalPages} basePath="/members" />
   </Layout>
 )
 
 // New member form (identity + optional first nickname).
-export const MemberNewPage: FC<{ role: Role; error?: string; nickname?: string; date?: string }> = (props) => (
-  <Layout title="New member" role={props.role}>
+export const MemberNewPage: FC<{
+  role: Role
+  flash?: string
+  error?: string
+  nickname?: string
+  date?: string
+  datePrecision?: string
+}> = (props) => (
+  <Layout title="New member" role={props.role} flash={props.flash}>
     <h1 class="h3">New member</h1>
     {props.error ? <div class="alert alert-danger">{props.error}</div> : null}
     <form method="post" action="/members">
@@ -95,12 +105,7 @@ export const MemberNewPage: FC<{ role: Role; error?: string; nickname?: string; 
         </label>
         <input class="form-control" id="nickname" name="nickname" value={props.nickname ?? ''} />
       </div>
-      <div class="mb-3">
-        <label class="form-label" for="nickname_date">
-          Nickname date (YYYY, YYYY-MM or YYYY-MM-DD; blank = unknown)
-        </label>
-        <input class="form-control" id="nickname_date" name="nickname_date" value={props.date ?? ''} />
-      </div>
+      <DateInput name="nickname_date" label="Nickname date" value={props.date} precision={props.datePrecision} />
       <button class="btn btn-primary" type="submit">
         Create
       </button>
@@ -109,8 +114,8 @@ export const MemberNewPage: FC<{ role: Role; error?: string; nickname?: string; 
 )
 
 // Member detail page: projected state, history, accounts, and event forms.
-export const MemberDetailPage: FC<{ role: Role; member: MemberDetail; accounts: MemberAccountView[]; error?: string }> = (props) => (
-  <Layout title={`Member #${props.member.id}`} role={props.role}>
+export const MemberDetailPage: FC<{ role: Role; member: MemberDetail; accounts: MemberAccountView[]; flash?: string; error?: string }> = (props) => (
+  <Layout title={`Member #${props.member.id}`} role={props.role} flash={props.flash}>
     <h1 class="h3">Member #{props.member.id}</h1>
     <p>
       Current nickname: <strong>{props.member.nickname ?? '—'}</strong> · Status: {statusBadge(props.member.status)}
@@ -144,12 +149,7 @@ export const MemberDetailPage: FC<{ role: Role; member: MemberDetail; accounts: 
             </label>
             <input class="form-control" id="nickname" name="nickname" />
           </div>
-          <div class="mb-3">
-            <label class="form-label" for="nickname_date">
-              Date (blank = unknown)
-            </label>
-            <input class="form-control" id="nickname_date" name="event_date" />
-          </div>
+          <DateInput name="event_date" />
           <button class="btn btn-primary" type="submit">
             Add
           </button>
@@ -172,12 +172,7 @@ export const MemberDetailPage: FC<{ role: Role; member: MemberDetail; accounts: 
               <option value="kick">kick</option>
             </select>
           </div>
-          <div class="mb-3">
-            <label class="form-label" for="lifecycle_date">
-              Date (blank = unknown)
-            </label>
-            <input class="form-control" id="lifecycle_date" name="event_date" />
-          </div>
+          <DateInput name="event_date" />
           <button class="btn btn-primary" type="submit">
             Add
           </button>
