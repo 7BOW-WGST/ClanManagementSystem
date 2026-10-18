@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="pl" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strona Główna | 7BOW Dashboard</title>
+
+  <link rel="icon" type="image/png" href="../assets/logo.png">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+
+  <style>
+    :root, [data-bs-theme="dark"] {
+      --accent: #2f6fb8;
+      --bs-primary: #2f6fb8;
+      --bs-primary-rgb: 47, 111, 184;
+      --bs-link-color: #7cb0ff;
+      --bs-link-color-rgb: 124, 176, 255;
+      --bs-link-hover-color: #a3c7ff;
+      --bs-body-bg: #12171e;
+      --bs-body-bg-rgb: 18, 23, 30;
+      --bs-tertiary-bg: #1a212b;
+    }
+    .btn-primary {
+      --bs-btn-bg: var(--accent);
+      --bs-btn-border-color: var(--accent);
+      --bs-btn-hover-bg: #3a7cc9;
+      --bs-btn-hover-border-color: #3a7cc9;
+      --bs-btn-active-bg: #28619f;
+      --bs-btn-active-border-color: #28619f;
+      --bs-btn-disabled-bg: var(--accent);
+      --bs-btn-disabled-border-color: var(--accent);
+    }
+    .bg-section-multi { background-color: #5a4e8c !important; color: #fff; }
+    .bg-section-wt    { background-color: #3b6ea5 !important; color: #fff; }
+    .bg-section-arma  { background-color: #4a7c3f !important; color: #fff; }
+    .stat-icon { width: 3rem; height: 3rem; display: flex; align-items: center; justify-content: center; border-radius: .75rem; font-size: 1.4rem; }
+    .timeline { list-style: none; position: relative; padding-left: 1.75rem; margin: 0; }
+    .timeline::before { content: ""; position: absolute; left: .5rem; top: .4rem; bottom: .4rem; width: 2px; background: var(--bs-border-color); }
+    .timeline > li { position: relative; padding-bottom: 1.25rem; }
+    .timeline > li:last-child { padding-bottom: 0; }
+    .timeline > li::before { content: ""; position: absolute; left: calc(.5rem - 5px); top: .35rem; width: .75rem; height: .75rem; border-radius: 50%; background: var(--bs-tertiary-bg); border: 2px solid var(--bs-border-color); }
+    .timeline > li.is-join::before  { border-color: #198754; }
+    .timeline > li.is-rank::before  { border-color: #f0ad4e; }
+    .timeline > li.is-award::before { border-color: #6ea8fe; }
+    .timeline > li.is-leave::before { border-color: #dc3545; }
+    .card-hover { transition: transform .12s ease, border-color .12s ease; }
+    .card-hover:hover { transform: translateY(-2px); border-color: var(--accent); }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom sticky-top">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
+        <img src="../assets/logo.png" alt="7BOW" width="34" height="34" class="rounded-circle">
+        <span class="fw-semibold">7BOW Dashboard</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainnav" aria-controls="mainnav" aria-expanded="false" aria-label="Menu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="mainnav">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="index.html"><i class="bi bi-speedometer2 me-1"></i>Panel</a></li>
+          <li class="nav-item"><a class="nav-link" href="members.html"><i class="bi bi-people me-1"></i>Członkowie</a></li>
+          <li class="nav-item"><a class="nav-link disabled" href="#"><i class="bi bi-link-45deg me-1"></i>Konta</a></li>
+          <li class="nav-item"><a class="nav-link disabled" href="#"><i class="bi bi-award me-1"></i>Odznaczenia</a></li>
+        </ul>
+        <ul class="navbar-nav">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-person-badge me-1"></i>Właściciel
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item active" href="login.html">Właściciel</a></li>
+              <li><a class="dropdown-item" href="login.html">Administrator</a></li>
+              <li><a class="dropdown-item" href="login.html">Członek</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="login.html"><i class="bi bi-box-arrow-right me-1"></i>Zmień rolę</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container py-4">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+      <div>
+        <h1 class="h3 mb-0">Strona Główna</h1>
+        <p class="text-secondary mb-0">Przegląd stanu klanu 7BOW WGST</p>
+      </div>
+      <div class="d-flex gap-2">
+        <a href="member.html" class="btn btn-outline-light"><i class="bi bi-person-plus me-1"></i>Dodaj członka</a>
+        <a href="members.html" class="btn btn-primary"><i class="bi bi-people me-1"></i>Lista członków</a>
+      </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+      <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card card-hover h-100 bg-body-tertiary border-secondary">
+          <div class="card-body d-flex align-items-center gap-3">
+            <div class="stat-icon bg-primary bg-opacity-25 text-primary"><i class="bi bi-people-fill"></i></div>
+            <div>
+              <div class="text-secondary small text-uppercase">Członkowie</div>
+              <div class="h3 mb-0">48</div>
+              <div class="small text-success"><i class="bi bi-arrow-up-right"></i> 41 aktywnych</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card card-hover h-100 bg-body-tertiary border-secondary">
+          <div class="card-body d-flex align-items-center gap-3">
+            <div class="stat-icon bg-warning bg-opacity-25 text-warning"><i class="bi bi-star-fill"></i></div>
+            <div>
+              <div class="text-secondary small text-uppercase">Weterani</div>
+              <div class="h3 mb-0">12</div>
+              <div class="small text-secondary">status specjalny</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card card-hover h-100 bg-body-tertiary border-secondary">
+          <div class="card-body d-flex align-items-center gap-3">
+            <div class="stat-icon bg-success bg-opacity-25 text-success"><i class="bi bi-diagram-3-fill"></i></div>
+            <div>
+              <div class="text-secondary small text-uppercase">Sekcje</div>
+              <div class="h3 mb-0">48 / 31 / 19</div>
+              <div class="small text-secondary">multi / WT / Arma 3</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card card-hover h-100 bg-body-tertiary border-secondary">
+          <div class="card-body d-flex align-items-center gap-3">
+            <div class="stat-icon bg-info bg-opacity-25 text-info"><i class="bi bi-award-fill"></i></div>
+            <div>
+              <div class="text-secondary small text-uppercase">Odznaczenia</div>
+              <div class="h3 mb-0">137</div>
+              <div class="small text-secondary">przyznanych łącznie</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-12 col-xl-8">
+        <div class="card bg-body-tertiary border-secondary h-100">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span class="fw-semibold"><i class="bi bi-activity me-1"></i>Ostatnia aktywność</span>
+            <span class="badge text-bg-secondary">manual + auto</span>
+          </div>
+          <div class="card-body">
+            <ul class="timeline">
+              <li class="is-rank">
+                <div class="d-flex flex-wrap justify-content-between gap-2">
+                  <div><a href="member.html" class="fw-semibold text-decoration-none">RadekWilk</a> — awans na <span class="badge text-bg-warning text-dark">Plutonowy</span></div>
+                  <div class="text-secondary small">2023-11-30 <span class="badge text-bg-info text-dark ms-1">manual</span></div>
+                </div>
+              </li>
+              <li class="is-join">
+                <div class="d-flex flex-wrap justify-content-between gap-2">
+                  <div><a href="member.html" class="fw-semibold text-decoration-none">NowyKadet</a> — dołączenie do klanu <span class="badge bg-section-multi">Multigaming</span></div>
+                  <div class="text-secondary small">2024-06-02 <span class="badge text-bg-info text-dark ms-1">manual</span></div>
+                </div>
+              </li>
+              <li class="is-award">
+                <div class="d-flex flex-wrap justify-content-between gap-2">
+                  <div><a href="member.html" class="fw-semibold text-decoration-none">Szpara</a> — odznaczenie <span class="badge text-bg-primary">Gwiazda Kurska</span></div>
+                  <div class="text-secondary small">2024-05-18 <span class="badge text-bg-info text-dark ms-1">manual</span></div>
+                </div>
+              </li>
+              <li class="is-join">
+                <div class="d-flex flex-wrap justify-content-between gap-2">
+                  <div>Dołączenie do skrzydła <span class="badge bg-section-wt">7BOW</span> — <span class="text-secondary">RadekWilk</span></div>
+                  <div class="text-secondary small">2024-05-01 <span class="badge text-bg-secondary ms-1">auto</span></div>
+                </div>
+              </li>
+              <li class="is-award">
+                <div class="d-flex flex-wrap justify-content-between gap-2">
+                  <div><a href="member.html" class="fw-semibold text-decoration-none">Zawisza</a> — odznaczenie <span class="badge text-bg-danger">Złoty Krzyż Zasługi</span></div>
+                  <div class="text-secondary small">2024-04-22 <span class="badge text-bg-info text-dark ms-1">manual</span></div>
+                </div>
+              </li>
+              <li class="is-leave">
+                <div class="d-flex flex-wrap justify-content-between gap-2">
+                  <div><a href="member.html" class="fw-semibold text-decoration-none">Cichy</a> — odejście z klanu</div>
+                  <div class="text-secondary small">2024-03-30 <span class="badge text-bg-info text-dark ms-1">manual</span></div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-xl-4">
+        <div class="card bg-body-tertiary border-secondary mb-4">
+          <div class="card-header fw-semibold"><i class="bi bi-airplane-engines me-1"></i>Dywizjon War Thunder</div>
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span><span class="badge bg-section-wt me-2">7BOW</span>główny</span>
+              <span class="text-secondary">24</span>
+            </div>
+            <div class="progress mb-3" role="progressbar" aria-label="7BOW" aria-valuenow="77" aria-valuemin="0" aria-valuemax="100" style="height:6px;">
+              <div class="progress-bar bg-section-wt" style="width:77%"></div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span><span class="badge bg-section-wt me-2">7BOWs</span>szkoleniowy</span>
+              <span class="text-secondary">5</span>
+            </div>
+            <div class="progress mb-3" role="progressbar" aria-label="7BOWs" aria-valuenow="16" aria-valuemin="0" aria-valuemax="100" style="height:6px;">
+              <div class="progress-bar bg-section-wt" style="width:16%"></div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span><span class="badge bg-section-wt me-2">7BOWr</span>rezerwowy</span>
+              <span class="text-secondary">2</span>
+            </div>
+            <div class="progress" role="progressbar" aria-label="7BOWr" aria-valuenow="6" aria-valuemin="0" aria-valuemax="100" style="height:6px;">
+              <div class="progress-bar bg-section-wt" style="width:6%"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card bg-body-tertiary border-secondary">
+          <div class="card-header fw-semibold"><i class="bi bi-diagram-3 me-1"></i>Podział na sekcje</div>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center">
+              <span><i class="bi bi-globe2 me-2"></i>Multigaming</span>
+              <span class="badge bg-section-multi">48</span>
+            </li>
+            <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center">
+              <span><i class="bi bi-crosshair me-2"></i>War Thunder</span>
+              <span class="badge bg-section-wt">31</span>
+            </li>
+            <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center">
+              <span><i class="bi bi-shield-shaded me-2"></i>Arma 3</span>
+              <span class="badge bg-section-arma">19</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card bg-body-tertiary border-secondary mt-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="fw-semibold"><i class="bi bi-person-lines-fill me-1"></i>Najnowsi członkowie</span>
+        <a href="members.html" class="btn btn-sm btn-outline-light">Zobacz wszystkich</a>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th scope="col">Nick</th>
+              <th scope="col">Ranga główna</th>
+              <th scope="col">Sekcje</th>
+              <th scope="col">Status</th>
+              <th scope="col" class="text-end">Data dołączenia</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><a href="member.html" class="fw-semibold text-decoration-none">NowyKadet</a></td>
+              <td>Elew <span class="badge text-bg-secondary small">Enlisted</span></td>
+              <td><span class="badge bg-section-multi">Multigaming</span></td>
+              <td><span class="badge text-bg-success">Aktywny</span></td>
+              <td class="text-end text-secondary">2024-06-02</td>
+            </tr>
+            <tr>
+              <td><a href="member.html" class="fw-semibold text-decoration-none">Bolek</a></td>
+              <td>Szeregowy <span class="badge text-bg-secondary small">Enlisted</span></td>
+              <td><span class="badge bg-section-multi">Multigaming</span></td>
+              <td><span class="badge text-bg-warning text-dark">Zawieszony</span></td>
+              <td class="text-end text-secondary">2024-02-15</td>
+            </tr>
+            <tr>
+              <td><a href="member.html" class="fw-semibold text-decoration-none">Krecik</a></td>
+              <td>Kapral <span class="badge text-bg-secondary small">NCO</span></td>
+              <td><span class="badge bg-section-arma me-1">Arma 3</span></td>
+              <td><span class="badge text-bg-success">Aktywny</span></td>
+              <td class="text-end text-secondary">2023-11-08</td>
+            </tr>
+            <tr>
+              <td><a href="member.html" class="fw-semibold text-decoration-none">Zawisza</a></td>
+              <td>Chorąży <span class="badge text-bg-secondary small">Warrant</span></td>
+              <td><span class="badge bg-section-wt me-1">War Thunder</span></td>
+              <td><span class="badge text-bg-success">Aktywny</span></td>
+              <td class="text-end text-secondary">2022-08-20</td>
+            </tr>
+            <tr>
+              <td><a href="member.html" class="fw-semibold text-decoration-none">RadekWilk</a></td>
+              <td>Plutonowy <span class="badge text-bg-secondary small">NCO</span></td>
+              <td><span class="badge bg-section-wt">War Thunder</span></td>
+              <td><span class="badge text-bg-success">Aktywny</span></td>
+              <td class="text-end text-secondary">2021-03-14</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="border-top py-3 mt-4">
+    <div class="container d-flex flex-wrap justify-content-between text-secondary small">
+      <span>7BOW WGST · Clan Management System</span>
+      <span>Prototyp UI · Bootstrap 5</span>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
