@@ -97,6 +97,30 @@ export interface SquadronMembershipEvent {
   deleted_at: Date | null
 }
 
+// Rank corps (see CATALOGS.md).
+export type RankCorps = 'enlisted' | 'nco' | 'warrant' | 'officer'
+
+export interface Rank {
+  id: Generated<number>
+  name: string
+  corps: RankCorps
+  order: number
+  introduced_at: number | null
+}
+
+export interface CorePromotionEvent {
+  id: Generated<number>
+  member_id: number
+  rank_id: number
+  event_date: string | null
+  event_date_precision: EventDatePrecision
+  recorded_at: Generated<Date>
+  source: Generated<Source>
+  created_by: Generated<string>
+  reason: string | null
+  deleted_at: Date | null
+}
+
 export interface MemberNicknameEvent {
   id: Generated<number>
   member_id: number
@@ -133,4 +157,6 @@ export interface Database {
   account_link_events: AccountLinkEvent
   account_merge_audit: AccountMergeAudit
   squadron_membership_events: SquadronMembershipEvent
+  ranks: Rank
+  core_promotion_events: CorePromotionEvent
 }

@@ -5,6 +5,7 @@ import { parseDateInput } from '../lib/date'
 import { consumeFlash, setFlash } from '../lib/flash'
 import { pageCount, pageParams } from '../lib/pagination'
 import { currentRole, requireRole } from '../lib/role'
+import { coreRankHistory, currentCoreRank, listRanks, type RankHistoryEntry, type RankRow } from '../ranks/data'
 import { memberWarThunder, type WarThunderMembership } from '../sections/data'
 import { stringField } from '../lib/validation'
 import {
@@ -29,16 +30,30 @@ function parseId(raw: string | undefined): number | undefined {
 }
 
 // Load a member detail plus the data its page needs.
-async function detailContext(
-  id: number,
-): Promise<{ member: MemberDetail; accounts: MemberAccountView[]; warThunder: WarThunderMembership } | undefined> {
+async function detailContext(id: number): Promise<
+  | {
+      member: MemberDetail
+      accounts: MemberAccountView[]
+      warThunder: WarThunderMembership
+      coreRankName: string | null
+      rankHistory: RankHistoryEntry[]
+      ranks: RankRow[]
+    }
+  | undefined
+> {
   const db = getDb()
   const member = await getMemberDetail(db, id)
   if (!member) {
     return undefined
   }
-  const [accounts, warThunder] = await Promise.all([memberAccountViews(db, id), memberWarThunder(db, id)])
-  return { member, accounts, warThunder }
+  const [accounts, warThunder, coreRank, rankHistory, ranks] = await Promise.all([
+    memberAccountViews(db, id),
+    memberWarThunder(db, id),
+    currentCoreRank(db, id),
+    coreRankHistory(db, id),
+    listRanks(db),
+  ])
+  return { member, accounts, warThunder, coreRankName: coreRank?.name ?? null, rankHistory, ranks }
 }
 
 // Members list.
@@ -91,7 +106,16 @@ memberRoutes.get('/members/:id', async (c) => {
     return c.notFound()
   }
   return c.html(
-    <MemberDetailPage role={currentRole(c)} member={context.member} accounts={context.accounts} warThunder={context.warThunder} flash={consumeFlash(c)} />,
+    <MemberDetailPage
+      role={currentRole(c)}
+      member={context.member}
+      accounts={context.accounts}
+      warThunder={context.warThunder}
+      coreRankName={context.coreRankName}
+      rankHistory={context.rankHistory}
+      ranks={context.ranks}
+      flash={consumeFlash(c)}
+    />,
   )
 })
 
@@ -108,7 +132,19 @@ memberRoutes.post('/members/:id/nickname', requireRole('owner', 'admin'), async 
   const parsed = parseDateInput(stringField(body, 'event_date_precision') ?? 'unknown', stringField(body, 'event_date') ?? '')
 
   const rerender = (error: string) =>
-    c.html(<MemberDetailPage role={currentRole(c)} member={context.member} accounts={context.accounts} warThunder={context.warThunder} error={error} />, 400)
+    c.html(
+      <MemberDetailPage
+        role={currentRole(c)}
+        member={context.member}
+        accounts={context.accounts}
+        warThunder={context.warThunder}
+        coreRankName={context.coreRankName}
+        rankHistory={context.rankHistory}
+        ranks={context.ranks}
+        error={error}
+      />,
+      400,
+    )
 
   if (!nickname) {
     return rerender('Nickname is required.')
@@ -135,7 +171,19 @@ memberRoutes.post('/members/:id/lifecycle', requireRole('owner', 'admin'), async
   const parsed = parseDateInput(stringField(body, 'event_date_precision') ?? 'unknown', stringField(body, 'event_date') ?? '')
 
   const rerender = (error: string) =>
-    c.html(<MemberDetailPage role={currentRole(c)} member={context.member} accounts={context.accounts} warThunder={context.warThunder} error={error} />, 400)
+    c.html(
+      <MemberDetailPage
+        role={currentRole(c)}
+        member={context.member}
+        accounts={context.accounts}
+        warThunder={context.warThunder}
+        coreRankName={context.coreRankName}
+        rankHistory={context.rankHistory}
+        ranks={context.ranks}
+        error={error}
+      />,
+      400,
+    )
 
   if (!isLifecycleType(type)) {
     return rerender('Choose a lifecycle type.')

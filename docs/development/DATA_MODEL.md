@@ -78,7 +78,7 @@ Community nickname history.
 
 ### `ranks` (catalog)
 
-- `id` PK, `name`, `corps` (`enlisted` | `nco` | `warrant` | `officer`), `order`, `introduced_at` (year precision)
+- `id` PK, `name` (unique), `corps` (`enlisted` | `nco` | `warrant` | `officer`), `order`, `introduced_at` (year precision)
 - officer-ness derives from `corps = officer`; promotions may skip ranks (no adjacency requirement); the catalog is append-only
 
 ### `core_promotion_events`

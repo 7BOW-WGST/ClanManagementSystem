@@ -4,6 +4,7 @@ import { accountRoutes } from './accounts/routes'
 import { sameSiteGuard } from './lib/middleware'
 import { isRole } from './lib/role'
 import { memberRoutes } from './members/routes'
+import { rankRoutes } from './ranks/routes'
 import { sectionRoutes } from './sections/routes'
 
 // Create a new Hono application/router instance
@@ -35,3 +36,4 @@ app.get('/dev/role/:role', (c) => {
 app.route('/', memberRoutes)
 app.route('/', accountRoutes)
 app.route('/', sectionRoutes)
+app.route('/', rankRoutes)

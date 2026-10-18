@@ -8,6 +8,8 @@ import * as createAccountNameEvents from './migrations/20260101000005_create_acc
 import * as createAccountLinkEvents from './migrations/20260101000006_create_account_link_events'
 import * as createAccountMergeAudit from './migrations/20260101000007_create_account_merge_audit'
 import * as createSquadronMembershipEvents from './migrations/20260101000008_create_squadron_membership_events'
+import * as createRanks from './migrations/20260101000009_create_ranks'
+import * as createCorePromotionEvents from './migrations/20260101000010_create_core_promotion_events'
 
 const migrations: Record<string, Migration> = {
   '20260101000000_create_members': createMembers,
@@ -19,6 +21,8 @@ const migrations: Record<string, Migration> = {
   '20260101000006_create_account_link_events': createAccountLinkEvents,
   '20260101000007_create_account_merge_audit': createAccountMergeAudit,
   '20260101000008_create_squadron_membership_events': createSquadronMembershipEvents,
+  '20260101000009_create_ranks': createRanks,
+  '20260101000010_create_core_promotion_events': createCorePromotionEvents,
 }
 
 export const migrationProvider: MigrationProvider = {

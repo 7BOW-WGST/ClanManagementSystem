@@ -6,6 +6,8 @@ import { Layout } from '../lib/layout'
 import { Pager } from '../lib/pager'
 import type { Role } from '../lib/role'
 import type { WarThunderMembership } from '../sections/data'
+import type { RankHistoryEntry, RankRow } from '../ranks/data'
+import { RankSection } from '../ranks/views'
 import type { LifecycleEvent, MemberDetail, MemberStatus, MemberSummary, NicknameEvent } from './data'
 
 // Small coloured badge for a derived membership status.
@@ -120,6 +122,9 @@ export const MemberDetailPage: FC<{
   member: MemberDetail
   accounts: MemberAccountView[]
   warThunder: WarThunderMembership
+  coreRankName: string | null
+  rankHistory: RankHistoryEntry[]
+  ranks: RankRow[]
   flash?: string
   error?: string
 }> = (props) => (
@@ -152,6 +157,13 @@ export const MemberDetailPage: FC<{
       Squadron: <strong>{props.warThunder.squadron ?? '—'}</strong>
       {props.warThunder.conflict ? <span class="text-warning"> · conflict</span> : null}
     </p>
+
+    <RankSection
+      memberId={props.member.id}
+      currentRankName={props.coreRankName}
+      history={props.rankHistory}
+      ranks={props.ranks}
+    />
 
     <div class="row">
       <div class="col-md-6">
