@@ -4,7 +4,7 @@ import { parseDateInput } from '../lib/date'
 import { setFlash } from '../lib/flash'
 import { requireRole } from '../lib/role'
 import { stringField } from '../lib/validation'
-import { addArma3PromotionEvent, addCorePromotionEvent } from './data'
+import { addArma3PromotionEvent, addCorePromotionEvent, softDeleteCorePromotion } from './data'
 
 // Router for rank routes (mounted at the application root).
 export const rankRoutes = new Hono()
@@ -91,4 +91,17 @@ rankRoutes.post('/members/:id/arma3-promotion', requireRole('owner', 'admin'), a
   })
   setFlash(c, 'Arma 3 rank recorded.')
   return c.redirect(`/members/${memberId}`)
+})
+
+// Soft-delete a core promotion/demotion event.
+rankRoutes.post('/members/:id/promotion/:eventId/delete', requireRole('owner', 'admin'), async (c) => {
+  const memberId = parseId(c.req.param('id'))
+  const eventId = parseId(c.req.param('eventId'))
+  if (memberId === undefined || eventId === undefined) {
+    return c.notFound()
+  }
+
+  await softDeleteCorePromotion(getDb(), eventId)
+  setFlash(c, 'Rank event deleted.')
+  return c.redirect(`/members/${memberId}/timeline`)
 })

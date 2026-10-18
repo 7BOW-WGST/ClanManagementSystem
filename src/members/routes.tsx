@@ -23,15 +23,23 @@ import {
   addLifecycleEvent,
   addNicknameEvent,
   addVeteranEvent,
+  buildTimeline,
+  correctLifecycleEvent,
+  correctNicknameEvent,
   countMembers,
   createMember,
   currentVeteran,
   getMemberDetail,
   isLifecycleType,
+  lifecycleWarnings,
   listMembers,
+  softDeleteLifecycleEvent,
+  softDeleteNicknameEvent,
+  softDeleteVeteranEvent,
+  veteranEvents,
   type MemberDetail,
 } from './data'
-import { MemberDetailPage, MemberListPage, MemberNewPage } from './views'
+import { MemberDetailPage, MemberListPage, MemberNewPage, MemberTimelinePage } from './views'
 
 // Router for member routes (mounted at the application root).
 export const memberRoutes = new Hono()
@@ -324,8 +332,10 @@ memberRoutes.post('/members/:id/lifecycle', requireRole('owner', 'admin'), async
     return rerender(parsed.error)
   }
 
-  await addLifecycleEvent(getDb(), { memberId: id, type, eventDate: parsed.date, precision: parsed.precision })
-  setFlash(c, 'Lifecycle event added.')
+  const db = getDb()
+  await addLifecycleEvent(db, { memberId: id, type, eventDate: parsed.date, precision: parsed.precision })
+  const warnings = await lifecycleWarnings(db, id)
+  setFlash(c, warnings.length > 0 ? warnings.join(' ') : 'Lifecycle event added.')
   return c.redirect(`/members/${id}`)
 })
 
@@ -352,4 +362,113 @@ memberRoutes.post('/members/:id/veteran', requireRole('owner', 'admin'), async (
   await addVeteranEvent(getDb(), { memberId: id, type, eventDate: parsed.date, precision: parsed.precision })
   setFlash(c, 'Veteran status recorded.')
   return c.redirect(`/members/${id}`)
+})
+
+// Member timeline.
+memberRoutes.get('/members/:id/timeline', async (c) => {
+  const id = parseId(c.req.param('id'))
+  if (id === undefined) {
+    return c.notFound()
+  }
+  const db = getDb()
+  const member = await getMemberDetail(db, id)
+  if (!member) {
+    return c.notFound()
+  }
+  const [ranks, veterans] = await Promise.all([coreRankHistory(db, id), veteranEvents(db, id)])
+  const timeline = buildTimeline({ nicknames: member.nicknames, lifecycle: member.lifecycle, ranks, veterans })
+  return c.html(<MemberTimelinePage role={currentRole(c)} memberId={id} timeline={timeline} flash={consumeFlash(c)} />)
+})
+
+// Correct a nickname event (timeline).
+memberRoutes.post('/members/:id/nickname/:eventId', requireRole('owner', 'admin'), async (c) => {
+  const id = parseId(c.req.param('id'))
+  const eventId = parseId(c.req.param('eventId'))
+  if (id === undefined || eventId === undefined) {
+    return c.notFound()
+  }
+
+  const body = await c.req.parseBody()
+  const nickname = stringField(body, 'nickname')
+  const parsed = parseDateInput(stringField(body, 'event_date_precision') ?? 'unknown', stringField(body, 'event_date') ?? '')
+
+  if (!nickname) {
+    setFlash(c, 'Nickname is required.')
+    return c.redirect(`/members/${id}/timeline`)
+  }
+  if (!parsed.ok) {
+    setFlash(c, parsed.error)
+    return c.redirect(`/members/${id}/timeline`)
+  }
+
+  await correctNicknameEvent(getDb(), { eventId, nickname, eventDate: parsed.date, precision: parsed.precision })
+  setFlash(c, 'Nickname corrected.')
+  return c.redirect(`/members/${id}/timeline`)
+})
+
+// Soft-delete a nickname event (timeline).
+memberRoutes.post('/members/:id/nickname/:eventId/delete', requireRole('owner', 'admin'), async (c) => {
+  const id = parseId(c.req.param('id'))
+  const eventId = parseId(c.req.param('eventId'))
+  if (id === undefined || eventId === undefined) {
+    return c.notFound()
+  }
+
+  await softDeleteNicknameEvent(getDb(), eventId)
+  setFlash(c, 'Nickname event deleted.')
+  return c.redirect(`/members/${id}/timeline`)
+})
+
+// Correct a lifecycle event (timeline).
+memberRoutes.post('/members/:id/lifecycle/:eventId', requireRole('owner', 'admin'), async (c) => {
+  const id = parseId(c.req.param('id'))
+  const eventId = parseId(c.req.param('eventId'))
+  if (id === undefined || eventId === undefined) {
+    return c.notFound()
+  }
+
+  const body = await c.req.parseBody()
+  const type = stringField(body, 'type')
+  const parsed = parseDateInput(stringField(body, 'event_date_precision') ?? 'unknown', stringField(body, 'event_date') ?? '')
+
+  if (!isLifecycleType(type)) {
+    setFlash(c, 'Choose a lifecycle type.')
+    return c.redirect(`/members/${id}/timeline`)
+  }
+  if (!parsed.ok) {
+    setFlash(c, parsed.error)
+    return c.redirect(`/members/${id}/timeline`)
+  }
+
+  const db = getDb()
+  await correctLifecycleEvent(db, { eventId, type, eventDate: parsed.date, precision: parsed.precision })
+  const warnings = await lifecycleWarnings(db, id)
+  setFlash(c, warnings.length > 0 ? warnings.join(' ') : 'Lifecycle event corrected.')
+  return c.redirect(`/members/${id}/timeline`)
+})
+
+// Soft-delete a lifecycle event (timeline).
+memberRoutes.post('/members/:id/lifecycle/:eventId/delete', requireRole('owner', 'admin'), async (c) => {
+  const id = parseId(c.req.param('id'))
+  const eventId = parseId(c.req.param('eventId'))
+  if (id === undefined || eventId === undefined) {
+    return c.notFound()
+  }
+
+  await softDeleteLifecycleEvent(getDb(), eventId)
+  setFlash(c, 'Lifecycle event deleted.')
+  return c.redirect(`/members/${id}/timeline`)
+})
+
+// Soft-delete a veteran event (timeline).
+memberRoutes.post('/members/:id/veteran/:eventId/delete', requireRole('owner', 'admin'), async (c) => {
+  const id = parseId(c.req.param('id'))
+  const eventId = parseId(c.req.param('eventId'))
+  if (id === undefined || eventId === undefined) {
+    return c.notFound()
+  }
+
+  await softDeleteVeteranEvent(getDb(), eventId)
+  setFlash(c, 'Veteran event deleted.')
+  return c.redirect(`/members/${id}/timeline`)
 })

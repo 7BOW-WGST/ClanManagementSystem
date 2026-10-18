@@ -62,8 +62,10 @@ This is the working plan for implementation. It turns the milestones in [`ACCEPT
 
 ### M4 — Arma 3 and backfill UX (ACCEPTANCE Step 5)
 
-- **4.1 Arma 3** — Arma 3 rank stream + Arma 3 section events.
-- **4.2 Backfill flow** — person → nickname/join → accounts → history; search by old nicknames/IDs; pagination; conflict view (block vs warn).
+- **4.1 Arma 3 section and rank stream** — member-scoped Arma 3 section events and an independent Arma 3 rank stream; default Elew while in the section.
+- **4.2 Discord and Steam group membership** — account-scoped group join/leave events with derived membership.
+- **4.3 Member onboarding and search** — combined member onboarding form; nickname/identifier search on the members and accounts lists.
+- **4.4 Member timeline with corrections, soft-delete and conflict warnings** — a chronological member timeline; correct/soft-delete core events; lifecycle conflict warnings.
 
 ### M5 — Verification (ACCEPTANCE Step 6)
 
@@ -80,7 +82,7 @@ This is the working plan for implementation. It turns the milestones in [`ACCEPT
 1. Manual/auto, event-date, correction variants → M1.0.
 2. Day/month/year/unknown dates, future rejection, undated-only fallback → M1.0.
 3. join → promotion → sections → leave/kick → rejoin (same-day) → M3.
-4. Backdated add/correction/soft-delete across the membership cycle → M4.2.
+4. Backdated add/correction/soft-delete across the membership cycle → M4.4.
 5. Link/unlink per platform; `borrowed` grants no WT membership → M2.4.
 6. Multiple grants, revoke a specific instance, tier upgrade/revoke → M3.4.
 7. Concurrent two-`main`, limit-exceeding grants, overlapping suspensions → M2.4/M3.5.

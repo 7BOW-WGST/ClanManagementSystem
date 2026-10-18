@@ -54,9 +54,15 @@ export async function coreRankHistory(db: Kysely<Database>, memberId: number): P
       'promotion.reason',
     ])
     .where('promotion.member_id', '=', memberId)
+    .where('promotion.deleted_at', 'is', null)
     .orderBy('promotion.event_date', 'asc')
     .orderBy('promotion.id', 'asc')
     .execute()
+}
+
+// Soft-delete a core promotion/demotion event.
+export async function softDeleteCorePromotion(db: Kysely<Database>, eventId: number): Promise<void> {
+  await db.updateTable('core_promotion_events').set({ deleted_at: new Date() }).where('id', '=', eventId).execute()
 }
 
 // The member's current core rank: the latest promotion while active, otherwise the entry rank

@@ -13,7 +13,7 @@ import type { ActiveAward, AwardHistoryEntry, AwardRow } from '../awards/data'
 import { AwardsSection } from '../awards/views'
 import { AddArma3SectionForm, AddSuspensionForm, Arma3SectionHistory, SuspensionHistory } from '../sections/views'
 import type { Arma3SectionEventRow, SectionRow, SuspensionView } from '../sections/data'
-import type { LifecycleEvent, MemberDetail, MemberStatus, MemberSummary, NicknameEvent } from './data'
+import type { LifecycleEvent, MemberDetail, MemberStatus, MemberSummary, NicknameEvent, TimelineEntry } from './data'
 
 // Small coloured badge for a derived membership status.
 function statusBadge(status: MemberStatus) {
@@ -196,7 +196,12 @@ export const MemberDetailPage: FC<{
   error?: string
 }> = (props) => (
   <Layout title={`Member #${props.member.id}`} role={props.role} flash={props.flash}>
-    <h1 class="h3">Member #{props.member.id}</h1>
+    <h1 class="h3">
+      Member #{props.member.id}{' '}
+      <a class="btn btn-sm btn-outline-secondary ms-2" href={`/members/${props.member.id}/timeline`}>
+        Timeline
+      </a>
+    </h1>
     <p>
       Current nickname: <strong>{props.member.nickname ?? '—'}</strong> · Status: {statusBadge(props.member.status)}
     </p>
@@ -331,5 +336,85 @@ export const MemberDetailPage: FC<{
         <LifecycleHistory events={props.member.lifecycle} />
       </div>
     </div>
+  </Layout>
+)
+
+// Route that deletes a timeline entry (per core stream).
+function deletePath(kind: TimelineEntry['kind'], memberId: number, eventId: number): string {
+  if (kind === 'lifecycle') {
+    return `/members/${memberId}/lifecycle/${eventId}/delete`
+  }
+  if (kind === 'nickname') {
+    return `/members/${memberId}/nickname/${eventId}/delete`
+  }
+  if (kind === 'rank') {
+    return `/members/${memberId}/promotion/${eventId}/delete`
+  }
+  return `/members/${memberId}/veteran/${eventId}/delete`
+}
+
+// Member timeline with correction and soft-delete actions for the core streams.
+export const MemberTimelinePage: FC<{ role: Role; memberId: number; timeline: TimelineEntry[]; flash?: string }> = (props) => (
+  <Layout title={`Member #${props.memberId} timeline`} role={props.role} flash={props.flash}>
+    <h1 class="h3">Timeline · Member #{props.memberId}</h1>
+    <p>
+      <a href={`/members/${props.memberId}`}>Back to member</a>
+    </p>
+    {props.timeline.length === 0 ? (
+      <p class="text-muted">No events.</p>
+    ) : (
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Event</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {props.timeline.map((entry) => (
+            <tr>
+              <td>{formatEventDate(entry.date, entry.precision)}</td>
+              <td>
+                <span class="text-muted">{entry.kind}</span> · {entry.label}
+              </td>
+              <td>
+                {entry.kind === 'nickname' ? (
+                  <form class="d-flex gap-2 mb-2" method="post" action={`/members/${props.memberId}/nickname/${entry.eventId}`}>
+                    <input class="form-control form-control-sm" name="nickname" placeholder="correct nickname" />
+                    <DateInput name="event_date" label="" />
+                    <button class="btn btn-sm btn-outline-secondary" type="submit">
+                      Save
+                    </button>
+                  </form>
+                ) : null}
+                {entry.kind === 'lifecycle' ? (
+                  <form class="d-flex gap-2 mb-2" method="post" action={`/members/${props.memberId}/lifecycle/${entry.eventId}`}>
+                    <select class="form-select form-select-sm" name="type">
+                      <option value="join">join</option>
+                      <option value="leave">leave</option>
+                      <option value="kick">kick</option>
+                    </select>
+                    <DateInput name="event_date" label="" />
+                    <button class="btn btn-sm btn-outline-secondary" type="submit">
+                      Save
+                    </button>
+                  </form>
+                ) : null}
+                <form
+                  method="post"
+                  action={deletePath(entry.kind, props.memberId, entry.eventId)}
+                  onsubmit="return confirm('Delete this event?')"
+                >
+                  <button class="btn btn-sm btn-outline-danger" type="submit">
+                    Delete
+                  </button>
+                </form>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )}
   </Layout>
 )
