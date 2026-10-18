@@ -5,6 +5,8 @@ import { Layout } from '../lib/layout'
 import { Pager } from '../lib/pager'
 import type { Role } from '../lib/role'
 import type { MemberSummary } from '../members/data'
+import { AddGroupForm, GroupHistory } from '../groups/views'
+import type { GroupEventRow } from '../groups/data'
 import type { SquadronEvent } from '../sections/data'
 import { AddSquadronForm, SquadronHistory } from '../sections/views'
 import type { AccountDetail, AccountLinkView, AccountSummary } from './data'
@@ -170,6 +172,7 @@ export const AccountDetailPage: FC<{
   members: MemberSummary[]
   others: AccountSummary[]
   squadron: SquadronEvent[]
+  group: GroupEventRow[]
   flash?: string
   error?: string
 }> = (props) => (
@@ -267,6 +270,16 @@ export const AccountDetailPage: FC<{
         <SquadronHistory events={props.squadron} />
         <div class="mt-3">
           <AddSquadronForm accountId={props.account.id} />
+        </div>
+      </div>
+    ) : null}
+
+    {props.account.platform === 'discord' || props.account.platform === 'steam' ? (
+      <div>
+        <h2 class="h5 mt-4">Group membership</h2>
+        <GroupHistory events={props.group} />
+        <div class="mt-3">
+          <AddGroupForm accountId={props.account.id} />
         </div>
       </div>
     ) : null}

@@ -1,5 +1,6 @@
 import { Hono, type Context } from 'hono'
 import { getDb } from '../db/client'
+import { groupHistory, isGroupPlatform, type GroupEventRow } from '../groups/data'
 import { parseDateInput } from '../lib/date'
 import { consumeFlash, setFlash } from '../lib/flash'
 import { pageCount, pageParams } from '../lib/pagination'
@@ -43,6 +44,7 @@ interface DetailContext {
   members: MemberSummary[]
   others: AccountSummary[]
   squadron: SquadronEvent[]
+  group: GroupEventRow[]
 }
 
 // Load the account detail context.
@@ -58,7 +60,8 @@ async function detailContext(id: number): Promise<DetailContext | undefined> {
     listAccounts(db),
     squadronHistoryForAccount(db, id),
   ])
-  return { account, links, members, others: accounts.filter((candidate) => candidate.id !== id), squadron }
+  const group = isGroupPlatform(account.platform) ? await groupHistory(db, id, account.platform) : []
+  return { account, links, members, others: accounts.filter((candidate) => candidate.id !== id), squadron, group }
 }
 
 // Render the account detail page with an error (used by form handlers).
@@ -71,6 +74,7 @@ function renderDetail(c: Context, context: DetailContext, error: string) {
       members={context.members}
       others={context.others}
       squadron={context.squadron}
+      group={context.group}
       error={error}
     />,
     400,
@@ -164,6 +168,7 @@ accountRoutes.get('/accounts/:id', async (c) => {
       members={context.members}
       others={context.others}
       squadron={context.squadron}
+      group={context.group}
       flash={consumeFlash(c)}
     />,
   )

@@ -235,6 +235,31 @@ export interface MemberLifecycleEvent {
   deleted_at: Date | null
 }
 
+// Discord / Steam group membership events (account-scoped join/leave).
+export interface DiscordGroupEvent {
+  id: Generated<number>
+  account_id: number
+  type: MembershipEventType
+  event_date: string | null
+  event_date_precision: EventDatePrecision
+  recorded_at: Generated<Date>
+  source: Generated<Source>
+  created_by: Generated<string>
+  deleted_at: Date | null
+}
+
+export interface SteamGroupEvent {
+  id: Generated<number>
+  account_id: number
+  type: MembershipEventType
+  event_date: string | null
+  event_date_precision: EventDatePrecision
+  recorded_at: Generated<Date>
+  source: Generated<Source>
+  created_by: Generated<string>
+  deleted_at: Date | null
+}
+
 export interface Database {
   members: Member
   sections: Section
@@ -253,4 +278,6 @@ export interface Database {
   suspensions: Suspension
   arma3_section_events: Arma3SectionEvent
   arma3_promotion_events: Arma3PromotionEvent
+  discord_group_events: DiscordGroupEvent
+  steam_group_events: SteamGroupEvent
 }

@@ -64,5 +64,5 @@ export async function createTestDb(): Promise<Kysely<Database>> {
 
 // Between tests, reset the test database to a clean state
 export async function resetTestDb(db: Kysely<Database>): Promise<void> {
-  await sql`truncate table members, sections, member_nickname_events, member_lifecycle_events, accounts, account_name_events, account_link_events, account_merge_audit, squadron_membership_events, ranks, core_promotion_events, veteran_events, awards, award_events, suspensions, arma3_section_events, arma3_promotion_events restart identity cascade`.execute(db) // Wipe + reset ids
+  await sql`truncate table members, sections, member_nickname_events, member_lifecycle_events, accounts, account_name_events, account_link_events, account_merge_audit, squadron_membership_events, ranks, core_promotion_events, veteran_events, awards, award_events, suspensions, arma3_section_events, arma3_promotion_events, discord_group_events, steam_group_events restart identity cascade`.execute(db) // Wipe + reset ids
 }
