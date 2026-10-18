@@ -3,20 +3,21 @@ import { DateInput } from '../lib/date-input'
 import { formatEventDate } from '../lib/date'
 import type { RankHistoryEntry, RankRow } from './data'
 
-// Member core-rank block: current rank, promotion/demotion form, and history.
+// Member rank block: current rank, promotion/demotion form, and history.
 export const RankSection: FC<{
-  memberId: number
   currentRankName: string | null
   history: RankHistoryEntry[]
   ranks: RankRow[]
+  action: string
+  heading: string
 }> = (props) => (
   <div>
-    <h2 class="h5 mt-4">Core rank</h2>
+    <h3 class="h6 mt-3">{props.heading}</h3>
     <p>
       Current rank: <strong>{props.currentRankName ?? '—'}</strong>
     </p>
 
-    <form method="post" action={`/members/${props.memberId}/promotion`}>
+    <form method="post" action={props.action}>
       <div class="row g-3 align-items-end">
         <div class="col-md-4">
           <label class="form-label" for="rank_id">

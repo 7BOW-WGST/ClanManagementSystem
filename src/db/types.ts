@@ -183,6 +183,32 @@ export interface Suspension {
   deleted_at: Date | null
 }
 
+// Arma 3 section membership and rank stream (member-scoped).
+export interface Arma3SectionEvent {
+  id: Generated<number>
+  member_id: number
+  type: MembershipEventType
+  event_date: string | null
+  event_date_precision: EventDatePrecision
+  recorded_at: Generated<Date>
+  source: Generated<Source>
+  created_by: Generated<string>
+  deleted_at: Date | null
+}
+
+export interface Arma3PromotionEvent {
+  id: Generated<number>
+  member_id: number
+  rank_id: number
+  event_date: string | null
+  event_date_precision: EventDatePrecision
+  recorded_at: Generated<Date>
+  source: Generated<Source>
+  created_by: Generated<string>
+  reason: string | null
+  deleted_at: Date | null
+}
+
 export interface MemberNicknameEvent {
   id: Generated<number>
   member_id: number
@@ -225,4 +251,6 @@ export interface Database {
   awards: Award
   award_events: AwardEvent
   suspensions: Suspension
+  arma3_section_events: Arma3SectionEvent
+  arma3_promotion_events: Arma3PromotionEvent
 }

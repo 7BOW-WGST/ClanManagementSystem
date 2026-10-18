@@ -6,11 +6,14 @@ import { parseDateInput } from '../lib/date'
 import { consumeFlash, setFlash } from '../lib/flash'
 import { pageCount, pageParams } from '../lib/pagination'
 import { currentRole, requireRole } from '../lib/role'
-import { coreRankHistory, currentCoreRank, listRanks, type RankHistoryEntry, type RankRow } from '../ranks/data'
+import { coreRankHistory, currentArma3Rank, currentCoreRank, arma3RankHistory, listRanks, type RankHistoryEntry, type RankRow } from '../ranks/data'
 import {
+  arma3SectionActive,
+  arma3SectionHistory,
   listSections,
   memberWarThunder,
   suspensionViews,
+  type Arma3SectionEventRow,
   type SectionRow,
   type SuspensionView,
   type WarThunderMembership,
@@ -54,6 +57,10 @@ async function detailContext(id: number): Promise<
       awardHistory: AwardHistoryEntry[]
       suspensions: SuspensionView[]
       sections: SectionRow[]
+      arma3Active: boolean
+      arma3RankName: string | null
+      arma3RankHistory: RankHistoryEntry[]
+      arma3SectionHistory: Arma3SectionEventRow[]
     }
   | undefined
 > {
@@ -62,7 +69,7 @@ async function detailContext(id: number): Promise<
   if (!member) {
     return undefined
   }
-  const [accounts, warThunder, coreRank, rankHistory, ranks, veteran, awards, active, history, suspensions, sections] =
+  const [accounts, warThunder, coreRank, rankHistory, ranks, veteran, awards, active, history, suspensions, sections, arma3Active, arma3Sections, arma3History] =
     await Promise.all([
       memberAccountViews(db, id),
       memberWarThunder(db, id),
@@ -75,7 +82,12 @@ async function detailContext(id: number): Promise<
       awardHistory(db, id),
       suspensionViews(db, id),
       listSections(db),
+      arma3SectionActive(db, id),
+      arma3SectionHistory(db, id),
+      arma3RankHistory(db, id),
     ])
+  const arma3Rank = arma3Active ? await currentArma3Rank(db, id) : null
+
   return {
     member,
     accounts,
@@ -89,6 +101,10 @@ async function detailContext(id: number): Promise<
     awardHistory: history,
     suspensions,
     sections,
+    arma3Active,
+    arma3RankName: arma3Rank?.name ?? null,
+    arma3RankHistory: arma3History,
+    arma3SectionHistory: arma3Sections,
   }
 }
 
@@ -156,6 +172,10 @@ memberRoutes.get('/members/:id', async (c) => {
       awardHistory={context.awardHistory}
       suspensions={context.suspensions}
       sections={context.sections}
+      arma3Active={context.arma3Active}
+      arma3RankName={context.arma3RankName}
+      arma3RankHistory={context.arma3RankHistory}
+      arma3SectionHistory={context.arma3SectionHistory}
       flash={consumeFlash(c)}
     />,
   )
@@ -189,6 +209,10 @@ memberRoutes.post('/members/:id/nickname', requireRole('owner', 'admin'), async 
         awardHistory={context.awardHistory}
         suspensions={context.suspensions}
         sections={context.sections}
+        arma3Active={context.arma3Active}
+        arma3RankName={context.arma3RankName}
+        arma3RankHistory={context.arma3RankHistory}
+        arma3SectionHistory={context.arma3SectionHistory}
         error={error}
       />,
       400,
@@ -234,6 +258,10 @@ memberRoutes.post('/members/:id/lifecycle', requireRole('owner', 'admin'), async
         awardHistory={context.awardHistory}
         suspensions={context.suspensions}
         sections={context.sections}
+        arma3Active={context.arma3Active}
+        arma3RankName={context.arma3RankName}
+        arma3RankHistory={context.arma3RankHistory}
+        arma3SectionHistory={context.arma3SectionHistory}
         error={error}
       />,
       400,

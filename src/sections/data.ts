@@ -1,6 +1,7 @@
 import type { Kysely, Selectable } from 'kysely'
 import { activeLinksForMember } from '../accounts/data'
 import type {
+  Arma3SectionEvent,
   Database,
   EventDatePrecision,
   MembershipEventType,
@@ -10,6 +11,7 @@ import type {
 } from '../db/types'
 import { today } from '../lib/date'
 import { pickEffective } from '../lib/projection'
+import { statusFromLifecycle, type LifecycleEvent } from '../members/data'
 
 // The War Thunder squadrons a member's account can belong to.
 export const squadrons = ['7BOW', '7BOWs', '7BOWr'] as const
@@ -203,4 +205,49 @@ export async function suspensionViews(db: Kysely<Database>, memberId: number): P
     ...row,
     active: row.startDate <= now && (row.endDate === null || row.endDate >= now),
   }))
+}
+
+// A stored Arma 3 section event.
+export type Arma3SectionEventRow = Selectable<Arma3SectionEvent>
+
+// Record an Arma 3 section join/leave.
+export async function addArma3SectionEvent(
+  db: Kysely<Database>,
+  input: { memberId: number; type: MembershipEventType; eventDate: string | null; precision: EventDatePrecision },
+): Promise<void> {
+  await db
+    .insertInto('arma3_section_events')
+    .values({
+      member_id: input.memberId,
+      type: input.type,
+      event_date: input.eventDate,
+      event_date_precision: input.precision,
+    })
+    .execute()
+}
+
+// Full Arma 3 section history of a member.
+export async function arma3SectionHistory(db: Kysely<Database>, memberId: number): Promise<Arma3SectionEventRow[]> {
+  return db
+    .selectFrom('arma3_section_events')
+    .selectAll()
+    .where('member_id', '=', memberId)
+    .orderBy('event_date', 'asc')
+    .orderBy('id', 'asc')
+    .execute()
+}
+
+// Whether the member is currently active in the Arma 3 section (active member + latest event join).
+export async function arma3SectionActive(db: Kysely<Database>, memberId: number): Promise<boolean> {
+  const lifecycle: LifecycleEvent[] = await db
+    .selectFrom('member_lifecycle_events')
+    .selectAll()
+    .where('member_id', '=', memberId)
+    .execute()
+  if (statusFromLifecycle(lifecycle) !== 'active') {
+    return false
+  }
+
+  const events = await arma3SectionHistory(db, memberId)
+  return pickEffective(events)?.type === 'join'
 }

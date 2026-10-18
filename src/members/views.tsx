@@ -10,8 +10,8 @@ import type { RankHistoryEntry, RankRow } from '../ranks/data'
 import { RankSection } from '../ranks/views'
 import type { ActiveAward, AwardHistoryEntry, AwardRow } from '../awards/data'
 import { AwardsSection } from '../awards/views'
-import { AddSuspensionForm, SuspensionHistory } from '../sections/views'
-import type { SectionRow, SuspensionView } from '../sections/data'
+import { AddArma3SectionForm, AddSuspensionForm, Arma3SectionHistory, SuspensionHistory } from '../sections/views'
+import type { Arma3SectionEventRow, SectionRow, SuspensionView } from '../sections/data'
 import type { LifecycleEvent, MemberDetail, MemberStatus, MemberSummary, NicknameEvent } from './data'
 
 // Small coloured badge for a derived membership status.
@@ -135,6 +135,10 @@ export const MemberDetailPage: FC<{
   awardHistory: AwardHistoryEntry[]
   suspensions: SuspensionView[]
   sections: SectionRow[]
+  arma3Active: boolean
+  arma3RankName: string | null
+  arma3RankHistory: RankHistoryEntry[]
+  arma3SectionHistory: Arma3SectionEventRow[]
   flash?: string
   error?: string
 }> = (props) => (
@@ -169,10 +173,11 @@ export const MemberDetailPage: FC<{
     </p>
 
     <RankSection
-      memberId={props.member.id}
       currentRankName={props.coreRankName}
       history={props.rankHistory}
       ranks={props.ranks}
+      action={`/members/${props.member.id}/promotion`}
+      heading="Core rank"
     />
 
     <h2 class="h5 mt-4">Veteran</h2>
@@ -213,6 +218,22 @@ export const MemberDetailPage: FC<{
     <div class="mt-3">
       <AddSuspensionForm memberId={props.member.id} sections={props.sections} />
     </div>
+
+    <h2 class="h5 mt-4">Arma 3</h2>
+    <p>
+      Section: <strong>{props.arma3Active ? 'active' : '—'}</strong>
+    </p>
+    <Arma3SectionHistory events={props.arma3SectionHistory} />
+    <div class="mt-3">
+      <AddArma3SectionForm memberId={props.member.id} />
+    </div>
+    <RankSection
+      currentRankName={props.arma3RankName}
+      history={props.arma3RankHistory}
+      ranks={props.ranks}
+      action={`/members/${props.member.id}/arma3-promotion`}
+      heading="Arma 3 rank"
+    />
 
     <div class="row">
       <div class="col-md-6">
