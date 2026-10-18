@@ -1,5 +1,6 @@
 import type { FC } from 'hono/jsx'
 import type { MemberAccountView } from '../accounts/data'
+import { platforms } from '../accounts/data'
 import { DateInput } from '../lib/date-input'
 import { formatEventDate } from '../lib/date'
 import { Layout } from '../lib/layout'
@@ -55,7 +56,7 @@ function LifecycleHistory(props: { events: LifecycleEvent[] }) {
 }
 
 // Members list page.
-export const MemberListPage: FC<{ role: Role; members: MemberSummary[]; page: number; totalPages: number; flash?: string }> = (props) => (
+export const MemberListPage: FC<{ role: Role; members: MemberSummary[]; page: number; totalPages: number; q?: string; flash?: string }> = (props) => (
   <Layout title="Members" role={props.role} flash={props.flash}>
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h1 class="h3 mb-0">Members</h1>
@@ -63,6 +64,14 @@ export const MemberListPage: FC<{ role: Role; members: MemberSummary[]; page: nu
         New member
       </a>
     </div>
+    <form class="mb-3" method="get" action="/members">
+      <div class="input-group">
+        <input class="form-control" type="search" name="q" value={props.q ?? ''} placeholder="Search by nickname" />
+        <button class="btn btn-outline-secondary" type="submit">
+          Search
+        </button>
+      </div>
+    </form>
     {props.members.length === 0 ? (
       <p class="text-muted">No members yet.</p>
     ) : (
@@ -93,7 +102,7 @@ export const MemberListPage: FC<{ role: Role; members: MemberSummary[]; page: nu
   </Layout>
 )
 
-// New member form (identity + optional first nickname).
+// New member form: onboarding (identity + nickname + optional join + optional account).
 export const MemberNewPage: FC<{
   role: Role
   flash?: string
@@ -101,6 +110,12 @@ export const MemberNewPage: FC<{
   nickname?: string
   date?: string
   datePrecision?: string
+  joinChecked?: boolean
+  joinDate?: string
+  joinDatePrecision?: string
+  platform?: string
+  platformId?: string
+  accountName?: string
 }> = (props) => (
   <Layout title="New member" role={props.role} flash={props.flash}>
     <h1 class="h3">New member</h1>
@@ -113,7 +128,45 @@ export const MemberNewPage: FC<{
         <input class="form-control" id="nickname" name="nickname" value={props.nickname ?? ''} />
       </div>
       <DateInput name="nickname_date" label="Nickname date" value={props.date} precision={props.datePrecision} />
-      <button class="btn btn-primary" type="submit">
+
+      <div class="form-check mb-3">
+        <input class="form-check-input" type="checkbox" id="join" name="join" value="1" checked={props.joinChecked} />
+        <label class="form-check-label" for="join">
+          Record a join
+        </label>
+      </div>
+      <DateInput name="join_date" label="Join date" value={props.joinDate} precision={props.joinDatePrecision} />
+
+      <h2 class="h6 mt-4">Account (optional)</h2>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label" for="platform">
+            Platform
+          </label>
+          <select class="form-select" id="platform" name="platform">
+            <option value="">none</option>
+            {platforms.map((platform) => (
+              <option value={platform} selected={props.platform === platform}>
+                {platform}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label" for="platform_id">
+            Identifier
+          </label>
+          <input class="form-control" id="platform_id" name="platform_id" value={props.platformId ?? ''} />
+        </div>
+        <div class="col-md-4">
+          <label class="form-label" for="account_name">
+            Display name
+          </label>
+          <input class="form-control" id="account_name" name="account_name" value={props.accountName ?? ''} />
+        </div>
+      </div>
+
+      <button class="btn btn-primary mt-3" type="submit">
         Create
       </button>
     </form>

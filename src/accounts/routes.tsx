@@ -84,10 +84,11 @@ function renderDetail(c: Context, context: DetailContext, error: string) {
 // Accounts list.
 accountRoutes.get('/accounts', async (c) => {
   const { page, limit, offset } = pageParams(c)
+  const q = c.req.query('q')
   const db = getDb()
-  const [accounts, total] = await Promise.all([listAccounts(db, { limit, offset }), countAccounts(db)])
+  const [accounts, total] = await Promise.all([listAccounts(db, { limit, offset, search: q }), countAccounts(db, q)])
   return c.html(
-    <AccountListPage role={currentRole(c)} accounts={accounts} page={page} totalPages={pageCount(total, limit)} flash={consumeFlash(c)} />,
+    <AccountListPage role={currentRole(c)} accounts={accounts} page={page} totalPages={pageCount(total, limit)} q={q} flash={consumeFlash(c)} />,
   )
 })
 

@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import { memberAccountViews, type MemberAccountView } from '../accounts/data'
+import { createAccount, isPlatform, memberAccountViews, platformIdTaken, type MemberAccountView } from '../accounts/data'
 import { activeAwards, awardHistory, listAwards, type ActiveAward, type AwardHistoryEntry, type AwardRow } from '../awards/data'
 import { getDb } from '../db/client'
 import { parseDateInput } from '../lib/date'
@@ -111,10 +111,11 @@ async function detailContext(id: number): Promise<
 // Members list.
 memberRoutes.get('/members', async (c) => {
   const { page, limit, offset } = pageParams(c)
+  const q = c.req.query('q')
   const db = getDb()
-  const [members, total] = await Promise.all([listMembers(db, { limit, offset }), countMembers(db)])
+  const [members, total] = await Promise.all([listMembers(db, { limit, offset, search: q }), countMembers(db, q)])
   return c.html(
-    <MemberListPage role={currentRole(c)} members={members} page={page} totalPages={pageCount(total, limit)} flash={consumeFlash(c)} />,
+    <MemberListPage role={currentRole(c)} members={members} page={page} totalPages={pageCount(total, limit)} q={q} flash={consumeFlash(c)} />,
   )
 })
 
@@ -123,26 +124,75 @@ memberRoutes.get('/members/new', requireRole('owner', 'admin'), (c) =>
   c.html(<MemberNewPage role={currentRole(c)} />),
 )
 
-// Create a member (identity + optional first nickname).
+// Create a member (onboarding: identity + nickname + optional join + optional account).
 memberRoutes.post('/members', requireRole('owner', 'admin'), async (c) => {
   const body = await c.req.parseBody()
   const nickname = stringField(body, 'nickname')
   const date = parseDateInput(stringField(body, 'nickname_date_precision') ?? 'unknown', stringField(body, 'nickname_date') ?? '')
+  const wantsJoin = stringField(body, 'join') !== undefined
+  const joinDate = parseDateInput(stringField(body, 'join_date_precision') ?? 'unknown', stringField(body, 'join_date') ?? '')
+  const platform = stringField(body, 'platform')
+  const platformId = stringField(body, 'platform_id')
+  const accountName = stringField(body, 'account_name')
 
-  if (!date.ok) {
-    return c.html(
+  const rerender = (error: string) =>
+    c.html(
       <MemberNewPage
         role={currentRole(c)}
-        error={date.error}
+        error={error}
         nickname={nickname}
         date={stringField(body, 'nickname_date')}
         datePrecision={stringField(body, 'nickname_date_precision')}
+        joinChecked={wantsJoin}
+        joinDate={stringField(body, 'join_date')}
+        joinDatePrecision={stringField(body, 'join_date_precision')}
+        platform={platform}
+        platformId={platformId}
+        accountName={accountName}
       />,
       400,
     )
+
+  if (!date.ok) {
+    return rerender(date.error)
+  }
+  if (wantsJoin && !joinDate.ok) {
+    return rerender(joinDate.error)
   }
 
-  const id = await createMember(getDb(), { nickname: nickname ?? null, eventDate: date.date, precision: date.precision })
+  const hasAccount = platform !== undefined && platform !== ''
+  if (hasAccount && !isPlatform(platform)) {
+    return rerender('Choose a valid platform.')
+  }
+
+  const db = getDb()
+  if (hasAccount && platformId !== undefined && (await platformIdTaken(db, platform, platformId))) {
+    return rerender('An account with this identifier already exists for this platform.')
+  }
+
+  const id = await createMember(db, { nickname: nickname ?? null, eventDate: date.date, precision: date.precision })
+
+  if (wantsJoin) {
+    await addLifecycleEvent(db, {
+      memberId: id,
+      type: 'join',
+      eventDate: joinDate.ok ? joinDate.date : null,
+      precision: joinDate.ok ? joinDate.precision : 'unknown',
+    })
+  }
+
+  if (hasAccount) {
+    await createAccount(db, {
+      platform,
+      platformId: platformId ?? null,
+      name: accountName ?? null,
+      nameDate: null,
+      namePrecision: 'unknown',
+      createdDate: null,
+      createdPrecision: null,
+    })
+  }
+
   setFlash(c, 'Member created.')
   return c.redirect(`/members/${id}`)
 })

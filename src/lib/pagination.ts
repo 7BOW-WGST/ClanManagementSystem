@@ -3,10 +3,17 @@ import type { Context } from 'hono'
 // Number of rows shown per list page.
 export const PAGE_SIZE = 25
 
-// Limit/offset options for list queries.
+// Limit/offset/search options for list queries.
 export interface ListOptions {
   limit?: number
   offset?: number
+  search?: string
+}
+
+// Build a case-insensitive LIKE pattern from a search string, or undefined when empty.
+export function searchPattern(search: string | undefined): string | undefined {
+  const trimmed = search?.trim()
+  return trimmed ? `%${trimmed}%` : undefined
 }
 
 export interface PageParams {

@@ -1,6 +1,7 @@
 import type { Kysely, Selectable } from 'kysely'
 import type { Database, EventDatePrecision, MemberLifecycleEvent, MemberNicknameEvent, VeteranEventType } from '../db/types'
 import type { ListOptions } from '../lib/pagination'
+import { searchPattern } from '../lib/pagination'
 import { pickEffective } from '../lib/projection'
 
 // Derived membership status of a member.
@@ -51,14 +52,17 @@ export function statusFromLifecycle(events: LifecycleEvent[]): MemberStatus {
 // List members with their derived (projected) nickname and status. Events for the listed page are
 // fetched in bulk to avoid a query per member (N+1).
 export async function listMembers(db: Kysely<Database>, options: ListOptions = {}): Promise<MemberSummary[]> {
-  const members = await db
-    .selectFrom('members')
-    .select('id')
-    .where('deleted_at', 'is', null)
-    .orderBy('id')
-    .limit(options.limit ?? null)
-    .offset(options.offset ?? 0)
-    .execute()
+  const pattern = searchPattern(options.search)
+
+  let query = db.selectFrom('members').select('id').where('deleted_at', 'is', null)
+  if (pattern) {
+    // Match members whose current or historical nickname contains the search text.
+    query = query.where('id', 'in', (eb) =>
+      eb.selectFrom('member_nickname_events').select('member_id').where('nickname', 'ilike', pattern),
+    )
+  }
+
+  const members = await query.orderBy('id').limit(options.limit ?? null).offset(options.offset ?? 0).execute()
 
   if (members.length === 0) {
     return []
@@ -75,13 +79,18 @@ export async function listMembers(db: Kysely<Database>, options: ListOptions = {
   }))
 }
 
-// Count live members (for pagination).
-export async function countMembers(db: Kysely<Database>): Promise<number> {
-  const row = await db
-    .selectFrom('members')
-    .select((eb) => eb.fn.countAll().as('count'))
-    .where('deleted_at', 'is', null)
-    .executeTakeFirstOrThrow()
+// Count live members (for pagination), optionally filtered by a nickname search.
+export async function countMembers(db: Kysely<Database>, search?: string): Promise<number> {
+  const pattern = searchPattern(search)
+
+  let query = db.selectFrom('members').select((eb) => eb.fn.countAll().as('count')).where('deleted_at', 'is', null)
+  if (pattern) {
+    query = query.where('id', 'in', (eb) =>
+      eb.selectFrom('member_nickname_events').select('member_id').where('nickname', 'ilike', pattern),
+    )
+  }
+
+  const row = await query.executeTakeFirstOrThrow()
   return Number(row.count)
 }
 

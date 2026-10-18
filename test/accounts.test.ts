@@ -100,6 +100,14 @@ describe.skipIf(!dbConfigured)('accounts', () => {
     expect(await getAccountDetail(db, 999)).toBeUndefined()
   })
 
+  test('search matches the identifier', async () => {
+    await resetTestDb(db)
+    await newAccount('steam', '76561198000000009')
+
+    expect(await listAccounts(db, { search: '76561198' })).toHaveLength(1)
+    expect(await listAccounts(db, { search: 'nomatch' })).toHaveLength(0)
+  })
+
   test('links a War Thunder account and enforces one main/alt per account', async () => {
     await resetTestDb(db)
     const account = await newAccount('warthunder', 'wt-1')

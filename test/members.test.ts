@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
 import type { Kysely } from 'kysely'
-import { addLifecycleEvent, addNicknameEvent, createMember, getMemberDetail, listMembers } from '../src/members/data'
+import { addLifecycleEvent, addNicknameEvent, countMembers, createMember, getMemberDetail, listMembers } from '../src/members/data'
 import type { Database } from '../src/db/types'
 import { createTestDb, resetTestDb } from './setup'
 
@@ -53,5 +53,15 @@ describe.skipIf(!dbConfigured)('members', () => {
   test('returns undefined for a missing member', async () => {
     await resetTestDb(db)
     expect(await getMemberDetail(db, 999)).toBeUndefined()
+  })
+
+  test('search matches a historical nickname', async () => {
+    await resetTestDb(db)
+    const id = await createMember(db, { nickname: 'OldName', eventDate: '2020-01-01', precision: 'day' })
+    await addNicknameEvent(db, { memberId: id, nickname: 'NewName', eventDate: '2025-01-01', precision: 'day' })
+
+    expect(await listMembers(db, { search: 'Old' })).toHaveLength(1)
+    expect(await countMembers(db, 'New')).toBe(1)
+    expect(await listMembers(db, { search: 'zzz' })).toHaveLength(0)
   })
 })

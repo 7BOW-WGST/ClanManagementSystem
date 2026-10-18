@@ -9,6 +9,7 @@ import type {
   Relation,
 } from '../db/types'
 import type { ListOptions } from '../lib/pagination'
+import { searchPattern } from '../lib/pagination'
 import { pickEffective } from '../lib/projection'
 import { listMembers } from '../members/data'
 
@@ -88,14 +89,19 @@ export function currentName(events: AccountNameEventRow[]): string | null {
 
 // List accounts with their derived current display name.
 export async function listAccounts(db: Kysely<Database>, options: ListOptions = {}): Promise<AccountSummary[]> {
-  const accounts = await db
-    .selectFrom('accounts')
-    .selectAll()
-    .where('deleted_at', 'is', null)
-    .orderBy('id')
-    .limit(options.limit ?? null)
-    .offset(options.offset ?? 0)
-    .execute()
+  const pattern = searchPattern(options.search)
+
+  let query = db.selectFrom('accounts').selectAll().where('deleted_at', 'is', null)
+  if (pattern) {
+    query = query.where((eb) =>
+      eb.or([
+        eb('platform_id', 'ilike', pattern),
+        eb('id', 'in', (sub) => sub.selectFrom('account_name_events').select('account_id').where('name', 'ilike', pattern)),
+      ]),
+    )
+  }
+
+  const accounts = await query.orderBy('id').limit(options.limit ?? null).offset(options.offset ?? 0).execute()
 
   if (accounts.length === 0) {
     return []
@@ -112,13 +118,21 @@ export async function listAccounts(db: Kysely<Database>, options: ListOptions = 
   }))
 }
 
-// Count live accounts (for pagination).
-export async function countAccounts(db: Kysely<Database>): Promise<number> {
-  const row = await db
-    .selectFrom('accounts')
-    .select((eb) => eb.fn.countAll().as('count'))
-    .where('deleted_at', 'is', null)
-    .executeTakeFirstOrThrow()
+// Count live accounts (for pagination), optionally filtered by identifier or name.
+export async function countAccounts(db: Kysely<Database>, search?: string): Promise<number> {
+  const pattern = searchPattern(search)
+
+  let query = db.selectFrom('accounts').select((eb) => eb.fn.countAll().as('count')).where('deleted_at', 'is', null)
+  if (pattern) {
+    query = query.where((eb) =>
+      eb.or([
+        eb('platform_id', 'ilike', pattern),
+        eb('id', 'in', (sub) => sub.selectFrom('account_name_events').select('account_id').where('name', 'ilike', pattern)),
+      ]),
+    )
+  }
+
+  const row = await query.executeTakeFirstOrThrow()
   return Number(row.count)
 }
 

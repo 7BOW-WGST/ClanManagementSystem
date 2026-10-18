@@ -74,7 +74,7 @@ function MemberLinks(props: { account: AccountDetail; links: AccountLinkView[] }
 }
 
 // Accounts list page.
-export const AccountListPage: FC<{ role: Role; accounts: AccountSummary[]; page: number; totalPages: number; flash?: string }> = (props) => (
+export const AccountListPage: FC<{ role: Role; accounts: AccountSummary[]; page: number; totalPages: number; q?: string; flash?: string }> = (props) => (
   <Layout title="Accounts" role={props.role} flash={props.flash}>
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h1 class="h3 mb-0">Accounts</h1>
@@ -82,6 +82,14 @@ export const AccountListPage: FC<{ role: Role; accounts: AccountSummary[]; page:
         New account
       </a>
     </div>
+    <form class="mb-3" method="get" action="/accounts">
+      <div class="input-group">
+        <input class="form-control" type="search" name="q" value={props.q ?? ''} placeholder="Search by identifier or name" />
+        <button class="btn btn-outline-secondary" type="submit">
+          Search
+        </button>
+      </div>
+    </form>
     {props.accounts.length === 0 ? (
       <p class="text-muted">No accounts yet.</p>
     ) : (
