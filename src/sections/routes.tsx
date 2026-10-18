@@ -4,7 +4,7 @@ import { parseDateInput } from '../lib/date'
 import { setFlash } from '../lib/flash'
 import { currentRole, requireRole } from '../lib/role'
 import { stringField } from '../lib/validation'
-import { addSquadronEvent, isSquadron } from './data'
+import { addSquadronEvent, addSuspension, isSquadron } from './data'
 
 // Router for section/squadron routes (mounted at the application root).
 export const sectionRoutes = new Hono()
@@ -49,4 +49,47 @@ sectionRoutes.post('/accounts/:id/squadron', requireRole('owner', 'admin'), asyn
   })
   setFlash(c, 'Squadron event added.')
   return c.redirect(`/accounts/${accountId}`)
+})
+
+// Record a member's section suspension.
+sectionRoutes.post('/members/:id/suspension', requireRole('owner', 'admin'), async (c) => {
+  const memberId = parseId(c.req.param('id'))
+  if (memberId === undefined) {
+    return c.notFound()
+  }
+
+  const body = await c.req.parseBody()
+  const sectionId = parseId(stringField(body, 'section_id'))
+  const start = parseDateInput(stringField(body, 'start_date_precision') ?? 'unknown', stringField(body, 'start_date') ?? '')
+  const end = parseDateInput(stringField(body, 'end_date_precision') ?? 'unknown', stringField(body, 'end_date') ?? '')
+  const reason = stringField(body, 'reason')
+
+  if (sectionId === undefined) {
+    setFlash(c, 'Choose a section.')
+    return c.redirect(`/members/${memberId}`)
+  }
+  if (!start.ok || start.date === null) {
+    setFlash(c, start.ok ? 'Enter a start date.' : start.error)
+    return c.redirect(`/members/${memberId}`)
+  }
+  if (!end.ok) {
+    setFlash(c, end.error)
+    return c.redirect(`/members/${memberId}`)
+  }
+  if (!reason) {
+    setFlash(c, 'A reason is required.')
+    return c.redirect(`/members/${memberId}`)
+  }
+
+  const error = await addSuspension(getDb(), {
+    memberId,
+    sectionId,
+    startDate: start.date,
+    startPrecision: start.precision,
+    endDate: end.date,
+    endPrecision: end.date === null ? null : end.precision,
+    reason,
+  })
+  setFlash(c, error ?? 'Suspension added.')
+  return c.redirect(`/members/${memberId}`)
 })

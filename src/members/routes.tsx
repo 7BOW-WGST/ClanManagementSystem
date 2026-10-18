@@ -7,7 +7,14 @@ import { consumeFlash, setFlash } from '../lib/flash'
 import { pageCount, pageParams } from '../lib/pagination'
 import { currentRole, requireRole } from '../lib/role'
 import { coreRankHistory, currentCoreRank, listRanks, type RankHistoryEntry, type RankRow } from '../ranks/data'
-import { memberWarThunder, type WarThunderMembership } from '../sections/data'
+import {
+  listSections,
+  memberWarThunder,
+  suspensionViews,
+  type SectionRow,
+  type SuspensionView,
+  type WarThunderMembership,
+} from '../sections/data'
 import { stringField } from '../lib/validation'
 import {
   addLifecycleEvent,
@@ -45,6 +52,8 @@ async function detailContext(id: number): Promise<
       awards: AwardRow[]
       activeAwards: ActiveAward[]
       awardHistory: AwardHistoryEntry[]
+      suspensions: SuspensionView[]
+      sections: SectionRow[]
     }
   | undefined
 > {
@@ -53,17 +62,20 @@ async function detailContext(id: number): Promise<
   if (!member) {
     return undefined
   }
-  const [accounts, warThunder, coreRank, rankHistory, ranks, veteran, awards, active, history] = await Promise.all([
-    memberAccountViews(db, id),
-    memberWarThunder(db, id),
-    currentCoreRank(db, id),
-    coreRankHistory(db, id),
-    listRanks(db),
-    currentVeteran(db, id),
-    listAwards(db),
-    activeAwards(db, id),
-    awardHistory(db, id),
-  ])
+  const [accounts, warThunder, coreRank, rankHistory, ranks, veteran, awards, active, history, suspensions, sections] =
+    await Promise.all([
+      memberAccountViews(db, id),
+      memberWarThunder(db, id),
+      currentCoreRank(db, id),
+      coreRankHistory(db, id),
+      listRanks(db),
+      currentVeteran(db, id),
+      listAwards(db),
+      activeAwards(db, id),
+      awardHistory(db, id),
+      suspensionViews(db, id),
+      listSections(db),
+    ])
   return {
     member,
     accounts,
@@ -75,6 +87,8 @@ async function detailContext(id: number): Promise<
     awards,
     activeAwards: active,
     awardHistory: history,
+    suspensions,
+    sections,
   }
 }
 
@@ -140,6 +154,8 @@ memberRoutes.get('/members/:id', async (c) => {
       awards={context.awards}
       activeAwards={context.activeAwards}
       awardHistory={context.awardHistory}
+      suspensions={context.suspensions}
+      sections={context.sections}
       flash={consumeFlash(c)}
     />,
   )
@@ -171,6 +187,8 @@ memberRoutes.post('/members/:id/nickname', requireRole('owner', 'admin'), async 
         awards={context.awards}
         activeAwards={context.activeAwards}
         awardHistory={context.awardHistory}
+        suspensions={context.suspensions}
+        sections={context.sections}
         error={error}
       />,
       400,
@@ -214,6 +232,8 @@ memberRoutes.post('/members/:id/lifecycle', requireRole('owner', 'admin'), async
         awards={context.awards}
         activeAwards={context.activeAwards}
         awardHistory={context.awardHistory}
+        suspensions={context.suspensions}
+        sections={context.sections}
         error={error}
       />,
       400,

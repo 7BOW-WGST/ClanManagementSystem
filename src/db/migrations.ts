@@ -13,6 +13,7 @@ import * as createCorePromotionEvents from './migrations/20260101000010_create_c
 import * as createVeteranEvents from './migrations/20260101000011_create_veteran_events'
 import * as createAwards from './migrations/20260101000012_create_awards'
 import * as createAwardEvents from './migrations/20260101000013_create_award_events'
+import * as createSuspensions from './migrations/20260101000014_create_suspensions'
 
 const migrations: Record<string, Migration> = {
   '20260101000000_create_members': createMembers,
@@ -29,6 +30,7 @@ const migrations: Record<string, Migration> = {
   '20260101000011_create_veteran_events': createVeteranEvents,
   '20260101000012_create_awards': createAwards,
   '20260101000013_create_award_events': createAwardEvents,
+  '20260101000014_create_suspensions': createSuspensions,
 }
 
 export const migrationProvider: MigrationProvider = {

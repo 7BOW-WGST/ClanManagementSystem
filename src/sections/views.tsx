@@ -1,7 +1,7 @@
 import type { FC } from 'hono/jsx'
 import { DateInput } from '../lib/date-input'
 import { formatEventDate } from '../lib/date'
-import { squadrons, type SquadronEvent } from './data'
+import { squadrons, type SectionRow, type SquadronEvent, type SuspensionView } from './data'
 
 // Render an account's squadron history (or a placeholder when empty).
 export function SquadronHistory(props: { events: SquadronEvent[] }) {
@@ -51,6 +51,60 @@ export const AddSquadronForm: FC<{ accountId: number }> = (props) => (
           Add
         </button>
       </div>
+    </div>
+  </form>
+)
+
+// Render a member's section suspensions (or a placeholder when empty).
+export function SuspensionHistory(props: { events: SuspensionView[] }) {
+  if (props.events.length === 0) {
+    return <p class="text-muted">No suspensions.</p>
+  }
+  return (
+    <ul class="list-group">
+      {props.events.map((suspension) => (
+        <li class="list-group-item">
+          {suspension.sectionName}: {formatEventDate(suspension.startDate, suspension.startDatePrecision)} →{' '}
+          {suspension.endDate ? formatEventDate(suspension.endDate, suspension.endDatePrecision ?? 'day') : 'ongoing'}
+          {suspension.active ? <span class="badge text-bg-warning ms-2">active</span> : null}
+          <span class="text-muted"> · {suspension.reason}</span>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+// Form to record a section suspension for a member.
+export const AddSuspensionForm: FC<{ memberId: number; sections: SectionRow[] }> = (props) => (
+  <form method="post" action={`/members/${props.memberId}/suspension`}>
+    <div class="row g-3 align-items-end">
+      <div class="col-md-3">
+        <label class="form-label" for="suspension_section">
+          Section
+        </label>
+        <select class="form-select" id="suspension_section" name="section_id">
+          {props.sections.map((section) => (
+            <option value={section.id}>{section.name}</option>
+          ))}
+        </select>
+      </div>
+      <div class="col-md-3">
+        <DateInput name="start_date" label="Start" />
+      </div>
+      <div class="col-md-3">
+        <DateInput name="end_date" label="End (unknown = ongoing)" />
+      </div>
+      <div class="col-md-3">
+        <label class="form-label" for="suspension_reason">
+          Reason
+        </label>
+        <input class="form-control" id="suspension_reason" name="reason" />
+      </div>
+    </div>
+    <div class="mt-2">
+      <button class="btn btn-primary" type="submit">
+        Add
+      </button>
     </div>
   </form>
 )

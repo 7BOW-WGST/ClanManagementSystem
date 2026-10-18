@@ -166,6 +166,23 @@ export interface AwardEvent {
   deleted_at: Date | null
 }
 
+// Section-scoped suspension interval (see DECISIONS S1).
+export interface Suspension {
+  id: Generated<number>
+  member_id: number
+  section_id: number
+  start_date: string
+  start_date_precision: EventDatePrecision
+  end_date: string | null
+  end_date_precision: EventDatePrecision | null
+  reason: string
+  recorded_at: Generated<Date>
+  source: Generated<Source>
+  created_by: Generated<string>
+  updated_at: Generated<Date>
+  deleted_at: Date | null
+}
+
 export interface MemberNicknameEvent {
   id: Generated<number>
   member_id: number
@@ -207,4 +224,5 @@ export interface Database {
   veteran_events: VeteranEvent
   awards: Award
   award_events: AwardEvent
+  suspensions: Suspension
 }

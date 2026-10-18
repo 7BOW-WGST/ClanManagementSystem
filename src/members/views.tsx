@@ -10,6 +10,8 @@ import type { RankHistoryEntry, RankRow } from '../ranks/data'
 import { RankSection } from '../ranks/views'
 import type { ActiveAward, AwardHistoryEntry, AwardRow } from '../awards/data'
 import { AwardsSection } from '../awards/views'
+import { AddSuspensionForm, SuspensionHistory } from '../sections/views'
+import type { SectionRow, SuspensionView } from '../sections/data'
 import type { LifecycleEvent, MemberDetail, MemberStatus, MemberSummary, NicknameEvent } from './data'
 
 // Small coloured badge for a derived membership status.
@@ -131,6 +133,8 @@ export const MemberDetailPage: FC<{
   awards: AwardRow[]
   activeAwards: ActiveAward[]
   awardHistory: AwardHistoryEntry[]
+  suspensions: SuspensionView[]
+  sections: SectionRow[]
   flash?: string
   error?: string
 }> = (props) => (
@@ -203,6 +207,12 @@ export const MemberDetailPage: FC<{
       active={props.activeAwards}
       history={props.awardHistory}
     />
+
+    <h2 class="h5 mt-4">Suspensions</h2>
+    <SuspensionHistory events={props.suspensions} />
+    <div class="mt-3">
+      <AddSuspensionForm memberId={props.member.id} sections={props.sections} />
+    </div>
 
     <div class="row">
       <div class="col-md-6">
