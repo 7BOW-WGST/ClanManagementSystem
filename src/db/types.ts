@@ -136,6 +136,36 @@ export interface VeteranEvent {
   deleted_at: Date | null
 }
 
+// Award catalog and instances (see DECISIONS M7/C2).
+export type AwardEventType = 'grant' | 'revoke' | 'upgrade'
+
+export interface Award {
+  id: Generated<number>
+  name: string
+  category: string
+  tier_group: string | null
+  tier_level: string | null
+  requirement: string
+  max_per_member: number | null
+  requires_reason: boolean
+  introduced_at: number | null
+}
+
+export interface AwardEvent {
+  id: Generated<number>
+  member_id: number
+  award_id: number
+  type: AwardEventType
+  target_event_id: number | null
+  event_date: string | null
+  event_date_precision: EventDatePrecision
+  reason: string | null
+  recorded_at: Generated<Date>
+  source: Generated<Source>
+  created_by: Generated<string>
+  deleted_at: Date | null
+}
+
 export interface MemberNicknameEvent {
   id: Generated<number>
   member_id: number
@@ -175,4 +205,6 @@ export interface Database {
   ranks: Rank
   core_promotion_events: CorePromotionEvent
   veteran_events: VeteranEvent
+  awards: Award
+  award_events: AwardEvent
 }

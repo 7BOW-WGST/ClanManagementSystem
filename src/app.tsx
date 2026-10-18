@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import { setCookie } from 'hono/cookie'
 import { accountRoutes } from './accounts/routes'
+import { awardRoutes } from './awards/routes'
 import { sameSiteGuard } from './lib/middleware'
 import { isRole } from './lib/role'
 import { memberRoutes } from './members/routes'
@@ -37,3 +38,4 @@ app.route('/', memberRoutes)
 app.route('/', accountRoutes)
 app.route('/', sectionRoutes)
 app.route('/', rankRoutes)
+app.route('/', awardRoutes)

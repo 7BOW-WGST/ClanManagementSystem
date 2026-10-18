@@ -11,6 +11,8 @@ import * as createSquadronMembershipEvents from './migrations/20260101000008_cre
 import * as createRanks from './migrations/20260101000009_create_ranks'
 import * as createCorePromotionEvents from './migrations/20260101000010_create_core_promotion_events'
 import * as createVeteranEvents from './migrations/20260101000011_create_veteran_events'
+import * as createAwards from './migrations/20260101000012_create_awards'
+import * as createAwardEvents from './migrations/20260101000013_create_award_events'
 
 const migrations: Record<string, Migration> = {
   '20260101000000_create_members': createMembers,
@@ -25,6 +27,8 @@ const migrations: Record<string, Migration> = {
   '20260101000009_create_ranks': createRanks,
   '20260101000010_create_core_promotion_events': createCorePromotionEvents,
   '20260101000011_create_veteran_events': createVeteranEvents,
+  '20260101000012_create_awards': createAwards,
+  '20260101000013_create_award_events': createAwardEvents,
 }
 
 export const migrationProvider: MigrationProvider = {

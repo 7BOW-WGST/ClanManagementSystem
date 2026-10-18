@@ -130,7 +130,7 @@ Awards are tied to the core member identity and have **no section association**.
 
 ### `awards` (catalog)
 
-- `id` PK, `name`, `category`, `tier_group` (nullable), `tier_level` (nullable), `requirement`, `max_per_member` (nullable int; NULL = unlimited), `requires_reason` (bool), `introduced_at` (year precision)
+- `id` PK, `name` (unique), `category`, `tier_group` (nullable), `tier_level` (text, nullable), `requirement`, `max_per_member` (nullable int; NULL = unlimited), `requires_reason` (bool), `introduced_at` (year precision)
 - definitions in [`CATALOGS.md`](./CATALOGS.md)
 
 ### `award_events`

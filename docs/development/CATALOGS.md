@@ -87,7 +87,7 @@ Arma 3 stream:
 
 ### Award attributes
 
-`name`, `category`, `tier_group`, `tier_level`, `requirement`, `max_per_member`, `requires_reason`, `introduced_at` (nullable).
+`name` (unique), `category`, `tier_group`, `tier_level` (text), `requirement`, `max_per_member`, `requires_reason`, `introduced_at` (nullable).
 
 - Tiered awards share a `tier_group`; each degree is its own row with a `tier_level`. Upgrading a tiered award closes/drops the lower degree (max one held).
 - `max_per_member = NULL` means unlimited; `1` means at most one.
@@ -109,8 +109,8 @@ Arma 3 stream:
 
 | Award | Tier | Requirement |
 | --- | --- | --- |
-| Krzyż Kampanii Listopadowej | 1 | Za znaczne przyczynienie się do zdobycia przez dywizjon 20. miejsca w rankingu w sezonie 2023-VI |
-| Krzyż Kampanii Listopadowej | 2 | Za pomoc w zdobyciu przez dywizjon 20. miejsca w rankingu w sezonie 2023-VI |
+| Krzyż Kampanii Listopadowej - Złoty | Złoty | Za znaczne przyczynienie się do zdobycia przez dywizjon 20. miejsca w rankingu w sezonie 2023-VI |
+| Krzyż Kampanii Listopadowej - Srebrny | Srebrny | Za pomoc w zdobyciu przez dywizjon 20. miejsca w rankingu w sezonie 2023-VI |
 | Krzyż Kampanii Styczniowej | — | Za znaczne przyczynienie się do zdobycia przez dywizjon 50. miejsca w rankingu w sezonie 2022-I |
 | Krzyż Kampanii Sierpniowej | — | Za przyczynienie się do zdobycia przez dywizjon 100. miejsca w rankingu w sezonie 2020-IV |
 | Krzyż Turnieju PA3T 2023 | — | Za udział w turnieju Polish Arma 3 Tournament 2023 jako część składu meczowego |
@@ -153,6 +153,6 @@ Arma 3 stream:
 
 | Award | Tier | Requirement |
 | --- | --- | --- |
-| Medal za Długoletnią Służbę | Gold | Za 5 lat służby |
-| Medal za Długoletnią Służbę | Silver | Za 2 lata służby |
-| Medal za Długoletnią Służbę | Bronze | Za rok służby |
+| Medal za Długoletnią Służbę - 5 Lat | 5 Lat | Za 5 lat służby |
+| Medal za Długoletnią Służbę - 2 Lata | 2 Lata | Za 2 lata służby |
+| Medal za Długoletnią Służbę - 1 Rok | 1 Rok | Za rok służby |

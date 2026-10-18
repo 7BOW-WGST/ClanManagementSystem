@@ -8,6 +8,8 @@ import type { Role } from '../lib/role'
 import type { WarThunderMembership } from '../sections/data'
 import type { RankHistoryEntry, RankRow } from '../ranks/data'
 import { RankSection } from '../ranks/views'
+import type { ActiveAward, AwardHistoryEntry, AwardRow } from '../awards/data'
+import { AwardsSection } from '../awards/views'
 import type { LifecycleEvent, MemberDetail, MemberStatus, MemberSummary, NicknameEvent } from './data'
 
 // Small coloured badge for a derived membership status.
@@ -126,6 +128,9 @@ export const MemberDetailPage: FC<{
   rankHistory: RankHistoryEntry[]
   ranks: RankRow[]
   veteran: boolean
+  awards: AwardRow[]
+  activeAwards: ActiveAward[]
+  awardHistory: AwardHistoryEntry[]
   flash?: string
   error?: string
 }> = (props) => (
@@ -191,6 +196,13 @@ export const MemberDetailPage: FC<{
         </div>
       </div>
     </form>
+
+    <AwardsSection
+      memberId={props.member.id}
+      awards={props.awards}
+      active={props.activeAwards}
+      history={props.awardHistory}
+    />
 
     <div class="row">
       <div class="col-md-6">

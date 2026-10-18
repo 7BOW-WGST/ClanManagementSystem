@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
 import { memberAccountViews, type MemberAccountView } from '../accounts/data'
+import { activeAwards, awardHistory, listAwards, type ActiveAward, type AwardHistoryEntry, type AwardRow } from '../awards/data'
 import { getDb } from '../db/client'
 import { parseDateInput } from '../lib/date'
 import { consumeFlash, setFlash } from '../lib/flash'
@@ -41,6 +42,9 @@ async function detailContext(id: number): Promise<
       rankHistory: RankHistoryEntry[]
       ranks: RankRow[]
       veteran: boolean
+      awards: AwardRow[]
+      activeAwards: ActiveAward[]
+      awardHistory: AwardHistoryEntry[]
     }
   | undefined
 > {
@@ -49,15 +53,29 @@ async function detailContext(id: number): Promise<
   if (!member) {
     return undefined
   }
-  const [accounts, warThunder, coreRank, rankHistory, ranks, veteran] = await Promise.all([
+  const [accounts, warThunder, coreRank, rankHistory, ranks, veteran, awards, active, history] = await Promise.all([
     memberAccountViews(db, id),
     memberWarThunder(db, id),
     currentCoreRank(db, id),
     coreRankHistory(db, id),
     listRanks(db),
     currentVeteran(db, id),
+    listAwards(db),
+    activeAwards(db, id),
+    awardHistory(db, id),
   ])
-  return { member, accounts, warThunder, coreRankName: coreRank?.name ?? null, rankHistory, ranks, veteran }
+  return {
+    member,
+    accounts,
+    warThunder,
+    coreRankName: coreRank?.name ?? null,
+    rankHistory,
+    ranks,
+    veteran,
+    awards,
+    activeAwards: active,
+    awardHistory: history,
+  }
 }
 
 // Members list.
@@ -119,6 +137,9 @@ memberRoutes.get('/members/:id', async (c) => {
       rankHistory={context.rankHistory}
       ranks={context.ranks}
       veteran={context.veteran}
+      awards={context.awards}
+      activeAwards={context.activeAwards}
+      awardHistory={context.awardHistory}
       flash={consumeFlash(c)}
     />,
   )
@@ -147,6 +168,9 @@ memberRoutes.post('/members/:id/nickname', requireRole('owner', 'admin'), async 
         rankHistory={context.rankHistory}
         ranks={context.ranks}
         veteran={context.veteran}
+        awards={context.awards}
+        activeAwards={context.activeAwards}
+        awardHistory={context.awardHistory}
         error={error}
       />,
       400,
@@ -187,6 +211,9 @@ memberRoutes.post('/members/:id/lifecycle', requireRole('owner', 'admin'), async
         rankHistory={context.rankHistory}
         ranks={context.ranks}
         veteran={context.veteran}
+        awards={context.awards}
+        activeAwards={context.activeAwards}
+        awardHistory={context.awardHistory}
         error={error}
       />,
       400,
