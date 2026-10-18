@@ -78,6 +78,25 @@ export interface AccountMergeAudit {
   source: Generated<Source>
 }
 
+// War Thunder squadrons (see REQUIREMENTS §4.2).
+export type Squadron = '7BOW' | '7BOWs' | '7BOWr'
+
+// A join/leave membership event (used by squadron, section and group histories).
+export type MembershipEventType = 'join' | 'leave'
+
+export interface SquadronMembershipEvent {
+  id: Generated<number>
+  account_id: number
+  squadron: Squadron
+  type: MembershipEventType
+  event_date: string | null
+  event_date_precision: EventDatePrecision
+  recorded_at: Generated<Date>
+  source: Generated<Source>
+  created_by: Generated<string>
+  deleted_at: Date | null
+}
+
 export interface MemberNicknameEvent {
   id: Generated<number>
   member_id: number
@@ -113,4 +132,5 @@ export interface Database {
   account_name_events: AccountNameEvent
   account_link_events: AccountLinkEvent
   account_merge_audit: AccountMergeAudit
+  squadron_membership_events: SquadronMembershipEvent
 }

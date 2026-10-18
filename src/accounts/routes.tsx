@@ -6,6 +6,7 @@ import { pageCount, pageParams } from '../lib/pagination'
 import { currentRole, requireRole } from '../lib/role'
 import { stringField } from '../lib/validation'
 import { listMembers, type MemberSummary } from '../members/data'
+import { squadronHistoryForAccount, type SquadronEvent } from '../sections/data'
 import {
   accountLinkViews,
   addAccountNameEvent,
@@ -41,6 +42,7 @@ interface DetailContext {
   links: AccountLinkView[]
   members: MemberSummary[]
   others: AccountSummary[]
+  squadron: SquadronEvent[]
 }
 
 // Load the account detail context.
@@ -50,8 +52,13 @@ async function detailContext(id: number): Promise<DetailContext | undefined> {
   if (!account) {
     return undefined
   }
-  const [links, members, accounts] = await Promise.all([accountLinkViews(db, id), listMembers(db), listAccounts(db)])
-  return { account, links, members, others: accounts.filter((candidate) => candidate.id !== id) }
+  const [links, members, accounts, squadron] = await Promise.all([
+    accountLinkViews(db, id),
+    listMembers(db),
+    listAccounts(db),
+    squadronHistoryForAccount(db, id),
+  ])
+  return { account, links, members, others: accounts.filter((candidate) => candidate.id !== id), squadron }
 }
 
 // Render the account detail page with an error (used by form handlers).
@@ -63,6 +70,7 @@ function renderDetail(c: Context, context: DetailContext, error: string) {
       links={context.links}
       members={context.members}
       others={context.others}
+      squadron={context.squadron}
       error={error}
     />,
     400,
@@ -155,6 +163,7 @@ accountRoutes.get('/accounts/:id', async (c) => {
       links={context.links}
       members={context.members}
       others={context.others}
+      squadron={context.squadron}
       flash={consumeFlash(c)}
     />,
   )

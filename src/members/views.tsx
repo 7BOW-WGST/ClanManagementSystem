@@ -5,6 +5,7 @@ import { formatEventDate } from '../lib/date'
 import { Layout } from '../lib/layout'
 import { Pager } from '../lib/pager'
 import type { Role } from '../lib/role'
+import type { WarThunderMembership } from '../sections/data'
 import type { LifecycleEvent, MemberDetail, MemberStatus, MemberSummary, NicknameEvent } from './data'
 
 // Small coloured badge for a derived membership status.
@@ -114,7 +115,14 @@ export const MemberNewPage: FC<{
 )
 
 // Member detail page: projected state, history, accounts, and event forms.
-export const MemberDetailPage: FC<{ role: Role; member: MemberDetail; accounts: MemberAccountView[]; flash?: string; error?: string }> = (props) => (
+export const MemberDetailPage: FC<{
+  role: Role
+  member: MemberDetail
+  accounts: MemberAccountView[]
+  warThunder: WarThunderMembership
+  flash?: string
+  error?: string
+}> = (props) => (
   <Layout title={`Member #${props.member.id}`} role={props.role} flash={props.flash}>
     <h1 class="h3">Member #{props.member.id}</h1>
     <p>
@@ -138,6 +146,12 @@ export const MemberDetailPage: FC<{ role: Role; member: MemberDetail; accounts: 
         ))}
       </ul>
     )}
+
+    <h2 class="h5 mt-4">War Thunder</h2>
+    <p>
+      Squadron: <strong>{props.warThunder.squadron ?? '—'}</strong>
+      {props.warThunder.conflict ? <span class="text-warning"> · conflict</span> : null}
+    </p>
 
     <div class="row">
       <div class="col-md-6">

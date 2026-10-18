@@ -5,6 +5,8 @@ import { Layout } from '../lib/layout'
 import { Pager } from '../lib/pager'
 import type { Role } from '../lib/role'
 import type { MemberSummary } from '../members/data'
+import type { SquadronEvent } from '../sections/data'
+import { AddSquadronForm, SquadronHistory } from '../sections/views'
 import type { AccountDetail, AccountLinkView, AccountSummary } from './data'
 import { platforms, relations } from './data'
 
@@ -167,6 +169,7 @@ export const AccountDetailPage: FC<{
   links: AccountLinkView[]
   members: MemberSummary[]
   others: AccountSummary[]
+  squadron: SquadronEvent[]
   flash?: string
   error?: string
 }> = (props) => (
@@ -255,6 +258,16 @@ export const AccountDetailPage: FC<{
             Merge
           </button>
         </form>
+      </div>
+    ) : null}
+
+    {props.account.platform === 'warthunder' ? (
+      <div>
+        <h2 class="h5 mt-4">War Thunder squadron</h2>
+        <SquadronHistory events={props.squadron} />
+        <div class="mt-3">
+          <AddSquadronForm accountId={props.account.id} />
+        </div>
       </div>
     ) : null}
 
