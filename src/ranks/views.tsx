@@ -10,6 +10,7 @@ export const RankSection: FC<{
   ranks: RankRow[]
   action: string
   heading: string
+  editable: boolean
 }> = (props) => (
   <div>
     <h3 class="h6 mt-3">{props.heading}</h3>
@@ -17,34 +18,36 @@ export const RankSection: FC<{
       Current rank: <strong>{props.currentRankName ?? '—'}</strong>
     </p>
 
-    <form method="post" action={props.action}>
-      <div class="row g-3 align-items-end">
-        <div class="col-md-4">
-          <label class="form-label" for="rank_id">
-            Rank
-          </label>
-          <select class="form-select" id="rank_id" name="rank_id">
-            {props.ranks.map((rank) => (
-              <option value={rank.id}>{rank.name}</option>
-            ))}
-          </select>
+    {props.editable ? (
+      <form method="post" action={props.action}>
+        <div class="row g-3 align-items-end">
+          <div class="col-md-4">
+            <label class="form-label" for="rank_id">
+              Rank
+            </label>
+            <select class="form-select" id="rank_id" name="rank_id">
+              {props.ranks.map((rank) => (
+                <option value={rank.id}>{rank.name}</option>
+              ))}
+            </select>
+          </div>
+          <div class="col-md-4">
+            <DateInput name="event_date" />
+          </div>
+          <div class="col-md-2">
+            <label class="form-label" for="reason">
+              Reason
+            </label>
+            <input class="form-control" id="reason" name="reason" />
+          </div>
+          <div class="col-md-2">
+            <button class="btn btn-primary" type="submit">
+              Record
+            </button>
+          </div>
         </div>
-        <div class="col-md-4">
-          <DateInput name="event_date" />
-        </div>
-        <div class="col-md-2">
-          <label class="form-label" for="reason">
-            Reason
-          </label>
-          <input class="form-control" id="reason" name="reason" />
-        </div>
-        <div class="col-md-2">
-          <button class="btn btn-primary" type="submit">
-            Record
-          </button>
-        </div>
-      </div>
-    </form>
+      </form>
+    ) : null}
 
     <h3 class="h6 mt-3">Rank history</h3>
     {props.history.length === 0 ? (

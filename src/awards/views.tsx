@@ -9,6 +9,7 @@ export const AwardsSection: FC<{
   awards: AwardRow[]
   active: ActiveAward[]
   history: AwardHistoryEntry[]
+  editable: boolean
 }> = (props) => (
   <div>
     <h2 class="h5 mt-4">Awards</h2>
@@ -20,51 +21,57 @@ export const AwardsSection: FC<{
           <li class="list-group-item d-flex align-items-center gap-2">
             <span>{award.name}</span>
             <span class="text-muted">({formatEventDate(award.eventDate, award.eventDatePrecision)})</span>
-            <form
-              class="ms-auto"
-              method="post"
-              action={`/members/${props.memberId}/award/revoke`}
-              onsubmit="return confirm('Revoke this award?')"
-            >
-              <input type="hidden" name="event_id" value={award.eventId} />
-              <button class="btn btn-sm btn-outline-danger" type="submit">
-                Revoke
-              </button>
-            </form>
+            {props.editable ? (
+              <form
+                class="ms-auto"
+                method="post"
+                action={`/members/${props.memberId}/award/revoke`}
+                onsubmit="return confirm('Revoke this award?')"
+              >
+                <input type="hidden" name="event_id" value={award.eventId} />
+                <button class="btn btn-sm btn-outline-danger" type="submit">
+                  Revoke
+                </button>
+              </form>
+            ) : null}
           </li>
         ))}
       </ul>
     )}
 
-    <h3 class="h6 mt-3">Grant an award</h3>
-    <form method="post" action={`/members/${props.memberId}/award`}>
-      <div class="row g-3 align-items-end">
-        <div class="col-md-5">
-          <label class="form-label" for="award_id">
-            Award
-          </label>
-          <select class="form-select" id="award_id" name="award_id">
-            {props.awards.map((award) => (
-              <option value={award.id}>{award.name}</option>
-            ))}
-          </select>
-        </div>
-        <div class="col-md-4">
-          <DateInput name="event_date" />
-        </div>
-        <div class="col-md-3">
-          <label class="form-label" for="award_reason">
-            Reason
-          </label>
-          <input class="form-control" id="award_reason" name="reason" />
-        </div>
+    {props.editable ? (
+      <div>
+        <h3 class="h6 mt-3">Grant an award</h3>
+        <form method="post" action={`/members/${props.memberId}/award`}>
+          <div class="row g-3 align-items-end">
+            <div class="col-md-5">
+              <label class="form-label" for="award_id">
+                Award
+              </label>
+              <select class="form-select" id="award_id" name="award_id">
+                {props.awards.map((award) => (
+                  <option value={award.id}>{award.name}</option>
+                ))}
+              </select>
+            </div>
+            <div class="col-md-4">
+              <DateInput name="event_date" />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label" for="award_reason">
+                Reason
+              </label>
+              <input class="form-control" id="award_reason" name="reason" />
+            </div>
+          </div>
+          <div class="mt-2">
+            <button class="btn btn-primary" type="submit">
+              Grant
+            </button>
+          </div>
+        </form>
       </div>
-      <div class="mt-2">
-        <button class="btn btn-primary" type="submit">
-          Grant
-        </button>
-      </div>
-    </form>
+    ) : null}
 
     <h3 class="h6 mt-3">Award history</h3>
     {props.history.length === 0 ? (

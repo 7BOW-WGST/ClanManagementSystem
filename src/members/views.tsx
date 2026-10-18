@@ -5,7 +5,7 @@ import { DateInput } from '../lib/date-input'
 import { formatEventDate } from '../lib/date'
 import { Layout } from '../lib/layout'
 import { Pager } from '../lib/pager'
-import type { Role } from '../lib/role'
+import { canMutate, type Role } from '../lib/role'
 import type { WarThunderMembership } from '../sections/data'
 import type { RankHistoryEntry, RankRow } from '../ranks/data'
 import { RankSection } from '../ranks/views'
@@ -60,9 +60,11 @@ export const MemberListPage: FC<{ role: Role; members: MemberSummary[]; page: nu
   <Layout title="Members" role={props.role} flash={props.flash}>
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h1 class="h3 mb-0">Members</h1>
-      <a class="btn btn-primary" href="/members/new">
-        New member
-      </a>
+      {canMutate(props.role) ? (
+        <a class="btn btn-primary" href="/members/new">
+          New member
+        </a>
+      ) : null}
     </div>
     <form class="mb-3" method="get" action="/members">
       <div class="input-group">
@@ -236,78 +238,89 @@ export const MemberDetailPage: FC<{
       ranks={props.ranks}
       action={`/members/${props.member.id}/promotion`}
       heading="Core rank"
+      editable={canMutate(props.role)}
     />
 
     <h2 class="h5 mt-4">Veteran</h2>
     <p>
       Status: <strong>{props.veteran ? 'veteran' : '—'}</strong>
     </p>
-    <form method="post" action={`/members/${props.member.id}/veteran`}>
-      <div class="row g-3 align-items-end">
-        <div class="col-md-4">
-          <label class="form-label" for="veteran_type">
-            Change
-          </label>
-          <select class="form-select" id="veteran_type" name="type">
-            <option value="granted">granted</option>
-            <option value="removed">removed</option>
-          </select>
+    {canMutate(props.role) ? (
+      <form method="post" action={`/members/${props.member.id}/veteran`}>
+        <div class="row g-3 align-items-end">
+          <div class="col-md-4">
+            <label class="form-label" for="veteran_type">
+              Change
+            </label>
+            <select class="form-select" id="veteran_type" name="type">
+              <option value="granted">granted</option>
+              <option value="removed">removed</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <DateInput name="event_date" />
+          </div>
+          <div class="col-md-2">
+            <button class="btn btn-primary" type="submit">
+              Record
+            </button>
+          </div>
         </div>
-        <div class="col-md-4">
-          <DateInput name="event_date" />
-        </div>
-        <div class="col-md-2">
-          <button class="btn btn-primary" type="submit">
-            Record
-          </button>
-        </div>
-      </div>
-    </form>
+      </form>
+    ) : null}
 
     <AwardsSection
       memberId={props.member.id}
       awards={props.awards}
       active={props.activeAwards}
       history={props.awardHistory}
+      editable={canMutate(props.role)}
     />
 
     <h2 class="h5 mt-4">Suspensions</h2>
-    <SuspensionHistory events={props.suspensions} />
-    <div class="mt-3">
-      <AddSuspensionForm memberId={props.member.id} sections={props.sections} />
-    </div>
+    <SuspensionHistory events={props.suspensions} showReason={canMutate(props.role)} />
+    {canMutate(props.role) ? (
+      <div class="mt-3">
+        <AddSuspensionForm memberId={props.member.id} sections={props.sections} />
+      </div>
+    ) : null}
 
     <h2 class="h5 mt-4">Arma 3</h2>
     <p>
       Section: <strong>{props.arma3Active ? 'active' : '—'}</strong>
     </p>
     <Arma3SectionHistory events={props.arma3SectionHistory} />
-    <div class="mt-3">
-      <AddArma3SectionForm memberId={props.member.id} />
-    </div>
+    {canMutate(props.role) ? (
+      <div class="mt-3">
+        <AddArma3SectionForm memberId={props.member.id} />
+      </div>
+    ) : null}
     <RankSection
       currentRankName={props.arma3RankName}
       history={props.arma3RankHistory}
       ranks={props.ranks}
       action={`/members/${props.member.id}/arma3-promotion`}
       heading="Arma 3 rank"
+      editable={canMutate(props.role)}
     />
 
     <div class="row">
       <div class="col-md-6">
         <h2 class="h5">Add nickname</h2>
-        <form method="post" action={`/members/${props.member.id}/nickname`}>
-          <div class="mb-3">
-            <label class="form-label" for="nickname">
-              Nickname
-            </label>
-            <input class="form-control" id="nickname" name="nickname" />
-          </div>
-          <DateInput name="event_date" />
-          <button class="btn btn-primary" type="submit">
-            Add
-          </button>
-        </form>
+        {canMutate(props.role) ? (
+          <form method="post" action={`/members/${props.member.id}/nickname`}>
+            <div class="mb-3">
+              <label class="form-label" for="nickname">
+                Nickname
+              </label>
+              <input class="form-control" id="nickname" name="nickname" />
+            </div>
+            <DateInput name="event_date" />
+            <button class="btn btn-primary" type="submit">
+              Add
+            </button>
+          </form>
+        ) : null}
 
         <h2 class="h5 mt-4">Nickname history</h2>
         <NicknameHistory events={props.member.nicknames} />
@@ -315,22 +328,24 @@ export const MemberDetailPage: FC<{
 
       <div class="col-md-6">
         <h2 class="h5">Add lifecycle event</h2>
-        <form method="post" action={`/members/${props.member.id}/lifecycle`}>
-          <div class="mb-3">
-            <label class="form-label" for="type">
-              Type
-            </label>
-            <select class="form-select" id="type" name="type">
-              <option value="join">join</option>
-              <option value="leave">leave</option>
-              <option value="kick">kick</option>
-            </select>
-          </div>
-          <DateInput name="event_date" />
-          <button class="btn btn-primary" type="submit">
-            Add
-          </button>
-        </form>
+        {canMutate(props.role) ? (
+          <form method="post" action={`/members/${props.member.id}/lifecycle`}>
+            <div class="mb-3">
+              <label class="form-label" for="type">
+                Type
+              </label>
+              <select class="form-select" id="type" name="type">
+                <option value="join">join</option>
+                <option value="leave">leave</option>
+                <option value="kick">kick</option>
+              </select>
+            </div>
+            <DateInput name="event_date" />
+            <button class="btn btn-primary" type="submit">
+              Add
+            </button>
+          </form>
+        ) : null}
 
         <h2 class="h5 mt-4">Lifecycle history</h2>
         <LifecycleHistory events={props.member.lifecycle} />
@@ -379,7 +394,7 @@ export const MemberTimelinePage: FC<{ role: Role; memberId: number; timeline: Ti
                 <span class="text-muted">{entry.kind}</span> · {entry.label}
               </td>
               <td>
-                {entry.kind === 'nickname' ? (
+                {canMutate(props.role) && entry.kind === 'nickname' ? (
                   <form class="d-flex gap-2 mb-2" method="post" action={`/members/${props.memberId}/nickname/${entry.eventId}`}>
                     <input class="form-control form-control-sm" name="nickname" placeholder="correct nickname" />
                     <DateInput name="event_date" label="" />
@@ -388,7 +403,7 @@ export const MemberTimelinePage: FC<{ role: Role; memberId: number; timeline: Ti
                     </button>
                   </form>
                 ) : null}
-                {entry.kind === 'lifecycle' ? (
+                {canMutate(props.role) && entry.kind === 'lifecycle' ? (
                   <form class="d-flex gap-2 mb-2" method="post" action={`/members/${props.memberId}/lifecycle/${entry.eventId}`}>
                     <select class="form-select form-select-sm" name="type">
                       <option value="join">join</option>
@@ -401,15 +416,17 @@ export const MemberTimelinePage: FC<{ role: Role; memberId: number; timeline: Ti
                     </button>
                   </form>
                 ) : null}
-                <form
-                  method="post"
-                  action={deletePath(entry.kind, props.memberId, entry.eventId)}
-                  onsubmit="return confirm('Delete this event?')"
-                >
-                  <button class="btn btn-sm btn-outline-danger" type="submit">
-                    Delete
-                  </button>
-                </form>
+                {canMutate(props.role) ? (
+                  <form
+                    method="post"
+                    action={deletePath(entry.kind, props.memberId, entry.eventId)}
+                    onsubmit="return confirm('Delete this event?')"
+                  >
+                    <button class="btn btn-sm btn-outline-danger" type="submit">
+                      Delete
+                    </button>
+                  </form>
+                ) : null}
               </td>
             </tr>
           ))}

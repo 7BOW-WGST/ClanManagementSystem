@@ -3,7 +3,7 @@ import { DateInput } from '../lib/date-input'
 import { formatEventDate } from '../lib/date'
 import { Layout } from '../lib/layout'
 import { Pager } from '../lib/pager'
-import type { Role } from '../lib/role'
+import { canMutate, type Role } from '../lib/role'
 import type { MemberSummary } from '../members/data'
 import { AddGroupForm, GroupHistory } from '../groups/views'
 import type { GroupEventRow } from '../groups/data'
@@ -30,7 +30,7 @@ function NameHistory(props: { events: AccountDetail['names'] }) {
 }
 
 // Render the active member links with relation/unlink actions.
-function MemberLinks(props: { account: AccountDetail; links: AccountLinkView[] }) {
+function MemberLinks(props: { account: AccountDetail; links: AccountLinkView[]; editable: boolean }) {
   if (props.links.length === 0) {
     return <p class="text-muted">Not linked to any member.</p>
   }
@@ -42,7 +42,7 @@ function MemberLinks(props: { account: AccountDetail; links: AccountLinkView[] }
             {link.memberNickname ?? `Member #${link.memberId}`}
             {link.relation ? <span class="text-muted"> · {link.relation}</span> : null}
           </span>
-          {props.account.platform === 'warthunder' ? (
+          {props.editable && props.account.platform === 'warthunder' ? (
             <form class="ms-auto d-flex gap-2" method="post" action={`/accounts/${props.account.id}/relation`}>
               <input type="hidden" name="member_id" value={link.memberId} />
               <select class="form-select form-select-sm" name="relation">
@@ -57,16 +57,18 @@ function MemberLinks(props: { account: AccountDetail; links: AccountLinkView[] }
               </button>
             </form>
           ) : null}
-          <form
-            method="post"
-            action={`/accounts/${props.account.id}/unlink`}
-            onsubmit="return confirm('Unlink this member from the account?')"
-          >
-            <input type="hidden" name="member_id" value={link.memberId} />
-            <button class="btn btn-sm btn-outline-danger" type="submit">
-              Unlink
-            </button>
-          </form>
+          {props.editable ? (
+            <form
+              method="post"
+              action={`/accounts/${props.account.id}/unlink`}
+              onsubmit="return confirm('Unlink this member from the account?')"
+            >
+              <input type="hidden" name="member_id" value={link.memberId} />
+              <button class="btn btn-sm btn-outline-danger" type="submit">
+                Unlink
+              </button>
+            </form>
+          ) : null}
         </li>
       ))}
     </ul>
@@ -78,9 +80,11 @@ export const AccountListPage: FC<{ role: Role; accounts: AccountSummary[]; page:
   <Layout title="Accounts" role={props.role} flash={props.flash}>
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h1 class="h3 mb-0">Accounts</h1>
-      <a class="btn btn-primary" href="/accounts/new">
-        New account
-      </a>
+      {canMutate(props.role) ? (
+        <a class="btn btn-primary" href="/accounts/new">
+          New account
+        </a>
+      ) : null}
     </div>
     <form class="mb-3" method="get" action="/accounts">
       <div class="input-group">
@@ -193,53 +197,57 @@ export const AccountDetailPage: FC<{
     {props.error ? <div class="alert alert-danger">{props.error}</div> : null}
 
     <h2 class="h5">Member links</h2>
-    <MemberLinks account={props.account} links={props.links} />
+    <MemberLinks account={props.account} links={props.links} editable={canMutate(props.role)} />
 
-    <h2 class="h5 mt-4">Link a member</h2>
-    <form method="post" action={`/accounts/${props.account.id}/link`}>
-      <div class="mb-3">
-        <label class="form-label" for="member_id">
-          Member
-        </label>
-        <select class="form-select" id="member_id" name="member_id">
-          {props.members.map((member) => (
-            <option value={member.id}>{member.nickname ?? `Member #${member.id}`}</option>
-          ))}
-        </select>
+    {canMutate(props.role) ? (
+      <div>
+        <h2 class="h5 mt-4">Link a member</h2>
+        <form method="post" action={`/accounts/${props.account.id}/link`}>
+          <div class="mb-3">
+            <label class="form-label" for="member_id">
+              Member
+            </label>
+            <select class="form-select" id="member_id" name="member_id">
+              {props.members.map((member) => (
+                <option value={member.id}>{member.nickname ?? `Member #${member.id}`}</option>
+              ))}
+            </select>
+          </div>
+          {props.account.platform === 'warthunder' ? (
+            <div class="mb-3">
+              <label class="form-label" for="relation">
+                Relation
+              </label>
+              <select class="form-select" id="relation" name="relation">
+                {relations.map((relation) => (
+                  <option value={relation}>{relation}</option>
+                ))}
+              </select>
+            </div>
+          ) : null}
+          <DateInput name="event_date" />
+          <button class="btn btn-primary" type="submit">
+            Link
+          </button>
+        </form>
+
+        <h2 class="h5 mt-4">Add name</h2>
+        <form method="post" action={`/accounts/${props.account.id}/name`}>
+          <div class="mb-3">
+            <label class="form-label" for="name">
+              Name
+            </label>
+            <input class="form-control" id="name" name="name" />
+          </div>
+          <DateInput name="event_date" />
+          <button class="btn btn-primary" type="submit">
+            Add
+          </button>
+        </form>
       </div>
-      {props.account.platform === 'warthunder' ? (
-        <div class="mb-3">
-          <label class="form-label" for="relation">
-            Relation
-          </label>
-          <select class="form-select" id="relation" name="relation">
-            {relations.map((relation) => (
-              <option value={relation}>{relation}</option>
-            ))}
-          </select>
-        </div>
-      ) : null}
-      <DateInput name="event_date" />
-      <button class="btn btn-primary" type="submit">
-        Link
-      </button>
-    </form>
+    ) : null}
 
-    <h2 class="h5 mt-4">Add name</h2>
-    <form method="post" action={`/accounts/${props.account.id}/name`}>
-      <div class="mb-3">
-        <label class="form-label" for="name">
-          Name
-        </label>
-        <input class="form-control" id="name" name="name" />
-      </div>
-      <DateInput name="event_date" />
-      <button class="btn btn-primary" type="submit">
-        Add
-      </button>
-    </form>
-
-    {props.others.length > 0 ? (
+    {props.others.length > 0 && canMutate(props.role) ? (
       <div>
         <h2 class="h5 mt-4">Merge another account into this one</h2>
         <form
@@ -276,9 +284,11 @@ export const AccountDetailPage: FC<{
       <div>
         <h2 class="h5 mt-4">War Thunder squadron</h2>
         <SquadronHistory events={props.squadron} />
-        <div class="mt-3">
-          <AddSquadronForm accountId={props.account.id} />
-        </div>
+        {canMutate(props.role) ? (
+          <div class="mt-3">
+            <AddSquadronForm accountId={props.account.id} />
+          </div>
+        ) : null}
       </div>
     ) : null}
 
@@ -286,9 +296,11 @@ export const AccountDetailPage: FC<{
       <div>
         <h2 class="h5 mt-4">Group membership</h2>
         <GroupHistory events={props.group} />
-        <div class="mt-3">
-          <AddGroupForm accountId={props.account.id} />
-        </div>
+        {canMutate(props.role) ? (
+          <div class="mt-3">
+            <AddGroupForm accountId={props.account.id} />
+          </div>
+        ) : null}
       </div>
     ) : null}
 

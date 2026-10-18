@@ -11,6 +11,11 @@ export function isRole(value: string | undefined): value is Role {
   return value !== undefined && roles.some((role) => role === value)
 }
 
+// Whether a role may create or edit data (Member is read-only).
+export function canMutate(role: Role): boolean {
+  return role === 'owner' || role === 'admin'
+}
+
 // Read the current role. There is no authentication yet: when the dev selector is enabled the
 // role comes from a cookie, otherwise it defaults to owner (pre-auth prototype). The env is read
 // directly (not via config) so the app stays importable without a database.
