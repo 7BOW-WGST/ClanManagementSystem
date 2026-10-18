@@ -306,7 +306,7 @@ A join implies the entry core rank (Elew) by default; further promotions are exp
 ### S1 — Suspension
 
 **Status:** Accepted
-Suspension is a section-scoped interval with a start date, a **nullable end date** (null = ongoing/indefinite), reason, and source. Start/end carry precision like any historical date. Overlapping suspensions for the same member + section are disallowed, enforced by a DB constraint + transaction.
+Suspension is a section-scoped interval with a start date, a **nullable end date** (null = ongoing/indefinite), scope, and source. Start/end carry precision like any historical date. Overlapping suspensions for the same member + section are disallowed, enforced by a DB constraint + transaction.
 
 ---
 

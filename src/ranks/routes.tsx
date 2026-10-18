@@ -25,7 +25,6 @@ rankRoutes.post('/members/:id/promotion', requireRole('owner', 'admin'), async (
   const body = await c.req.parseBody()
   const rankId = parseId(stringField(body, 'rank_id'))
   const parsed = parseDateInput(stringField(body, 'event_date_precision') ?? 'unknown', stringField(body, 'event_date') ?? '')
-  const reason = stringField(body, 'reason')
 
   if (rankId === undefined) {
     setFlash(c, 'Choose a rank.')
@@ -43,14 +42,13 @@ rankRoutes.post('/members/:id/promotion', requireRole('owner', 'admin'), async (
     return c.redirect(`/members/${memberId}`)
   }
 
-  await addCorePromotionEvent(db, {
+  const error = await addCorePromotionEvent(db, {
     memberId,
     rankId,
     eventDate: parsed.date,
     precision: parsed.precision,
-    reason: reason ?? null,
   })
-  setFlash(c, 'Rank recorded.')
+  setFlash(c, error ?? 'Rank recorded.')
   return c.redirect(`/members/${memberId}`)
 })
 
@@ -64,7 +62,6 @@ rankRoutes.post('/members/:id/arma3-promotion', requireRole('owner', 'admin'), a
   const body = await c.req.parseBody()
   const rankId = parseId(stringField(body, 'rank_id'))
   const parsed = parseDateInput(stringField(body, 'event_date_precision') ?? 'unknown', stringField(body, 'event_date') ?? '')
-  const reason = stringField(body, 'reason')
 
   if (rankId === undefined) {
     setFlash(c, 'Choose a rank.')
@@ -82,14 +79,13 @@ rankRoutes.post('/members/:id/arma3-promotion', requireRole('owner', 'admin'), a
     return c.redirect(`/members/${memberId}`)
   }
 
-  await addArma3PromotionEvent(db, {
+  const error = await addArma3PromotionEvent(db, {
     memberId,
     rankId,
     eventDate: parsed.date,
     precision: parsed.precision,
-    reason: reason ?? null,
   })
-  setFlash(c, 'Arma 3 rank recorded.')
+  setFlash(c, error ?? 'Arma 3 rank recorded.')
   return c.redirect(`/members/${memberId}`)
 })
 

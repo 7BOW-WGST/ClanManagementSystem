@@ -38,13 +38,12 @@ describe('member-visible rendering', () => {
     expect(asMember).not.toContain('/members/1/nickname/1/delete')
   })
 
-  test('suspension reasons are hidden when showReason is false', () => {
+  test('suspension scope is shown', () => {
     const events: SuspensionView[] = [
-      { id: 1, sectionName: 'arma3', startDate: '2021-01-01', startDatePrecision: 'day', endDate: null, endDatePrecision: null, reason: 'secret reason', active: true },
+      { id: 1, sectionName: 'arma3', startDate: '2021-01-01', startDatePrecision: 'day', endDate: null, endDatePrecision: null, scope: 'secret scope', active: true },
     ]
 
-    expect(render(SuspensionHistory({ events, showReason: true }))).toContain('secret reason')
-    expect(render(SuspensionHistory({ events, showReason: false }))).not.toContain('secret reason')
+    expect(render(SuspensionHistory({ events }))).toContain('secret scope')
   })
 })
 

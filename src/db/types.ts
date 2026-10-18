@@ -117,7 +117,6 @@ export interface CorePromotionEvent {
   recorded_at: Generated<Date>
   source: Generated<Source>
   created_by: Generated<string>
-  reason: string | null
   deleted_at: Date | null
 }
 
@@ -175,7 +174,7 @@ export interface Suspension {
   start_date_precision: EventDatePrecision
   end_date: string | null
   end_date_precision: EventDatePrecision | null
-  reason: string
+  scope: string
   recorded_at: Generated<Date>
   source: Generated<Source>
   created_by: Generated<string>
@@ -205,7 +204,6 @@ export interface Arma3PromotionEvent {
   recorded_at: Generated<Date>
   source: Generated<Source>
   created_by: Generated<string>
-  reason: string | null
   deleted_at: Date | null
 }
 

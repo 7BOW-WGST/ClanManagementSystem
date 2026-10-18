@@ -83,13 +83,13 @@ Community nickname history.
 
 ### `core_promotion_events`
 
-- `id` PK, `member_id` FK, `rank_id` FK → `ranks`, `event_date`, `event_date_precision`, `recorded_at`, `source`, `created_by`, `reason`, `deleted_at`
+- `id` PK, `member_id` FK, `rank_id` FK → `ranks`, `event_date`, `event_date_precision`, `recorded_at`, `source`, `created_by`, `deleted_at`
 
 ### `arma3_promotion_events`
 
 Independent Arma 3 rank stream; same catalog.
 
-- `id` PK, `member_id` FK, `rank_id` FK → `ranks`, `event_date`, `event_date_precision`, `recorded_at`, `source`, `created_by`, `reason`, `deleted_at`
+- `id` PK, `member_id` FK, `rank_id` FK → `ranks`, `event_date`, `event_date_precision`, `recorded_at`, `source`, `created_by`, `deleted_at`
 
 ---
 
@@ -119,7 +119,7 @@ Independent Arma 3 rank stream; same catalog.
 
 The only time-bounded (start + end) record. Section-scoped.
 
-- `id` PK, `member_id` FK, `section_id` FK → `sections`, `start_date` + `start_date_precision`, `end_date` (nullable = ongoing) + `end_date_precision`, `reason`, `recorded_at`, `source`, `created_by`, `updated_at`, `deleted_at`
+- `id` PK, `member_id` FK, `section_id` FK → `sections`, `start_date` + `start_date_precision`, `end_date` (nullable = ongoing) + `end_date_precision`, `scope`, `recorded_at`, `source`, `created_by`, `updated_at`, `deleted_at`
 - enforcement: no overlapping suspensions per `(member_id, section_id)`
 
 ---

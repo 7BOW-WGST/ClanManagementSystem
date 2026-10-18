@@ -131,7 +131,7 @@ export interface SuspensionView {
   startDatePrecision: EventDatePrecision
   endDate: string | null
   endDatePrecision: EventDatePrecision | null
-  reason: string
+  scope: string
   active: boolean
 }
 
@@ -155,7 +155,7 @@ export async function addSuspension(
     startPrecision: EventDatePrecision
     endDate: string | null
     endPrecision: EventDatePrecision | null
-    reason: string
+    scope: string
   },
 ): Promise<string | undefined> {
   return db.transaction().execute(async (trx) => {
@@ -181,7 +181,7 @@ export async function addSuspension(
         start_date_precision: input.startPrecision,
         end_date: input.endDate,
         end_date_precision: input.endPrecision,
-        reason: input.reason,
+        scope: input.scope,
       })
       .execute()
     return undefined
@@ -200,7 +200,7 @@ export async function suspensionViews(db: Kysely<Database>, memberId: number): P
       'suspension.start_date_precision as startDatePrecision',
       'suspension.end_date as endDate',
       'suspension.end_date_precision as endDatePrecision',
-      'suspension.reason',
+      'suspension.scope',
     ])
     .where('suspension.member_id', '=', memberId)
     .orderBy('suspension.start_date', 'asc')

@@ -278,7 +278,7 @@ export const MemberDetailPage: FC<{
     />
 
     <h2 class="h5 mt-4">Suspensions</h2>
-    <SuspensionHistory events={props.suspensions} showReason={canMutate(props.role)} />
+    <SuspensionHistory events={props.suspensions} />
     {canMutate(props.role) ? (
       <div class="mt-3">
         <AddSuspensionForm memberId={props.member.id} sections={props.sections} />

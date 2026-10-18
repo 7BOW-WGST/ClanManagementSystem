@@ -18,6 +18,7 @@ import * as createArma3SectionEvents from './migrations/20260101000015_create_ar
 import * as createArma3PromotionEvents from './migrations/20260101000016_create_arma3_promotion_events'
 import * as createDiscordGroupEvents from './migrations/20260101000017_create_discord_group_events'
 import * as createSteamGroupEvents from './migrations/20260101000018_create_steam_group_events'
+import * as adjustRankAndSuspensionFields from './migrations/20260101000019_adjust_rank_and_suspension_fields'
 
 const migrations: Record<string, Migration> = {
   '20260101000000_create_members': createMembers,
@@ -39,6 +40,7 @@ const migrations: Record<string, Migration> = {
   '20260101000016_create_arma3_promotion_events': createArma3PromotionEvents,
   '20260101000017_create_discord_group_events': createDiscordGroupEvents,
   '20260101000018_create_steam_group_events': createSteamGroupEvents,
+  '20260101000019_adjust_rank_and_suspension_fields': adjustRankAndSuspensionFields,
 }
 
 export const migrationProvider: MigrationProvider = {

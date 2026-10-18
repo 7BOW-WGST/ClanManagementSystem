@@ -21,7 +21,7 @@ export const RankSection: FC<{
     {props.editable ? (
       <form method="post" action={props.action}>
         <div class="row g-3 align-items-end">
-          <div class="col-md-4">
+          <div class="col-md-5">
             <label class="form-label" for="rank_id">
               Rank
             </label>
@@ -31,14 +31,8 @@ export const RankSection: FC<{
               ))}
             </select>
           </div>
-          <div class="col-md-4">
+          <div class="col-md-5">
             <DateInput name="event_date" />
-          </div>
-          <div class="col-md-2">
-            <label class="form-label" for="reason">
-              Reason
-            </label>
-            <input class="form-control" id="reason" name="reason" />
           </div>
           <div class="col-md-2">
             <button class="btn btn-primary" type="submit">

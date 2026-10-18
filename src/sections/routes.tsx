@@ -62,7 +62,7 @@ sectionRoutes.post('/members/:id/suspension', requireRole('owner', 'admin'), asy
   const sectionId = parseId(stringField(body, 'section_id'))
   const start = parseDateInput(stringField(body, 'start_date_precision') ?? 'unknown', stringField(body, 'start_date') ?? '')
   const end = parseDateInput(stringField(body, 'end_date_precision') ?? 'unknown', stringField(body, 'end_date') ?? '')
-  const reason = stringField(body, 'reason')
+  const scope = stringField(body, 'scope')
 
   if (sectionId === undefined) {
     setFlash(c, 'Choose a section.')
@@ -76,8 +76,8 @@ sectionRoutes.post('/members/:id/suspension', requireRole('owner', 'admin'), asy
     setFlash(c, end.error)
     return c.redirect(`/members/${memberId}`)
   }
-  if (!reason) {
-    setFlash(c, 'A reason is required.')
+  if (!scope) {
+    setFlash(c, 'A scope is required.')
     return c.redirect(`/members/${memberId}`)
   }
 
@@ -88,7 +88,7 @@ sectionRoutes.post('/members/:id/suspension', requireRole('owner', 'admin'), asy
     startPrecision: start.precision,
     endDate: end.date,
     endPrecision: end.date === null ? null : end.precision,
-    reason,
+    scope,
   })
   setFlash(c, error ?? 'Suspension added.')
   return c.redirect(`/members/${memberId}`)

@@ -45,10 +45,10 @@ describe.skipIf(!dbConfigured)('suspensions', () => {
     const section = await sectionId('warthunder')
 
     expect(
-      await addSuspension(db, { memberId: member, sectionId: section, startDate: '2021-01-01', startPrecision: 'day', endDate: '2021-06-01', endPrecision: 'day', reason: 'first' }),
+      await addSuspension(db, { memberId: member, sectionId: section, startDate: '2021-01-01', startPrecision: 'day', endDate: '2021-06-01', endPrecision: 'day', scope: 'first' }),
     ).toBeUndefined()
     expect(
-      await addSuspension(db, { memberId: member, sectionId: section, startDate: '2021-03-01', startPrecision: 'day', endDate: '2021-07-01', endPrecision: 'day', reason: 'overlap' }),
+      await addSuspension(db, { memberId: member, sectionId: section, startDate: '2021-03-01', startPrecision: 'day', endDate: '2021-07-01', endPrecision: 'day', scope: 'overlap' }),
     ).toBeDefined()
   })
 
@@ -57,9 +57,9 @@ describe.skipIf(!dbConfigured)('suspensions', () => {
     const member = await newMember()
     const section = await sectionId('warthunder')
 
-    await addSuspension(db, { memberId: member, sectionId: section, startDate: '2021-01-01', startPrecision: 'day', endDate: '2021-06-01', endPrecision: 'day', reason: 'first' })
+    await addSuspension(db, { memberId: member, sectionId: section, startDate: '2021-01-01', startPrecision: 'day', endDate: '2021-06-01', endPrecision: 'day', scope: 'first' })
     expect(
-      await addSuspension(db, { memberId: member, sectionId: section, startDate: '2021-06-01', startPrecision: 'day', endDate: '2021-12-01', endPrecision: 'day', reason: 'second' }),
+      await addSuspension(db, { memberId: member, sectionId: section, startDate: '2021-06-01', startPrecision: 'day', endDate: '2021-12-01', endPrecision: 'day', scope: 'second' }),
     ).toBeUndefined()
   })
 
@@ -68,7 +68,7 @@ describe.skipIf(!dbConfigured)('suspensions', () => {
     const member = await newMember()
     const section = await sectionId('arma3')
 
-    await addSuspension(db, { memberId: member, sectionId: section, startDate: '2000-01-01', startPrecision: 'day', endDate: null, endPrecision: null, reason: 'ongoing' })
+    await addSuspension(db, { memberId: member, sectionId: section, startDate: '2000-01-01', startPrecision: 'day', endDate: null, endPrecision: null, scope: 'ongoing' })
 
     const views = await suspensionViews(db, member)
     expect(views).toHaveLength(1)

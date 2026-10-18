@@ -33,7 +33,7 @@ describe.skipIf(!dbConfigured)('verification: membership cycle', () => {
     if (!sergeant) {
       throw new Error('rank not seeded')
     }
-    await addCorePromotionEvent(db, { memberId: member, rankId: sergeant.id, eventDate: '2021-01-01', precision: 'day', reason: null })
+    await addCorePromotionEvent(db, { memberId: member, rankId: sergeant.id, eventDate: '2021-01-01', precision: 'day' })
     await addVeteranEvent(db, { memberId: member, type: 'granted', eventDate: '2021-06-01', precision: 'day' })
     await addArma3SectionEvent(db, { memberId: member, type: 'join', eventDate: '2021-03-01', precision: 'day' })
 

@@ -56,7 +56,7 @@ export const AddSquadronForm: FC<{ accountId: number }> = (props) => (
 )
 
 // Render a member's section suspensions (or a placeholder when empty).
-export function SuspensionHistory(props: { events: SuspensionView[]; showReason: boolean }) {
+export function SuspensionHistory(props: { events: SuspensionView[] }) {
   if (props.events.length === 0) {
     return <p class="text-muted">No suspensions.</p>
   }
@@ -67,7 +67,7 @@ export function SuspensionHistory(props: { events: SuspensionView[]; showReason:
           {suspension.sectionName}: {formatEventDate(suspension.startDate, suspension.startDatePrecision)} →{' '}
           {suspension.endDate ? formatEventDate(suspension.endDate, suspension.endDatePrecision ?? 'day') : 'ongoing'}
           {suspension.active ? <span class="badge text-bg-warning ms-2">active</span> : null}
-          {props.showReason ? <span class="text-muted"> · {suspension.reason}</span> : null}
+          <span class="text-muted"> · {suspension.scope}</span>
         </li>
       ))}
     </ul>
@@ -95,10 +95,10 @@ export const AddSuspensionForm: FC<{ memberId: number; sections: SectionRow[] }>
         <DateInput name="end_date" label="End (unknown = ongoing)" />
       </div>
       <div class="col-md-3">
-        <label class="form-label" for="suspension_reason">
-          Reason
+        <label class="form-label" for="suspension_scope">
+          Scope
         </label>
-        <input class="form-control" id="suspension_reason" name="reason" />
+        <input class="form-control" id="suspension_scope" name="scope" />
       </div>
     </div>
     <div class="mt-2">

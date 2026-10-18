@@ -55,7 +55,6 @@ describe.skipIf(!dbConfigured)('ranks', () => {
       rankId: await rankId('Sierżant'),
       eventDate: '2021-01-01',
       precision: 'day',
-      reason: null,
     })
 
     expect((await currentCoreRank(db, member))?.name).toBe('Sierżant')
@@ -65,10 +64,23 @@ describe.skipIf(!dbConfigured)('ranks', () => {
     await freshDb()
     const member = await newMember()
     await addLifecycleEvent(db, { memberId: member, type: 'join', eventDate: '2020-01-01', precision: 'day' })
-    await addCorePromotionEvent(db, { memberId: member, rankId: await rankId('Sierżant'), eventDate: '2021-01-01', precision: 'day', reason: null })
-    await addCorePromotionEvent(db, { memberId: member, rankId: await rankId('Kapral'), eventDate: '2022-01-01', precision: 'day', reason: 'demotion' })
+    await addCorePromotionEvent(db, { memberId: member, rankId: await rankId('Sierżant'), eventDate: '2021-01-01', precision: 'day' })
+    await addCorePromotionEvent(db, { memberId: member, rankId: await rankId('Kapral'), eventDate: '2022-01-01', precision: 'day' })
 
     expect((await currentCoreRank(db, member))?.name).toBe('Kapral')
+  })
+
+  test('rejects recording the current rank again', async () => {
+    await freshDb()
+    const member = await newMember()
+    await addLifecycleEvent(db, { memberId: member, type: 'join', eventDate: '2020-01-01', precision: 'day' })
+
+    // Current rank is the entry rank (Elew).
+    expect(await addCorePromotionEvent(db, { memberId: member, rankId: await rankId('Elew'), eventDate: '2021-01-01', precision: 'day' })).toBeDefined()
+
+    // Promote to Sierżant, then re-recording Sierżant is rejected.
+    expect(await addCorePromotionEvent(db, { memberId: member, rankId: await rankId('Sierżant'), eventDate: '2021-01-01', precision: 'day' })).toBeUndefined()
+    expect(await addCorePromotionEvent(db, { memberId: member, rankId: await rankId('Sierżant'), eventDate: '2021-02-01', precision: 'day' })).toBeDefined()
   })
 
   test('a member who is not active has no core rank', async () => {

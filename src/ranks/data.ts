@@ -11,7 +11,6 @@ export interface RankHistoryEntry {
   rankName: string
   event_date: string | null
   event_date_precision: EventDatePrecision
-  reason: string | null
 }
 
 // All ranks ordered by their catalog order.
@@ -24,11 +23,16 @@ export async function rankByName(db: Kysely<Database>, name: string): Promise<Ra
   return db.selectFrom('ranks').selectAll().where('name', '=', name).executeTakeFirst()
 }
 
-// Record a core promotion or demotion.
+// Record a core promotion or demotion. Rejects re-recording the current rank.
 export async function addCorePromotionEvent(
   db: Kysely<Database>,
-  input: { memberId: number; rankId: number; eventDate: string | null; precision: EventDatePrecision; reason: string | null },
-): Promise<void> {
+  input: { memberId: number; rankId: number; eventDate: string | null; precision: EventDatePrecision },
+): Promise<string | undefined> {
+  const current = await currentCoreRank(db, input.memberId)
+  if (current && current.id === input.rankId) {
+    return 'This is already the current rank.'
+  }
+
   await db
     .insertInto('core_promotion_events')
     .values({
@@ -36,9 +40,9 @@ export async function addCorePromotionEvent(
       rank_id: input.rankId,
       event_date: input.eventDate,
       event_date_precision: input.precision,
-      reason: input.reason,
     })
     .execute()
+  return undefined
 }
 
 // Full core rank history (promotions and demotions).
@@ -51,7 +55,6 @@ export async function coreRankHistory(db: Kysely<Database>, memberId: number): P
       'rank.name as rankName',
       'promotion.event_date',
       'promotion.event_date_precision',
-      'promotion.reason',
     ])
     .where('promotion.member_id', '=', memberId)
     .where('promotion.deleted_at', 'is', null)
@@ -89,11 +92,16 @@ export async function currentCoreRank(db: Kysely<Database>, memberId: number): P
   return (await rankByName(db, 'Elew')) ?? null
 }
 
-// Record an Arma 3 promotion/demotion.
+// Record an Arma 3 promotion/demotion. Rejects re-recording the current rank.
 export async function addArma3PromotionEvent(
   db: Kysely<Database>,
-  input: { memberId: number; rankId: number; eventDate: string | null; precision: EventDatePrecision; reason: string | null },
-): Promise<void> {
+  input: { memberId: number; rankId: number; eventDate: string | null; precision: EventDatePrecision },
+): Promise<string | undefined> {
+  const current = await currentArma3Rank(db, input.memberId)
+  if (current && current.id === input.rankId) {
+    return 'This is already the current rank.'
+  }
+
   await db
     .insertInto('arma3_promotion_events')
     .values({
@@ -101,9 +109,9 @@ export async function addArma3PromotionEvent(
       rank_id: input.rankId,
       event_date: input.eventDate,
       event_date_precision: input.precision,
-      reason: input.reason,
     })
     .execute()
+  return undefined
 }
 
 // Full Arma 3 rank history.
@@ -116,7 +124,6 @@ export async function arma3RankHistory(db: Kysely<Database>, memberId: number): 
       'rank.name as rankName',
       'promotion.event_date',
       'promotion.event_date_precision',
-      'promotion.reason',
     ])
     .where('promotion.member_id', '=', memberId)
     .orderBy('promotion.event_date', 'asc')

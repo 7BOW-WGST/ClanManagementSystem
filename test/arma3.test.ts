@@ -60,7 +60,7 @@ describe.skipIf(!dbConfigured)('arma3', () => {
 
     expect((await currentArma3Rank(db, member))?.name).toBe('Elew')
 
-    await addArma3PromotionEvent(db, { memberId: member, rankId: await rankId('Szeregowy'), eventDate: '2021-02-01', precision: 'day', reason: null })
+    await addArma3PromotionEvent(db, { memberId: member, rankId: await rankId('Szeregowy'), eventDate: '2021-02-01', precision: 'day' })
     expect((await currentArma3Rank(db, member))?.name).toBe('Szeregowy')
   })
 
