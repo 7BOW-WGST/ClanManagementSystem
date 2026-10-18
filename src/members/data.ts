@@ -212,18 +212,51 @@ export async function addVeteranEvent(
 }
 
 // Whether the member is currently a veteran: an active member whose latest veteran event is "granted".
-export async function currentVeteran(db: Kysely<Database>, memberId: number): Promise<boolean> {
-  const lifecycle: LifecycleEvent[] = await db
+// The member's current membership period: whether active and the start date of the latest join
+// (null when active but the join date is unknown).
+export async function currentMembershipStart(
+  db: Kysely<Database>,
+  memberId: number,
+): Promise<{ active: boolean; start: string | null }> {
+  const events = await db
     .selectFrom('member_lifecycle_events')
     .selectAll()
     .where('member_id', '=', memberId)
+    .where('deleted_at', 'is', null)
+    .orderBy('event_date', 'asc')
+    .orderBy('id', 'asc')
     .execute()
-  if (statusFromLifecycle(lifecycle) !== 'active') {
+
+  let active = false
+  let start: string | null = null
+  for (const event of events) {
+    if (event.type === 'join') {
+      active = true
+      start = event.event_date
+    } else {
+      active = false
+      start = null
+    }
+  }
+  return { active, start }
+}
+
+// Whether the member is currently a veteran: active in the current membership period, with the
+// latest veteran event (in that period) being "granted".
+export async function currentVeteran(db: Kysely<Database>, memberId: number): Promise<boolean> {
+  const { active, start } = await currentMembershipStart(db, memberId)
+  if (!active) {
     return false
   }
 
-  const events = await db.selectFrom('veteran_events').selectAll().where('member_id', '=', memberId).execute()
-  return pickEffective(events)?.type === 'granted'
+  const events = await db
+    .selectFrom('veteran_events')
+    .selectAll()
+    .where('member_id', '=', memberId)
+    .where('deleted_at', 'is', null)
+    .execute()
+  const scoped = start === null ? events : events.filter((event) => event.event_date === null || event.event_date >= start)
+  return pickEffective(scoped)?.type === 'granted'
 }
 
 // A member's veteran history (oldest first, deleted excluded).

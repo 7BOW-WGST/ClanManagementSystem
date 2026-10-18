@@ -1,7 +1,7 @@
 import type { Kysely, Selectable } from 'kysely'
 import type { Arma3PromotionEvent, CorePromotionEvent, Database, EventDatePrecision, Rank } from '../db/types'
 import { pickEffective } from '../lib/projection'
-import { statusFromLifecycle, type LifecycleEvent } from '../members/data'
+import { currentMembershipStart } from '../members/data'
 
 export type RankRow = Selectable<Rank>
 
@@ -65,16 +65,11 @@ export async function softDeleteCorePromotion(db: Kysely<Database>, eventId: num
   await db.updateTable('core_promotion_events').set({ deleted_at: new Date() }).where('id', '=', eventId).execute()
 }
 
-// The member's current core rank: the latest promotion while active, otherwise the entry rank
-// (Elew), or null when the member is not active.
+// The member's current core rank: the latest promotion within the current membership period,
+// otherwise the entry rank (Elew), or null when the member is not active.
 export async function currentCoreRank(db: Kysely<Database>, memberId: number): Promise<RankRow | null> {
-  const lifecycle: LifecycleEvent[] = await db
-    .selectFrom('member_lifecycle_events')
-    .selectAll()
-    .where('member_id', '=', memberId)
-    .execute()
-
-  if (statusFromLifecycle(lifecycle) !== 'active') {
+  const { active, start } = await currentMembershipStart(db, memberId)
+  if (!active) {
     return null
   }
 
@@ -82,9 +77,11 @@ export async function currentCoreRank(db: Kysely<Database>, memberId: number): P
     .selectFrom('core_promotion_events')
     .selectAll()
     .where('member_id', '=', memberId)
+    .where('deleted_at', 'is', null)
     .execute()
+  const scoped = start === null ? promotions : promotions.filter((event) => event.event_date === null || event.event_date >= start)
 
-  const effective = pickEffective(promotions)
+  const effective = pickEffective(scoped)
   if (effective) {
     return (await db.selectFrom('ranks').selectAll().where('id', '=', effective.rank_id).executeTakeFirst()) ?? null
   }

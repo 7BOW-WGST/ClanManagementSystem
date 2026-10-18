@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
 import type { Kysely } from 'kysely'
 import { createAccount, linkAccount } from '../src/accounts/data'
 import type { Database, Platform, Relation } from '../src/db/types'
-import { createMember } from '../src/members/data'
+import { createMember, addLifecycleEvent } from '../src/members/data'
 import { addSquadronEvent, currentSquadronForAccount, memberWarThunder } from '../src/sections/data'
 import { createTestDb, resetTestDb } from './setup'
 
@@ -22,7 +22,9 @@ describe.skipIf(!dbConfigured)('sections', () => {
   })
 
   async function newMember(nickname: string): Promise<number> {
-    return createMember(db, { nickname, eventDate: '2020-01-01', precision: 'day' })
+    const member = await createMember(db, { nickname, eventDate: '2020-01-01', precision: 'day' })
+    await addLifecycleEvent(db, { memberId: member, type: 'join', eventDate: '2020-01-01', precision: 'day' })
+    return member
   }
 
   async function newAccount(platform: Platform, platformId: string | null): Promise<number> {

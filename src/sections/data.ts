@@ -11,7 +11,7 @@ import type {
 } from '../db/types'
 import { today } from '../lib/date'
 import { pickEffective } from '../lib/projection'
-import { statusFromLifecycle, type LifecycleEvent } from '../members/data'
+import { currentMembershipStart } from '../members/data'
 
 // The War Thunder squadrons a member's account can belong to.
 export const squadrons = ['7BOW', '7BOWs', '7BOWr'] as const
@@ -68,8 +68,13 @@ export async function currentSquadronForAccount(db: Kysely<Database>, accountId:
 }
 
 // Derive a member's War Thunder membership from the squadron events of their active main/alt
-// War Thunder accounts (borrowed links do not contribute).
+// War Thunder accounts (borrowed links do not contribute). Empty when the member is not active.
 export async function memberWarThunder(db: Kysely<Database>, memberId: number): Promise<WarThunderMembership> {
+  const { active, start } = await currentMembershipStart(db, memberId)
+  if (!active) {
+    return { squadron: null, conflict: false }
+  }
+
   const links = await activeLinksForMember(db, memberId)
   const candidateIds = links
     .filter((link) => link.relation === 'main' || link.relation === 'alt')
@@ -90,11 +95,12 @@ export async function memberWarThunder(db: Kysely<Database>, memberId: number): 
     return { squadron: null, conflict: false }
   }
 
-  const events = await db
+  const allEvents = await db
     .selectFrom('squadron_membership_events')
     .selectAll()
     .where('account_id', 'in', warThunderIds)
     .execute()
+  const events = start === null ? allEvents : allEvents.filter((event) => event.event_date === null || event.event_date >= start)
 
   const perAccount = new Set<string>()
   for (const id of warThunderIds) {
@@ -237,17 +243,15 @@ export async function arma3SectionHistory(db: Kysely<Database>, memberId: number
     .execute()
 }
 
-// Whether the member is currently active in the Arma 3 section (active member + latest event join).
+// Whether the member is currently active in the Arma 3 section (active member + latest section
+// event in the current membership period is a join).
 export async function arma3SectionActive(db: Kysely<Database>, memberId: number): Promise<boolean> {
-  const lifecycle: LifecycleEvent[] = await db
-    .selectFrom('member_lifecycle_events')
-    .selectAll()
-    .where('member_id', '=', memberId)
-    .execute()
-  if (statusFromLifecycle(lifecycle) !== 'active') {
+  const { active, start } = await currentMembershipStart(db, memberId)
+  if (!active) {
     return false
   }
 
   const events = await arma3SectionHistory(db, memberId)
-  return pickEffective(events)?.type === 'join'
+  const scoped = start === null ? events : events.filter((event) => event.event_date === null || event.event_date >= start)
+  return pickEffective(scoped)?.type === 'join'
 }

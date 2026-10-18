@@ -458,4 +458,5 @@ Bun `>= 1.4`; PostgreSQL 18.
 ## Open Items
 
 - **M8** — Arma 3 qualifications/specializations (deferred).
+- **A5 suppressed-source indicator** — deferred beyond Phase 1 (no suppressed-source data exists yet).
 - **Later phases** — statistics, operations, and Discord automation details.

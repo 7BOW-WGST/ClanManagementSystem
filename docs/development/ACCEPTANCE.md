@@ -38,8 +38,8 @@ This document turns the Phase 1 order ([`DECISIONS.md`](./DECISIONS.md), P1) int
 
 ### Step 6 — Permission and historical-scenario verification
 
-- [ ] Member-excluded fields (kick reasons, notes, audit, suppressed sources) are filtered server-side.
-- [ ] All key scenarios below produce the expected result.
+- [x] Member-excluded fields (kick reasons, notes, audit, suppressed sources) are filtered server-side.
+- [x] All key scenarios below produce the expected result.
 
 ---
 

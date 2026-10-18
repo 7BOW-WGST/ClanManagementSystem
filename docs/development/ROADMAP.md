@@ -69,7 +69,8 @@ This is the working plan for implementation. It turns the milestones in [`ACCEPT
 
 ### M5 — Verification (ACCEPTANCE Step 6)
 
-- **5.1 Field filtering + final gate** — server-side exclusion of confidential fields; run all scenarios and the verification backlog as the Phase 1 exit criteria.
+- **5.1 Role-based read filtering** — hide mutation UI and confidential reasons from the Member role (server-rendered); server-side authorization unchanged.
+- **5.2 Scenario and access verification** — full membership-cycle test (case 3), Member access tests (case 9), and a manual pass over the ACCEPTANCE scenarios.
 
 ## Foundational items (built once, used throughout)
 
