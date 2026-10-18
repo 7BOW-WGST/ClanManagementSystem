@@ -121,6 +121,21 @@ export interface CorePromotionEvent {
   deleted_at: Date | null
 }
 
+// Veteran status events (see DECISIONS M4).
+export type VeteranEventType = 'granted' | 'removed'
+
+export interface VeteranEvent {
+  id: Generated<number>
+  member_id: number
+  type: VeteranEventType
+  event_date: string | null
+  event_date_precision: EventDatePrecision
+  recorded_at: Generated<Date>
+  source: Generated<Source>
+  created_by: Generated<string>
+  deleted_at: Date | null
+}
+
 export interface MemberNicknameEvent {
   id: Generated<number>
   member_id: number
@@ -159,4 +174,5 @@ export interface Database {
   squadron_membership_events: SquadronMembershipEvent
   ranks: Rank
   core_promotion_events: CorePromotionEvent
+  veteran_events: VeteranEvent
 }

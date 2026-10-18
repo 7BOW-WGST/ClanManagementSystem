@@ -11,8 +11,10 @@ import { stringField } from '../lib/validation'
 import {
   addLifecycleEvent,
   addNicknameEvent,
+  addVeteranEvent,
   countMembers,
   createMember,
+  currentVeteran,
   getMemberDetail,
   isLifecycleType,
   listMembers,
@@ -38,6 +40,7 @@ async function detailContext(id: number): Promise<
       coreRankName: string | null
       rankHistory: RankHistoryEntry[]
       ranks: RankRow[]
+      veteran: boolean
     }
   | undefined
 > {
@@ -46,14 +49,15 @@ async function detailContext(id: number): Promise<
   if (!member) {
     return undefined
   }
-  const [accounts, warThunder, coreRank, rankHistory, ranks] = await Promise.all([
+  const [accounts, warThunder, coreRank, rankHistory, ranks, veteran] = await Promise.all([
     memberAccountViews(db, id),
     memberWarThunder(db, id),
     currentCoreRank(db, id),
     coreRankHistory(db, id),
     listRanks(db),
+    currentVeteran(db, id),
   ])
-  return { member, accounts, warThunder, coreRankName: coreRank?.name ?? null, rankHistory, ranks }
+  return { member, accounts, warThunder, coreRankName: coreRank?.name ?? null, rankHistory, ranks, veteran }
 }
 
 // Members list.
@@ -114,6 +118,7 @@ memberRoutes.get('/members/:id', async (c) => {
       coreRankName={context.coreRankName}
       rankHistory={context.rankHistory}
       ranks={context.ranks}
+      veteran={context.veteran}
       flash={consumeFlash(c)}
     />,
   )
@@ -141,6 +146,7 @@ memberRoutes.post('/members/:id/nickname', requireRole('owner', 'admin'), async 
         coreRankName={context.coreRankName}
         rankHistory={context.rankHistory}
         ranks={context.ranks}
+        veteran={context.veteran}
         error={error}
       />,
       400,
@@ -180,6 +186,7 @@ memberRoutes.post('/members/:id/lifecycle', requireRole('owner', 'admin'), async
         coreRankName={context.coreRankName}
         rankHistory={context.rankHistory}
         ranks={context.ranks}
+        veteran={context.veteran}
         error={error}
       />,
       400,
@@ -194,5 +201,30 @@ memberRoutes.post('/members/:id/lifecycle', requireRole('owner', 'admin'), async
 
   await addLifecycleEvent(getDb(), { memberId: id, type, eventDate: parsed.date, precision: parsed.precision })
   setFlash(c, 'Lifecycle event added.')
+  return c.redirect(`/members/${id}`)
+})
+
+// Record a veteran status change.
+memberRoutes.post('/members/:id/veteran', requireRole('owner', 'admin'), async (c) => {
+  const id = parseId(c.req.param('id'))
+  if (id === undefined) {
+    return c.notFound()
+  }
+
+  const body = await c.req.parseBody()
+  const type = stringField(body, 'type')
+  const parsed = parseDateInput(stringField(body, 'event_date_precision') ?? 'unknown', stringField(body, 'event_date') ?? '')
+
+  if (type !== 'granted' && type !== 'removed') {
+    setFlash(c, 'Choose a veteran change.')
+    return c.redirect(`/members/${id}`)
+  }
+  if (!parsed.ok) {
+    setFlash(c, parsed.error)
+    return c.redirect(`/members/${id}`)
+  }
+
+  await addVeteranEvent(getDb(), { memberId: id, type, eventDate: parsed.date, precision: parsed.precision })
+  setFlash(c, 'Veteran status recorded.')
   return c.redirect(`/members/${id}`)
 })

@@ -125,6 +125,7 @@ export const MemberDetailPage: FC<{
   coreRankName: string | null
   rankHistory: RankHistoryEntry[]
   ranks: RankRow[]
+  veteran: boolean
   flash?: string
   error?: string
 }> = (props) => (
@@ -164,6 +165,32 @@ export const MemberDetailPage: FC<{
       history={props.rankHistory}
       ranks={props.ranks}
     />
+
+    <h2 class="h5 mt-4">Veteran</h2>
+    <p>
+      Status: <strong>{props.veteran ? 'veteran' : '—'}</strong>
+    </p>
+    <form method="post" action={`/members/${props.member.id}/veteran`}>
+      <div class="row g-3 align-items-end">
+        <div class="col-md-4">
+          <label class="form-label" for="veteran_type">
+            Change
+          </label>
+          <select class="form-select" id="veteran_type" name="type">
+            <option value="granted">granted</option>
+            <option value="removed">removed</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <DateInput name="event_date" />
+        </div>
+        <div class="col-md-2">
+          <button class="btn btn-primary" type="submit">
+            Record
+          </button>
+        </div>
+      </div>
+    </form>
 
     <div class="row">
       <div class="col-md-6">

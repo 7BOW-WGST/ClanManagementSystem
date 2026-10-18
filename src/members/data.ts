@@ -1,5 +1,5 @@
 import type { Kysely, Selectable } from 'kysely'
-import type { Database, EventDatePrecision, MemberLifecycleEvent, MemberNicknameEvent } from '../db/types'
+import type { Database, EventDatePrecision, MemberLifecycleEvent, MemberNicknameEvent, VeteranEventType } from '../db/types'
 import type { ListOptions } from '../lib/pagination'
 import { pickEffective } from '../lib/projection'
 
@@ -175,4 +175,35 @@ export async function addLifecycleEvent(
       event_date_precision: input.precision,
     })
     .execute()
+}
+
+// Record a veteran status change (granted / removed).
+export async function addVeteranEvent(
+  db: Kysely<Database>,
+  input: { memberId: number; type: VeteranEventType; eventDate: string | null; precision: EventDatePrecision },
+): Promise<void> {
+  await db
+    .insertInto('veteran_events')
+    .values({
+      member_id: input.memberId,
+      type: input.type,
+      event_date: input.eventDate,
+      event_date_precision: input.precision,
+    })
+    .execute()
+}
+
+// Whether the member is currently a veteran: an active member whose latest veteran event is "granted".
+export async function currentVeteran(db: Kysely<Database>, memberId: number): Promise<boolean> {
+  const lifecycle: LifecycleEvent[] = await db
+    .selectFrom('member_lifecycle_events')
+    .selectAll()
+    .where('member_id', '=', memberId)
+    .execute()
+  if (statusFromLifecycle(lifecycle) !== 'active') {
+    return false
+  }
+
+  const events = await db.selectFrom('veteran_events').selectAll().where('member_id', '=', memberId).execute()
+  return pickEffective(events)?.type === 'granted'
 }
