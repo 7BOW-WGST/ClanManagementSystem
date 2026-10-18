@@ -286,7 +286,7 @@ Multiple special statuses may coexist; currently **only veteran** exists. Suspen
 ### M6 — Rank catalog and streams
 
 **Status:** Accepted
-One shared rank catalog (attributes and ordering in [`CATALOGS.md`](./CATALOGS.md)). Core and Arma 3 sections use the same rank definitions but run **independent, unrelated promotion streams**; rank **behavior is stream-specific** and documented, not stored as rank attributes. War Thunder has no separate rank catalog. Promotions may **skip ranks** (no adjacency requirement); promotions/demotions are events (a demotion is a new event, never an edit). The catalog is **append-only** (ranks added over time, never removed or renamed); `introduced_at` supports validation/display.
+One shared rank catalog (attributes and ordering in [`CATALOGS.md`](./CATALOGS.md)). Core and Arma 3 sections use the same rank definitions but run **independent, unrelated promotion streams**; rank **behavior is stream-specific** and documented, not stored as rank attributes. War Thunder has no separate rank catalog. Promotions may **skip ranks** (no adjacency requirement); promotions/demotions are events (a demotion is a new event, never an edit). Recording the member's current rank again is rejected. The catalog is **append-only** (ranks added over time, never removed or renamed); `introduced_at` supports validation/display.
 
 ### M7 — Awards
 
