@@ -1,0 +1,18 @@
+@media (min-width: 992px) {
+  .navbar > .container {
+    position: relative;
+  }
+
+  .navbar-collapse > .navbar-nav {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.material-symbols-outlined {
+  font-size: 1rem;
+  line-height: 1;
+  vertical-align: -0.125em;
+}
