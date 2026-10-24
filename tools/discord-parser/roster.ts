@@ -4,6 +4,7 @@ import type { GuildMemberRecord, RosterMember, RosterOutput } from './types'
 export interface RosterFilterOptions {
   includeBots: boolean
   includePending: boolean
+  memberRoleIds: readonly string[]
 }
 
 export interface FilteredRoster {
@@ -12,6 +13,7 @@ export interface FilteredRoster {
   keptCount: number
   botCount: number
   pendingCount: number
+  roleFilteredCount: number
 }
 
 export interface RosterOutputInput {
@@ -22,10 +24,22 @@ export interface RosterOutputInput {
   keptCount: number
   botCount: number
   pendingCount: number
+  roleFilteredCount: number
+  requiredRoleIds: readonly string[]
   members: GuildMemberRecord[]
 }
 
-// Exclude bots and pending humans by default. Counts always describe the full fetched roster.
+// Return the configured qualifying roles present on the member, in configured order.
+export function matchingRoleIds(
+  member: APIGuildMember,
+  memberRoleIds: readonly string[],
+): string[] {
+  const roles = new Set(member.roles)
+  return memberRoleIds.filter((roleId) => roles.has(roleId))
+}
+
+// Exclude bots, pending humans, and members without a qualifying role.
+// Counts always describe the full fetched roster.
 export function filterRoster(
   members: APIGuildMember[],
   options: RosterFilterOptions,
@@ -33,6 +47,12 @@ export function filterRoster(
   const botCount = members.filter((member) => member.user.bot === true).length
   const pendingCount = members.filter(
     (member) => member.user.bot !== true && member.pending === true,
+  ).length
+  const nonBotNonPending = members.filter(
+    (member) => member.user.bot !== true && member.pending !== true,
+  )
+  const roleFilteredCount = nonBotNonPending.filter(
+    (member) => matchingRoleIds(member, options.memberRoleIds).length === 0,
   ).length
 
   const kept = members.filter((member) => {
@@ -42,7 +62,7 @@ export function filterRoster(
     if (member.pending === true && !options.includePending) {
       return false
     }
-    return true
+    return matchingRoleIds(member, options.memberRoleIds).length > 0
   })
 
   return {
@@ -51,12 +71,14 @@ export function filterRoster(
     keptCount: kept.length,
     botCount,
     pendingCount,
+    roleFilteredCount,
   }
 }
 
 export function toGuildMemberRecord(
   member: APIGuildMember,
   timestamp: string,
+  matchedRoleIds: readonly string[],
 ): GuildMemberRecord {
   return {
     discord_id: member.user.id,
@@ -64,6 +86,7 @@ export function toGuildMemberRecord(
     global_name: member.user.global_name,
     server_name: member.nick ?? null,
     joined_at: member.joined_at,
+    matched_role_ids: [...matchedRoleIds],
     is_bot: member.user.bot === true,
     pending: member.pending === true,
     first_seen_at: timestamp,
@@ -94,6 +117,7 @@ export function buildRosterOutput(input: RosterOutputInput): RosterOutput {
       global_name: member.global_name,
       server_name: member.server_name,
       joined_at: member.joined_at,
+      matched_role_ids: [...member.matched_role_ids],
     })),
   )
 
@@ -109,6 +133,8 @@ export function buildRosterOutput(input: RosterOutputInput): RosterOutput {
       kept_count: input.keptCount,
       bot_count: input.botCount,
       pending_count: input.pendingCount,
+      role_filtered_count: input.roleFilteredCount,
+      required_role_ids: [...input.requiredRoleIds],
     },
     members,
   }

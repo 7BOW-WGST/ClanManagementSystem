@@ -63,6 +63,27 @@ function snowflake(name: string, value: string): string {
   return value
 }
 
+function snowflakeList(name: string): string[] {
+  const raw = required(name)
+  const values = raw
+    .split(',')
+    .map((value) => value.trim())
+    .filter((value) => value !== '')
+
+  if (values.length === 0) {
+    throw new Error(`${name} must contain at least one Discord role ID.`)
+  }
+
+  const ids: string[] = []
+  for (const value of values) {
+    const id = snowflake(name, value)
+    if (!ids.includes(id)) {
+      ids.push(id)
+    }
+  }
+  return ids
+}
+
 function integerInRange(name: string, fallback: number, min: number, max: number): number {
   const raw = process.env[name]?.trim()
   if (raw === undefined || raw === '') {
@@ -89,6 +110,7 @@ export async function loadConfig(): Promise<HarvestConfig> {
   return {
     botToken: required('DISCORD_BOT_TOKEN'),
     guildId: snowflake('DISCORD_GUILD_ID', required('DISCORD_GUILD_ID')),
+    memberRoleIds: snowflakeList('DISCORD_MEMBER_ROLE_IDS'),
     apiVersion: integerInRange('DISCORD_API_VERSION', 10, 9, 10),
     pageSize: integerInRange('DISCORD_MEMBER_PAGE_SIZE', 1000, 1, 1000),
     cachePath: localPath(process.env.DISCORD_CACHE_PATH, './cache/discord.sqlite'),

@@ -3,6 +3,7 @@
 export interface HarvestConfig {
   botToken: string
   guildId: string
+  memberRoleIds: string[]
   apiVersion: number
   pageSize: number
   cachePath: string
@@ -16,6 +17,7 @@ export interface GuildMemberRecord {
   global_name: string | null
   server_name: string | null
   joined_at: string | null
+  matched_role_ids: string[]
   is_bot: boolean
   pending: boolean
   first_seen_at: string
@@ -29,6 +31,7 @@ export interface RosterMember {
   global_name: string | null
   server_name: string | null
   joined_at: string | null
+  matched_role_ids: string[]
 }
 
 export interface RosterMeta {
@@ -42,6 +45,8 @@ export interface RosterMeta {
   kept_count: number
   bot_count: number
   pending_count: number
+  role_filtered_count: number
+  required_role_ids: string[]
 }
 
 export interface RosterOutput {

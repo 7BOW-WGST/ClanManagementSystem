@@ -3,7 +3,7 @@ import { dirname, resolve } from 'node:path'
 import { RosterCache } from './cache'
 import { loadConfig } from './config'
 import { DiscordSource } from './discord'
-import { buildRosterOutput, filterRoster, toGuildMemberRecord } from './roster'
+import { buildRosterOutput, filterRoster, matchingRoleIds, toGuildMemberRecord } from './roster'
 
 interface CliOptions {
   includeBots: boolean
@@ -133,14 +133,28 @@ async function main(): Promise<void> {
       source.fetchGuild(config.guildId),
       source.fetchCurrentUser(),
     ])
+
+    const guildRoleIds = new Set(guild.roles.map((role) => role.id))
+    const missingRoleIds = config.memberRoleIds.filter((roleId) => !guildRoleIds.has(roleId))
+    if (missingRoleIds.length > 0) {
+      console.warn(`Warning: configured role IDs not found in guild: ${missingRoleIds.join(', ')}`)
+    }
+
     const allMembers = await source.fetchGuildMembers(config.guildId, { limit: cli.limit })
     const fetchedAt = new Date().toISOString()
 
     const filtered = filterRoster(allMembers, {
       includeBots: cli.includeBots,
       includePending: cli.includePending,
+      memberRoleIds: config.memberRoleIds,
     })
-    const records = filtered.members.map((member) => toGuildMemberRecord(member, fetchedAt))
+    const records = filtered.members.map((member) =>
+      toGuildMemberRecord(
+        member,
+        fetchedAt,
+        matchingRoleIds(member, config.memberRoleIds),
+      ),
+    )
 
     cache.upsertMembers(config.guildId, records)
     cache.recordRun({
@@ -150,6 +164,7 @@ async function main(): Promise<void> {
       keptCount: filtered.keptCount,
       botCount: filtered.botCount,
       pendingCount: filtered.pendingCount,
+      roleFilteredCount: filtered.roleFilteredCount,
     })
 
     const output = buildRosterOutput({
@@ -160,6 +175,8 @@ async function main(): Promise<void> {
       keptCount: filtered.keptCount,
       botCount: filtered.botCount,
       pendingCount: filtered.pendingCount,
+      roleFilteredCount: filtered.roleFilteredCount,
+      requiredRoleIds: config.memberRoleIds,
       members: records,
     })
 
@@ -168,7 +185,8 @@ async function main(): Promise<void> {
     console.log(`Roster written to ${outputPath}`)
     console.log(
       `fetched=${filtered.fetchedCount} kept=${filtered.keptCount} ` +
-        `bots=${filtered.botCount} pending=${filtered.pendingCount}`,
+        `bots=${filtered.botCount} pending=${filtered.pendingCount} ` +
+        `role_filtered=${filtered.roleFilteredCount}`,
     )
   } finally {
     cache.close()

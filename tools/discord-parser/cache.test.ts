@@ -11,6 +11,7 @@ function record(input: Partial<GuildMemberRecord> & Pick<GuildMemberRecord, 'dis
     global_name: null,
     server_name: null,
     joined_at: null,
+    matched_role_ids: [],
     is_bot: false,
     pending: false,
     first_seen_at: '2024-01-01T00:00:00.000Z',
@@ -33,6 +34,7 @@ describe('RosterCache', () => {
           global_name: 'New Display',
           server_name: 'New',
           joined_at: '2023-05-06T07:08:09.000000+00:00',
+          matched_role_ids: ['526133207339368459'],
           first_seen_at: '2024-02-01T00:00:00.000Z',
           last_seen_at: '2024-02-01T00:00:00.000Z',
         }),
@@ -46,6 +48,7 @@ describe('RosterCache', () => {
         global_name: 'New Display',
         server_name: 'New',
         joined_at: '2023-05-06T07:08:09.000000+00:00',
+        matched_role_ids: ['526133207339368459'],
         is_bot: false,
         pending: false,
         first_seen_at: '2024-01-01T00:00:00.000Z',
@@ -93,6 +96,17 @@ describe('RosterCache', () => {
           PRIMARY KEY (guild_id, user_id)
         )
       `)
+      old.exec(`
+        CREATE TABLE roster_runs (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          guild_id TEXT NOT NULL,
+          fetched_at TEXT NOT NULL,
+          fetched_count INTEGER NOT NULL,
+          kept_count INTEGER NOT NULL,
+          bot_count INTEGER NOT NULL,
+          pending_count INTEGER NOT NULL
+        )
+      `)
       old.run(
         `INSERT INTO guild_members (guild_id, user_id, username, server_name, is_bot, pending, first_seen_at, last_seen_at)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -114,6 +128,7 @@ describe('RosterCache', () => {
         const before = cache.listMembers('guild-1')
         expect(before[0]?.global_name).toBeNull()
         expect(before[0]?.joined_at).toBeNull()
+        expect(before[0]?.matched_role_ids).toEqual([])
 
         cache.upsertMembers('guild-1', [
           record({
@@ -121,6 +136,7 @@ describe('RosterCache', () => {
             username: 'new-name',
             global_name: 'New Display',
             joined_at: '2023-05-06T07:08:09.000000+00:00',
+            matched_role_ids: ['526133207339368459'],
             last_seen_at: '2024-02-01T00:00:00.000Z',
           }),
         ])
@@ -128,6 +144,17 @@ describe('RosterCache', () => {
         const after = cache.listMembers('guild-1')
         expect(after[0]?.global_name).toBe('New Display')
         expect(after[0]?.joined_at).toBe('2023-05-06T07:08:09.000000+00:00')
+        expect(after[0]?.matched_role_ids).toEqual(['526133207339368459'])
+
+        cache.recordRun({
+          guildId: 'guild-1',
+          fetchedAt: '2024-02-01T00:00:00.000Z',
+          fetchedCount: 2,
+          keptCount: 1,
+          botCount: 1,
+          pendingCount: 0,
+          roleFilteredCount: 1,
+        })
       } finally {
         cache.close()
       }

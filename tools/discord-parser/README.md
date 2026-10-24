@@ -21,7 +21,15 @@ bun install
 copy .env.example .env
 ```
 
-Fill in `DISCORD_BOT_TOKEN` and `DISCORD_GUILD_ID` in `.env`. The harvester reads this tool-local file explicitly, so it does not depend on the repository-root `.env`.
+Fill in `DISCORD_BOT_TOKEN`, `DISCORD_GUILD_ID`, and `DISCORD_MEMBER_ROLE_IDS` in `.env`. The role variable is a comma-separated list of qualifying role IDs; a member must have at least one of them to be treated as a clan member. The harvester reads this tool-local file explicitly, so it does not depend on the repository-root `.env`.
+
+For the current 7BOW setup:
+
+```dotenv
+DISCORD_MEMBER_ROLE_IDS=526133207339368459,827554967103340585
+```
+
+These are `Członek Brygady` and `Weteran`. Members holding either role qualify; holding both produces both IDs in `matched_role_ids`.
 
 ## Usage
 
@@ -39,7 +47,7 @@ bun run harvest-members --include-pending   # debugging only
 bun run harvest-members --output .\output\roster.json
 ```
 
-Bots and pending members are excluded by default. The run prints counts for fetched, kept, bot, and pending members.
+Bots, pending members, and members without a qualifying role are excluded by default. The run prints counts for fetched, kept, bot, pending, and role-filtered members.
 
 ## Output
 
@@ -57,7 +65,12 @@ Bots and pending members are excluded by default. The run prints counts for fetc
     "fetched_count": 250,
     "kept_count": 246,
     "bot_count": 4,
-    "pending_count": 0
+    "pending_count": 0,
+    "role_filtered_count": 12,
+    "required_role_ids": [
+      "526133207339368459",
+      "827554967103340585"
+    ]
   },
   "members": [
     {
@@ -65,7 +78,10 @@ Bots and pending members are excluded by default. The run prints counts for fetc
       "username": "kamil",
       "global_name": "Kamil",
       "server_name": "KKamilS",
-      "joined_at": "2020-04-12T18:00:00.000000+00:00"
+      "joined_at": "2020-04-12T18:00:00.000000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
     }
   ]
 }
@@ -78,6 +94,7 @@ Fields:
 - `global_name` — Discord display name. Stays `null` when the account has no global display name.
 - `server_name` — guild nickname. Stays `null` when the member has no server nickname; the tool does not fabricate one.
 - `joined_at` — when the member joined this Discord server, as the raw Discord timestamp. This is not the clan join date and may be `null`.
+- `matched_role_ids` — the configured qualifying roles the member holds, in configured order. Never empty in the output.
 
 Members are sorted by server name (falling back to username), then by username and Discord ID.
 
@@ -85,7 +102,7 @@ Members are sorted by server name (falling back to username), then by username a
 
 Raw roster snapshots are upserted into `cache/discord.sqlite` using Bun's native `bun:sqlite`. The cache preserves `first_seen_at`, refreshes `last_seen_at`, and records each roster run. It does **not** infer departures from absence.
 
-Existing cache files are migrated automatically: missing `global_name` and `joined_at` columns are added with `ALTER TABLE`, so no cache wipe is required. Older rows keep `null` for the new fields until the next harvest updates them.
+Existing cache files are migrated automatically: missing `global_name`, `joined_at`, and `matched_role_ids_json` columns are added with `ALTER TABLE`, as is `roster_runs.role_filtered_count`. No cache wipe is required. Older rows keep `null`/empty values until the next harvest updates them.
 
 `cache/` and `output/raw/` are gitignored. The roster JSON is intended to be kept as the seed-base artifact.
 
