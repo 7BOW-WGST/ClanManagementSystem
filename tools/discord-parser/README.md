@@ -106,6 +106,46 @@ Existing cache files are migrated automatically: missing `global_name`, `joined_
 
 `cache/` and `output/raw/` are gitignored. The roster JSON is intended to be kept as the seed-base artifact.
 
+## Members SQLite export
+
+```cmd
+cd tools\discord-parser
+bun run export-members
+```
+
+This reads `output/discord-members.json` and writes `output/members.sqlite` with two tables:
+
+```sql
+CREATE TABLE members (
+  id INTEGER PRIMARY KEY,
+  nickname TEXT NOT NULL,
+  join_date TEXT
+);
+
+CREATE TABLE discord_accounts (
+  discord_id TEXT PRIMARY KEY,
+  member_id INTEGER NOT NULL REFERENCES members(id),
+  username TEXT NOT NULL,
+  global_name TEXT,
+  server_name TEXT,
+  joined_at TEXT
+);
+```
+
+- `members` is platform-neutral. Its nickname is a placeholder derived from `server_name`, then `global_name`, then `username`.
+- `members.join_date` is a `YYYY-MM-DD` date converted to `Europe/Warsaw`.
+- `discord_accounts.joined_at` keeps the raw Discord timestamp.
+- Member IDs are preserved across exports for Discord accounts that remain in the roster. New accounts receive the next free ID.
+- Both tables are replaced on each export; unrelated tables are untouched.
+
+Optional overrides:
+
+```cmd
+bun run export-members --input .\output\discord-members.json --output .\output\members.sqlite
+```
+
+`output/*.sqlite` is gitignored; regenerate it from the roster JSON when needed.
+
 ## Validation
 
 ```cmd
