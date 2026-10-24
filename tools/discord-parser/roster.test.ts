@@ -11,6 +11,8 @@ function member(input: {
   id: string
   username: string
   nick?: string | null
+  globalName?: string | null
+  joinedAt?: string | null
   bot?: boolean
   pending?: boolean
 }): APIGuildMember {
@@ -19,13 +21,13 @@ function member(input: {
       id: input.id,
       username: input.username,
       discriminator: '0',
-      global_name: null,
+      global_name: input.globalName ?? null,
       avatar: null,
       bot: input.bot,
     },
     nick: input.nick ?? null,
     roles: [],
-    joined_at: '2024-01-01T00:00:00.000Z',
+    joined_at: input.joinedAt ?? '2024-01-01T00:00:00.000Z',
     deaf: false,
     mute: false,
     flags: 0 as GuildMemberFlags,
@@ -72,21 +74,40 @@ describe('toGuildMemberRecord', () => {
     expect(record).toEqual({
       discord_id: '1',
       username: 'player',
+      global_name: null,
       server_name: null,
+      joined_at: '2024-01-01T00:00:00.000Z',
       is_bot: false,
       pending: false,
       first_seen_at: '2026-01-01T00:00:00.000Z',
       last_seen_at: '2026-01-01T00:00:00.000Z',
     })
   })
+
+  test('maps the global name and server join timestamp', () => {
+    const record = toGuildMemberRecord(
+      member({
+        id: '1',
+        username: 'player',
+        globalName: 'Player Display',
+        nick: 'Server Nick',
+        joinedAt: '2024-02-03T04:05:06.000000+00:00',
+      }),
+      '2026-01-01T00:00:00.000Z',
+    )
+
+    expect(record.global_name).toBe('Player Display')
+    expect(record.server_name).toBe('Server Nick')
+    expect(record.joined_at).toBe('2024-02-03T04:05:06.000000+00:00')
+  })
 })
 
 describe('sortRosterMembers', () => {
   test('orders by server name, falling back to username', () => {
     const sorted = sortRosterMembers([
-      { discord_id: '3', username: 'zeta', server_name: null },
-      { discord_id: '1', username: 'alpha', server_name: 'Zulu' },
-      { discord_id: '2', username: 'beta', server_name: 'Alfa' },
+      { discord_id: '3', username: 'zeta', global_name: null, server_name: null, joined_at: null },
+      { discord_id: '1', username: 'alpha', global_name: null, server_name: 'Zulu', joined_at: null },
+      { discord_id: '2', username: 'beta', global_name: null, server_name: 'Alfa', joined_at: null },
     ])
 
     expect(sorted.map((entry) => entry.discord_id)).toEqual(['2', '3', '1'])
@@ -107,7 +128,9 @@ describe('buildRosterOutput', () => {
         {
           discord_id: '1',
           username: 'player',
+          global_name: 'Player Display',
           server_name: 'Gracz',
+          joined_at: '2024-01-01T00:00:00.000Z',
           is_bot: false,
           pending: false,
           first_seen_at: '2026-01-01T00:00:00.000Z',
@@ -129,7 +152,13 @@ describe('buildRosterOutput', () => {
       pending_count: 0,
     })
     expect(output.members).toEqual([
-      { discord_id: '1', username: 'player', server_name: 'Gracz' },
+      {
+        discord_id: '1',
+        username: 'player',
+        global_name: 'Player Display',
+        server_name: 'Gracz',
+        joined_at: '2024-01-01T00:00:00.000Z',
+      },
     ])
   })
 })

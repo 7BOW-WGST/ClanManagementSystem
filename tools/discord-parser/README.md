@@ -63,7 +63,9 @@ Bots and pending members are excluded by default. The run prints counts for fetc
     {
       "discord_id": "123456789012345678",
       "username": "kamil",
-      "server_name": "KKamilS"
+      "global_name": "Kamil",
+      "server_name": "KKamilS",
+      "joined_at": "2020-04-12T18:00:00.000000+00:00"
     }
   ]
 }
@@ -73,13 +75,17 @@ Fields:
 
 - `discord_id` — stable Discord snowflake, stored as text.
 - `username` — Discord account handle.
+- `global_name` — Discord display name. Stays `null` when the account has no global display name.
 - `server_name` — guild nickname. Stays `null` when the member has no server nickname; the tool does not fabricate one.
+- `joined_at` — when the member joined this Discord server, as the raw Discord timestamp. This is not the clan join date and may be `null`.
 
 Members are sorted by server name (falling back to username), then by username and Discord ID.
 
 ## Cache
 
 Raw roster snapshots are upserted into `cache/discord.sqlite` using Bun's native `bun:sqlite`. The cache preserves `first_seen_at`, refreshes `last_seen_at`, and records each roster run. It does **not** infer departures from absence.
+
+Existing cache files are migrated automatically: missing `global_name` and `joined_at` columns are added with `ALTER TABLE`, so no cache wipe is required. Older rows keep `null` for the new fields until the next harvest updates them.
 
 `cache/` and `output/raw/` are gitignored. The roster JSON is intended to be kept as the seed-base artifact.
 

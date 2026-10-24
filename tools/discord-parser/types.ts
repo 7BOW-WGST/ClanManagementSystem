@@ -13,7 +13,9 @@ export interface HarvestConfig {
 export interface GuildMemberRecord {
   discord_id: string
   username: string
+  global_name: string | null
   server_name: string | null
+  joined_at: string | null
   is_bot: boolean
   pending: boolean
   first_seen_at: string
@@ -24,7 +26,9 @@ export interface GuildMemberRecord {
 export interface RosterMember {
   discord_id: string
   username: string
+  global_name: string | null
   server_name: string | null
+  joined_at: string | null
 }
 
 export interface RosterMeta {

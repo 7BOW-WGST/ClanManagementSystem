@@ -61,7 +61,9 @@ export function toGuildMemberRecord(
   return {
     discord_id: member.user.id,
     username: member.user.username,
+    global_name: member.user.global_name,
     server_name: member.nick ?? null,
+    joined_at: member.joined_at,
     is_bot: member.user.bot === true,
     pending: member.pending === true,
     first_seen_at: timestamp,
@@ -89,7 +91,9 @@ export function buildRosterOutput(input: RosterOutputInput): RosterOutput {
     input.members.map((member) => ({
       discord_id: member.discord_id,
       username: member.username,
+      global_name: member.global_name,
       server_name: member.server_name,
+      joined_at: member.joined_at,
     })),
   )
 

@@ -7,7 +7,9 @@ interface GuildMemberRow {
   guild_id: string
   user_id: string
   username: string
+  global_name: string | null
   server_name: string | null
+  joined_at: string | null
   is_bot: number
   pending: number
   first_seen_at: string
@@ -28,7 +30,9 @@ const CREATE_GUILD_MEMBERS = `
     guild_id TEXT NOT NULL,
     user_id TEXT NOT NULL,
     username TEXT NOT NULL,
+    global_name TEXT,
     server_name TEXT,
+    joined_at TEXT,
     is_bot INTEGER NOT NULL,
     pending INTEGER NOT NULL,
     first_seen_at TEXT NOT NULL,
@@ -51,11 +55,13 @@ const CREATE_ROSTER_RUNS = `
 
 const UPSERT_MEMBER = `
   INSERT INTO guild_members (
-    guild_id, user_id, username, server_name, is_bot, pending, first_seen_at, last_seen_at
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    guild_id, user_id, username, global_name, server_name, joined_at, is_bot, pending, first_seen_at, last_seen_at
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   ON CONFLICT (guild_id, user_id) DO UPDATE SET
     username = excluded.username,
+    global_name = excluded.global_name,
     server_name = excluded.server_name,
+    joined_at = excluded.joined_at,
     is_bot = excluded.is_bot,
     pending = excluded.pending,
     last_seen_at = excluded.last_seen_at
@@ -78,7 +84,23 @@ export class RosterCache {
 
     this.db = new Database(path, { create: true })
     this.db.exec(CREATE_GUILD_MEMBERS)
+    this.ensureGuildMemberColumns()
     this.db.exec(CREATE_ROSTER_RUNS)
+  }
+
+  // Add columns introduced after the first roster schema without wiping existing caches.
+  private ensureGuildMemberColumns(): void {
+    const columns = this.db
+      .query<{ name: string }, []>('PRAGMA table_info(guild_members)')
+      .all()
+    const existing = new Set(columns.map((column) => column.name))
+
+    if (!existing.has('global_name')) {
+      this.db.exec('ALTER TABLE guild_members ADD COLUMN global_name TEXT')
+    }
+    if (!existing.has('joined_at')) {
+      this.db.exec('ALTER TABLE guild_members ADD COLUMN joined_at TEXT')
+    }
   }
 
   upsertMembers(guildId: string, members: GuildMemberRecord[]): void {
@@ -88,7 +110,9 @@ export class RosterCache {
           guildId,
           row.discord_id,
           row.username,
+          row.global_name,
           row.server_name,
+          row.joined_at,
           row.is_bot ? 1 : 0,
           row.pending ? 1 : 0,
           row.first_seen_at,
@@ -114,7 +138,7 @@ export class RosterCache {
   listMembers(guildId: string): GuildMemberRecord[] {
     const rows = this.db
       .query<GuildMemberRow, [string]>(
-        `SELECT guild_id, user_id, username, server_name, is_bot, pending, first_seen_at, last_seen_at
+        `SELECT guild_id, user_id, username, global_name, server_name, joined_at, is_bot, pending, first_seen_at, last_seen_at
          FROM guild_members
          WHERE guild_id = ?
          ORDER BY user_id ASC`,
@@ -124,7 +148,9 @@ export class RosterCache {
     return rows.map((row) => ({
       discord_id: row.user_id,
       username: row.username,
+      global_name: row.global_name,
       server_name: row.server_name,
+      joined_at: row.joined_at,
       is_bot: row.is_bot === 1,
       pending: row.pending === 1,
       first_seen_at: row.first_seen_at,
