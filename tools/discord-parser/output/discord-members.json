@@ -1,0 +1,1821 @@
+{
+  "meta": {
+    "guild_id": "526132432655613972",
+    "guild_name": "7 Brygada Obrony Wybrzeża WGST",
+    "fetched_at": "2026-10-24T03:16:07.736Z",
+    "source": "auto",
+    "bot_user_id": "1563371571840679986",
+    "bot_user_name": "7BOW Clan Management Bot",
+    "fetched_count": 315,
+    "kept_count": 180,
+    "bot_count": 10,
+    "pending_count": 0,
+    "role_filtered_count": 125,
+    "required_role_ids": [
+      "526133207339368459",
+      "827554967103340585"
+    ]
+  },
+  "members": [
+    {
+      "discord_id": "416006122567237652",
+      "username": "cushee",
+      "global_name": "Cushee",
+      "server_name": "_-Kruszyna-_",
+      "joined_at": "2023-02-28T20:33:31.604000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "489799056336355329",
+      "username": "borsuk741",
+      "global_name": "adol_",
+      "server_name": "_adol",
+      "joined_at": "2022-11-18T18:18:30.778000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "1242469156952080387",
+      "username": "_akser",
+      "global_name": "AKSER",
+      "server_name": null,
+      "joined_at": "2026-06-11T21:04:38.632000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "469489449156214785",
+      "username": "ekhem",
+      "global_name": "*ekhem*",
+      "server_name": "_ekhem_",
+      "joined_at": "2024-08-06T18:47:57.685000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "215802187803131905",
+      "username": "_ruku_",
+      "global_name": "Ruku",
+      "server_name": "_Ruku",
+      "joined_at": "2024-04-26T18:49:17.979000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "378191560061222912",
+      "username": "sir_themyszka00",
+      "global_name": "TheMyszka00",
+      "server_name": "_TheMyszka00_",
+      "joined_at": "2021-04-23T07:30:58.308000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "804062802448482325",
+      "username": "voiteewa",
+      "global_name": "Gachimuchi Enjoyer",
+      "server_name": "-S_Ä_S_İ_N-(Anty k*fola)",
+      "joined_at": "2022-01-02T14:54:13.967000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "1082624370536628274",
+      "username": ".adisekk",
+      "global_name": "Adissek_",
+      "server_name": null,
+      "joined_at": "2026-05-07T15:38:11.088000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "579446744375492628",
+      "username": ".watafak.",
+      "global_name": "Watafak",
+      "server_name": null,
+      "joined_at": "2026-08-04T15:27:44.023000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "107809342278905856",
+      "username": "fastsugar",
+      "global_name": "fastsugar",
+      "server_name": "[HWSM] fastsugar",
+      "joined_at": "2024-10-19T14:55:38.695000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "485832053682864128",
+      "username": "sastroop",
+      "global_name": "SaSTrooP",
+      "server_name": "[HWSM] SaSTrooP",
+      "joined_at": "2025-06-16T16:12:26.506000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "515894302103306241",
+      "username": "adi1711",
+      "global_name": "adi1711",
+      "server_name": null,
+      "joined_at": "2025-08-02T23:02:09.552000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "449985629909024768",
+      "username": "adikq",
+      "global_name": "AdiKq",
+      "server_name": null,
+      "joined_at": "2026-03-18T11:01:38.049000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "520258813899702272",
+      "username": "adresip",
+      "global_name": "adresip",
+      "server_name": "adresip",
+      "joined_at": "2021-04-23T08:55:24.540000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "305731980002328578",
+      "username": "agentbolo",
+      "global_name": "Agent Bolo",
+      "server_name": "Agent_Bolo",
+      "joined_at": "2022-12-07T17:14:39.618000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "1136970873979555840",
+      "username": "alleksy",
+      "global_name": "Alleksy",
+      "server_name": "AIIeksy",
+      "joined_at": "2024-01-30T18:55:17.095000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "820575313850925107",
+      "username": "tomekdistroid",
+      "global_name": "tomek distroid",
+      "server_name": "AK2",
+      "joined_at": "2024-11-27T15:13:24.597000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "599300111406989322",
+      "username": "alabastrowy",
+      "global_name": null,
+      "server_name": null,
+      "joined_at": "2021-04-23T14:37:01.003000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "1181956878742343744",
+      "username": "melloownt",
+      "global_name": "𝓜𝓮𝓵𝓵𝓸𝓸𝔀",
+      "server_name": "Alex__PL (𝓜𝓮𝓵𝓵𝓸𝓸𝔀)",
+      "joined_at": "2026-05-10T17:32:06.820000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "543185623717249025",
+      "username": "alexanderxxii",
+      "global_name": "AlexanderXVI",
+      "server_name": "AlexanderXVI",
+      "joined_at": "2025-08-24T18:39:36.735000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "461580831702515734",
+      "username": "aragon710",
+      "global_name": null,
+      "server_name": "aragon710",
+      "joined_at": "2021-04-23T21:12:33.216000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "595238552569380904",
+      "username": "arktyn",
+      "global_name": "ArkTyn",
+      "server_name": null,
+      "joined_at": "2024-07-04T15:26:50.227000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "733404997697667102",
+      "username": "arosami",
+      "global_name": "Arosami",
+      "server_name": "Arosamiii",
+      "joined_at": "2024-08-12T13:42:07.893000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "791335179011620895",
+      "username": "endriu4324",
+      "global_name": "Endriu",
+      "server_name": "Awivn3",
+      "joined_at": "2024-08-12T13:42:16.343000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "267751736003788801",
+      "username": "ba_al991",
+      "global_name": "Ba'al",
+      "server_name": "baal991",
+      "joined_at": "2026-04-14T17:46:07.813000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "291286461763026944",
+      "username": "barti975",
+      "global_name": "Barti975",
+      "server_name": null,
+      "joined_at": "2022-03-31T19:27:03.909000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "1198964057445765191",
+      "username": "bartolini1_",
+      "global_name": "Bartolini",
+      "server_name": null,
+      "joined_at": "2026-06-30T16:31:30.328000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "724669609160081409",
+      "username": "bartula25",
+      "global_name": "bartula25",
+      "server_name": null,
+      "joined_at": "2024-10-30T20:58:25.719000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "352737241728155648",
+      "username": "verqq_",
+      "global_name": "verqq",
+      "server_name": "Batek_303",
+      "joined_at": "2025-05-09T15:07:06.003000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "857321041345118218",
+      "username": "alukardus",
+      "global_name": "Alukardus ⚡",
+      "server_name": "Bazukardus",
+      "joined_at": "2025-05-07T08:12:59.607000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "1091308339419430924",
+      "username": "kapibara20133",
+      "global_name": ".",
+      "server_name": "benzon74",
+      "joined_at": "2026-02-01T18:04:35.707000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "489382411038228482",
+      "username": "bercik",
+      "global_name": "Bercik",
+      "server_name": "BercikV",
+      "joined_at": "2021-10-09T10:23:40.772000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "434339994119831552",
+      "username": "feldmarschallerwin",
+      "global_name": "Vorobey",
+      "server_name": "Beryllium04",
+      "joined_at": "2024-12-01T19:50:53.028000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "862249349052497921",
+      "username": "blackducksex",
+      "global_name": "blackduck",
+      "server_name": "BlackDuck_now",
+      "joined_at": "2026-04-26T13:53:43.595000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "471682065587372032",
+      "username": "bomba52",
+      "global_name": "BoMbA52",
+      "server_name": null,
+      "joined_at": "2021-05-22T10:58:34.821000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "830864415187402802",
+      "username": "boria2381",
+      "global_name": "Боря",
+      "server_name": "Borasboro",
+      "joined_at": "2022-11-19T23:21:57.881000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "421735327829327872",
+      "username": "suchaszpara",
+      "global_name": null,
+      "server_name": "Bulgar_ninja",
+      "joined_at": "2025-08-02T20:37:43.587000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "731853450471669802",
+      "username": "weduni",
+      "global_name": "weduni",
+      "server_name": "Cappie- (weduni)",
+      "joined_at": "2023-04-10T14:36:12.722000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "349848691214909441",
+      "username": "cevix_00",
+      "global_name": "Cevix",
+      "server_name": "Cevix",
+      "joined_at": "2021-04-23T07:54:49.937000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "383293612211044352",
+      "username": "krzesllemurstol",
+      "global_name": "KrzesłLemurStół",
+      "server_name": "ChairLemurTable",
+      "joined_at": "2021-04-23T08:37:34.761000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "683386367526568024",
+      "username": "connoren",
+      "global_name": "Connoren",
+      "server_name": "ConnorEN",
+      "joined_at": "2023-09-24T20:08:29.428000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "923672720561037313",
+      "username": "czolgista123643",
+      "global_name": "Czolgista123643",
+      "server_name": null,
+      "joined_at": "2025-09-02T18:19:06.169000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "361126338423291905",
+      "username": "d3athh4wk",
+      "global_name": "D3aThH4wk",
+      "server_name": "D3aThH4wk",
+      "joined_at": "2021-04-23T12:17:28.422000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "1206571184531968061",
+      "username": "boczekv3",
+      "global_name": "꧁ঔৣ☬✞DANII✞☬ঔৣ꧂",
+      "server_name": "DANII_777",
+      "joined_at": "2026-02-27T09:19:36.445000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "178179229412884480",
+      "username": "darkmnich",
+      "global_name": "DarkMnich",
+      "server_name": null,
+      "joined_at": "2022-07-10T18:09:06.359000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "1261354980737155157",
+      "username": "dejvciolo_sigmowo",
+      "global_name": "nscheMotoreckenWerke",
+      "server_name": "DejvcioPL (Dejvid)",
+      "joined_at": "2025-02-15T09:05:59.363000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "914999449871327242",
+      "username": "geus22",
+      "global_name": "geus22",
+      "server_name": "diego50132",
+      "joined_at": "2023-04-30T19:38:16.942000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "311151071940575235",
+      "username": "h4re__",
+      "global_name": "KRZYCHU",
+      "server_name": "dikoloV2  [KRZYCHOOO]",
+      "joined_at": "2026-01-28T15:52:19.726000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "415583908655267840",
+      "username": "drednot1",
+      "global_name": "Drednot",
+      "server_name": "Drednot1",
+      "joined_at": "2025-08-02T18:33:27.622000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "254343810803302410",
+      "username": "tofik2001pl",
+      "global_name": "Kacper Krakowski",
+      "server_name": "DrunkChestHair",
+      "joined_at": "2024-03-20T07:07:27.775000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "347344046714257409",
+      "username": "dufrox",
+      "global_name": "Dufrox",
+      "server_name": "Dufrox (Anty k*fola)",
+      "joined_at": "2022-06-21T21:44:16.955000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "702822933692809246",
+      "username": "edzio0270",
+      "global_name": "Edzio",
+      "server_name": null,
+      "joined_at": "2024-03-16T17:50:14.560000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "299531242418864129",
+      "username": "ekma",
+      "global_name": "Ekma",
+      "server_name": "EkmaKu 0 dni bez alko",
+      "joined_at": "2021-11-15T11:52:40.976000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "1408162341719379998",
+      "username": "electricradiator",
+      "global_name": "MyPasswordIsVi7mkw!",
+      "server_name": "ElectricRadiator",
+      "joined_at": "2026-04-19T13:05:22.417000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "334358189342457866",
+      "username": "endoo",
+      "global_name": "_endoo",
+      "server_name": "endoo95",
+      "joined_at": "2023-03-14T21:07:48.585000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "332579462459686923",
+      "username": "erson__",
+      "global_name": "Erson",
+      "server_name": null,
+      "joined_at": "2023-02-07T16:27:16.549000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "147384887102406656",
+      "username": "viktor_xx",
+      "global_name": "Eustachio",
+      "server_name": "Eustaszek",
+      "joined_at": "2022-10-18T05:58:52.981000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "311104194792652800",
+      "username": "exarino",
+      "global_name": "Exar",
+      "server_name": "Exarino",
+      "joined_at": "2022-10-17T14:32:44.549000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "422112120339955722",
+      "username": ".sqbany",
+      "global_name": "sQbany",
+      "server_name": "FlavioPL",
+      "joined_at": "2021-07-23T17:12:47.875000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "843192442340900885",
+      "username": "floater_77",
+      "global_name": "Floater",
+      "server_name": "Floater_77",
+      "joined_at": "2021-10-26T12:59:46.790000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "220847160034459649",
+      "username": "foxiakowy",
+      "global_name": "Foxiakowy",
+      "server_name": "FoxiakowyPlay",
+      "joined_at": "2022-04-05T14:16:21.929000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "329625940491501579",
+      "username": "frosty_m8",
+      "global_name": null,
+      "server_name": "FrOsTy_m8",
+      "joined_at": "2025-08-02T18:31:15.909000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "346281024486899713",
+      "username": "garrison124",
+      "global_name": "Garrison",
+      "server_name": "Garrison124 (Nitro_Szczur)",
+      "joined_at": "2021-04-23T16:09:28.153000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "237233269601468416",
+      "username": "kamczak",
+      "global_name": "Kamyk",
+      "server_name": "Gazik22",
+      "joined_at": "2026-06-20T07:35:33.622000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "350321529277382659",
+      "username": ".xolox",
+      "global_name": "Xolox",
+      "server_name": "Gometek (Xolox)",
+      "joined_at": "2023-10-11T21:36:54.427000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "494233581468516362",
+      "username": "gregory4752",
+      "global_name": "Gregory",
+      "server_name": "Gregory",
+      "joined_at": "2021-04-23T06:06:09.417000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "416306776846368781",
+      "username": "fenrir2591",
+      "global_name": "Fenrir",
+      "server_name": "GregorySzef (Fenrir)",
+      "joined_at": "2024-04-03T08:58:24.920000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "1398630662147412069",
+      "username": "0friedrich0",
+      "global_name": "Hanz",
+      "server_name": "Hanz939",
+      "joined_at": "2025-12-13T17:34:16.371000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "465224558446903309",
+      "username": ".maidsan",
+      "global_name": "Maid-san",
+      "server_name": "Heajir (Maid-san)",
+      "joined_at": "2023-10-25T14:58:42.865000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "686599207876034720",
+      "username": "holytaser",
+      "global_name": "Holy Taser",
+      "server_name": "Holy_Taser",
+      "joined_at": "2022-01-05T22:45:28.885000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "172414694378700800",
+      "username": "iam226",
+      "global_name": "IAm226",
+      "server_name": "IAm226 (Madzieg)",
+      "joined_at": "2021-04-23T11:32:06.891000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "724617458450825296",
+      "username": "iansolo123",
+      "global_name": "Zapałka/IanSolo123",
+      "server_name": "IanSolo1605 (Zapałka)",
+      "joined_at": "2021-05-20T17:42:09.777000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "664103079100153876",
+      "username": "pawelwielkinajltpl",
+      "global_name": "ikleiw",
+      "server_name": "Ikleiw",
+      "joined_at": "2023-07-12T08:19:37.690000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "875398111374225440",
+      "username": "iten01",
+      "global_name": "Iten01",
+      "server_name": "ITEN01",
+      "joined_at": "2022-01-02T15:13:50.452000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "235026710737846272",
+      "username": "itsmeraijin",
+      "global_name": "RaijiN",
+      "server_name": "ItsMeRaijiN",
+      "joined_at": "2023-11-02T14:15:04.764000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "391682366583603200",
+      "username": "jamesviperpl1337",
+      "global_name": "-JamesViper- 私の死は報酬になる",
+      "server_name": "JamesViperPL (alkoholik)",
+      "joined_at": "2021-04-24T20:03:21.168000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "547508750945353739",
+      "username": "jaro007",
+      "global_name": "Jaro",
+      "server_name": "Jar0_",
+      "joined_at": "2025-08-02T18:33:26.503000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "711914341724848130",
+      "username": "kaamyczekk",
+      "global_name": "камусзек",
+      "server_name": "Kaamyczekk",
+      "joined_at": "2026-09-21T17:54:36.458000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "725096383404703863",
+      "username": "boniezyje",
+      "global_name": "Bo nie żyje",
+      "server_name": "Kacper_8945 (Bo nie żyje)",
+      "joined_at": "2024-02-10T22:07:11.467000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "965187706009317406",
+      "username": "ul.smiech",
+      "global_name": "Pierøg",
+      "server_name": "kafromvillage",
+      "joined_at": "2026-04-02T14:05:38.864000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "1066370371835670649",
+      "username": "kameleonekv2",
+      "global_name": "kameleonekv2",
+      "server_name": "kameleonkn",
+      "joined_at": "2024-08-13T18:12:05.083000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "608754551985799171",
+      "username": "kamilsonszef",
+      "global_name": "Камилсон",
+      "server_name": "KamilsonSzef_",
+      "joined_at": "2023-09-01T13:25:12.600000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "461245906629427202",
+      "username": "kanarek531",
+      "global_name": "Kanarek",
+      "server_name": "Kanarek531",
+      "joined_at": "2025-08-02T18:32:57.073000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "726535529797124126",
+      "username": "kappix1",
+      "global_name": "Kappix1",
+      "server_name": null,
+      "joined_at": "2025-12-25T19:22:18.233000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "933634043709386792",
+      "username": "kapsel5302",
+      "global_name": "Kapsel5302",
+      "server_name": null,
+      "joined_at": "2023-03-07T20:48:54.005000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "1058027074851459165",
+      "username": "karlik4444444445",
+      "global_name": null,
+      "server_name": null,
+      "joined_at": "2026-04-11T19:11:26.675000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "871864436854517821",
+      "username": "errorek2137",
+      "global_name": "Patrykos10",
+      "server_name": "karzel_w_kiblu (Patrykos10)",
+      "joined_at": "2021-12-01T07:28:33.603000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "344145228761923585",
+      "username": "szopshop",
+      "global_name": "Damir",
+      "server_name": "KatoKurosa",
+      "joined_at": "2021-04-23T08:40:25.684000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "712592872817426483",
+      "username": "maksu_sus",
+      "global_name": "MakusuNoKami",
+      "server_name": "Katusha_ZSRR (SU-85 SQUAD)",
+      "joined_at": "2024-10-15T18:43:36.239000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "696414125349404792",
+      "username": ".kacperropl",
+      "global_name": "kiperlo1",
+      "server_name": "kiperlo_1 (kacper)",
+      "joined_at": "2021-04-23T06:34:04.292000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "402467266924380161",
+      "username": "kkamils",
+      "global_name": "KamilS",
+      "server_name": "KKamilS",
+      "joined_at": "2023-12-29T23:44:55.040000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "635035271947223041",
+      "username": "kolmipilot",
+      "global_name": "kolmipilot",
+      "server_name": null,
+      "joined_at": "2025-04-29T21:11:51.522000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "407982029083246605",
+      "username": "kosder7645",
+      "global_name": "kosder7645",
+      "server_name": null,
+      "joined_at": "2022-01-22T10:57:59.091000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "331834538462543873",
+      "username": "kosiarz2039",
+      "global_name": "Kosiarz2039",
+      "server_name": "Kosiarz2037",
+      "joined_at": "2023-09-23T19:20:11.705000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "1391742442054881413",
+      "username": "elf777777",
+      "global_name": "𝙀𝙇𝙁",
+      "server_name": "kotel_pl (𝙀𝙇𝙁)",
+      "joined_at": "2025-07-07T12:05:58.594000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "307176191524077568",
+      "username": "esperal",
+      "global_name": "Esperal",
+      "server_name": "Kpr. Kubusiek",
+      "joined_at": "2026-02-10T18:39:04.623000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "422421107208093700",
+      "username": "mr.cocosowy",
+      "global_name": "Krawiec",
+      "server_name": "krawiec2007",
+      "joined_at": "2023-05-13T15:50:55.646000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "660629753975275520",
+      "username": "krzywdaa",
+      "global_name": "Krzywdaa",
+      "server_name": "Krzywda1",
+      "joined_at": "2023-12-31T23:30:25.020000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "697755373804978247",
+      "username": "kubizx_",
+      "global_name": "Kubizx",
+      "server_name": "kubizx_Thunder",
+      "joined_at": "2021-11-08T12:22:20.845000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "316226030056505346",
+      "username": "kubster4",
+      "global_name": "kubster4",
+      "server_name": null,
+      "joined_at": "2021-04-23T13:59:39.797000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "426057598794727450",
+      "username": "kumpel.",
+      "global_name": "Kumpel",
+      "server_name": "KumpelSzef",
+      "joined_at": "2026-03-15T13:07:07.684000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "494821166104576001",
+      "username": "kusizm",
+      "global_name": "Kusizm",
+      "server_name": null,
+      "joined_at": "2024-01-16T22:04:03.499000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "1324332600835313677",
+      "username": "lamboonfent",
+      "global_name": "LamboOnFent",
+      "server_name": "LamboRoikat",
+      "joined_at": "2025-01-02T11:17:46.473000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "314512180739571722",
+      "username": "lemur3283",
+      "global_name": "Lemur#3283",
+      "server_name": "Lemur3283 (Dr.eutanazja)",
+      "joined_at": "2023-11-27T17:27:54.487000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "451100430085128203",
+      "username": "kutek00",
+      "global_name": "KUTEK00",
+      "server_name": "LION OF JUDAH (KUTEK00)",
+      "joined_at": "2023-01-21T01:22:39.815000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "965537977730215946",
+      "username": "sosna1651",
+      "global_name": "Lockhed",
+      "server_name": "lockhed1",
+      "joined_at": "2025-03-19T00:51:32.463000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "803906599272972330",
+      "username": "longinus__podbipieta",
+      "global_name": "Longinus Podbipięta",
+      "server_name": "LonginZerwik(LonginusPodbipięta)",
+      "joined_at": "2024-05-11T13:29:05.757000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "438740310667952129",
+      "username": "lordare",
+      "global_name": "Lordare",
+      "server_name": "Lordare (Krzysiu)",
+      "joined_at": "2021-04-23T19:10:26.504000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "623536420031823882",
+      "username": "maniekpila",
+      "global_name": null,
+      "server_name": null,
+      "joined_at": "2026-06-27T15:08:03.432000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "342386505857368065",
+      "username": "kyanocs",
+      "global_name": "kyano",
+      "server_name": "MarekKowadło",
+      "joined_at": "2026-06-18T19:30:02.789000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "708352724835762226",
+      "username": "mati_uszek",
+      "global_name": "mati_uszek",
+      "server_name": null,
+      "joined_at": "2021-04-23T09:48:20.769000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "1025452165512319039",
+      "username": "ewrzyn.0",
+      "global_name": "Ewrzyn",
+      "server_name": "matifro",
+      "joined_at": "2024-06-13T19:28:23.472000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "424245225372909568",
+      "username": "matpolaki21",
+      "global_name": "!!matpolaki21",
+      "server_name": "matpolaki21",
+      "joined_at": "2023-11-29T13:23:21.444000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "394471265886535680",
+      "username": "matriksky",
+      "global_name": "MatrikSky",
+      "server_name": "MatrikSky",
+      "joined_at": "2023-01-17T20:20:44.994000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "421573877815312385",
+      "username": "lucidecor",
+      "global_name": "Shan Redayham  ( EM 179lvl )",
+      "server_name": "mecha199",
+      "joined_at": "2025-07-21T18:37:50.734000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "497018294415523841",
+      "username": "messadevil",
+      "global_name": "MessaDevil",
+      "server_name": "MessaDevil",
+      "joined_at": "2026-06-19T16:13:19.680000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "426480612426121228",
+      "username": "mig173pl",
+      "global_name": "mig173pl",
+      "server_name": "mig173PL",
+      "joined_at": "2022-07-10T18:09:21.463000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "1180210396607561788",
+      "username": "wojtek32445",
+      "global_name": "WojciechDeHaller ☦",
+      "server_name": "MiggerKiller (Wojciech)",
+      "joined_at": "2026-06-20T17:32:29.394000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "283312159570526209",
+      "username": "kekw.kacper",
+      "global_name": "low cortisol",
+      "server_name": "mikson#1 (Gemera)",
+      "joined_at": "2025-08-25T19:55:53.883000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "248506838465642497",
+      "username": "misiocraft12",
+      "global_name": "Geralt",
+      "server_name": "misiocraft12 (Geralt)",
+      "joined_at": "2021-04-23T05:59:41.938000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "318401676220301312",
+      "username": "dzifko_to_trojmiasto",
+      "global_name": "⛧Ado⛧",
+      "server_name": "MojeDuzeJaja123 (Ado)",
+      "joined_at": "2021-04-30T12:23:17.556000+00:00",
+      "matched_role_ids": [
+        "827554967103340585"
+      ]
+    },
+    {
+      "discord_id": "1269222166935633920",
+      "username": "mr.gorski_.",
+      "global_name": "Suguru Geto",
+      "server_name": "MR_GÓRSKI (SU-85 Squad)",
+      "joined_at": "2024-10-29T14:10:13.567000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "674155755926192139",
+      "username": "mr.wonsz",
+      "global_name": "MR.Wonsz",
+      "server_name": "Mr_Wonsz",
+      "joined_at": "2024-11-05T20:35:55.294000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "204698743730208769",
+      "username": "lilgore",
+      "global_name": "LilGore",
+      "server_name": "MrGuro85344 (Romek Siekiera)",
+      "joined_at": "2021-10-21T21:08:29.594000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "319909045613887511",
+      "username": "hanysa",
+      "global_name": "HanySa\\/",
+      "server_name": "Mudzin34 (HanySa\\/)",
+      "joined_at": "2023-07-17T17:55:06.408000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "551465476325376030",
+      "username": "murzyn2003pl",
+      "global_name": "Murzyn2003pl",
+      "server_name": "Muszyn2003pl",
+      "joined_at": "2023-12-27T13:21:03.934000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "515993233999003659",
+      "username": "szopenchauer_",
+      "global_name": "nowy",
+      "server_name": "neews99 (szop)",
+      "joined_at": "2023-10-15T15:52:13.955000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "1211761423303053326",
+      "username": "patrykkk7",
+      "global_name": "PatryK",
+      "server_name": "Nosiciel",
+      "joined_at": "2025-08-02T21:54:37.135000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "798640586382770187",
+      "username": "orzechowiecr",
+      "global_name": "kasztanowiec",
+      "server_name": "orzechowiecR",
+      "joined_at": "2024-08-02T16:29:27.922000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "459694883804807169",
+      "username": "real_gawo",
+      "global_name": "gawo",
+      "server_name": "OSAMA_RIZZ_LADEN (gawo)",
+      "joined_at": "2024-01-01T15:55:40.404000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "530881703712129056",
+      "username": "palownikzst",
+      "global_name": "Beton",
+      "server_name": "PalownikZST",
+      "joined_at": "2021-04-25T19:24:42.342000+00:00",
+      "matched_role_ids": [
+        "827554967103340585"
+      ]
+    },
+    {
+      "discord_id": "324219171250503683",
+      "username": ".panzerwaffel",
+      "global_name": "Panzerwaffel",
+      "server_name": "Panzerwaffel_318",
+      "joined_at": "2021-10-31T20:15:20.092000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "273073562523402240",
+      "username": "adamwitman",
+      "global_name": "✙AdamWitman✙",
+      "server_name": "pasza303",
+      "joined_at": "2021-05-23T16:28:46.861000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "632993551902310403",
+      "username": "helmans",
+      "global_name": "Helmans",
+      "server_name": "petersnajper",
+      "joined_at": "2021-04-23T13:32:37.365000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "414447722314334210",
+      "username": "pipulski",
+      "global_name": "Pipulski",
+      "server_name": "Pipulski2001",
+      "joined_at": "2021-06-04T19:55:47.550000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "546463167866339328",
+      "username": "1usip",
+      "global_name": "Pisu",
+      "server_name": "Pisu1",
+      "joined_at": "2022-09-04T18:09:35.575000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "419794465717354498",
+      "username": "piotrekwar",
+      "global_name": "piotrekwar",
+      "server_name": "PKW_Piotrekwar",
+      "joined_at": "2024-08-03T11:05:58.214000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "1077665647590383677",
+      "username": "dradzio",
+      "global_name": "Dradzio",
+      "server_name": "pojazdy (Dradzio)",
+      "joined_at": "2024-03-15T20:08:27.932000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "667713232068149248",
+      "username": "polish_photographer",
+      "global_name": "Polish_Fan",
+      "server_name": "PolishScythe (Wiktor)",
+      "joined_at": "2023-10-26T17:33:17.511000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "646351746712469505",
+      "username": "maszej_oooo",
+      "global_name": "Maszej_",
+      "server_name": "Polski_taboret",
+      "joined_at": "2021-04-23T06:01:26.732000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "573831560734703616",
+      "username": "montes248",
+      "global_name": "Montes",
+      "server_name": "Poskramiacz248 (Montes)",
+      "joined_at": "2024-06-20T19:12:28.684000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "308126338240217088",
+      "username": "prycul",
+      "global_name": "Prycul",
+      "server_name": null,
+      "joined_at": "2024-07-29T21:01:21.253000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "693425192772567132",
+      "username": "przemekpro100",
+      "global_name": "Przemekpro100",
+      "server_name": "przemekpro100",
+      "joined_at": "2024-04-06T14:21:14.749000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "513343951705735170",
+      "username": "gustavkellner",
+      "global_name": "GustavKellner",
+      "server_name": "pyrmanka",
+      "joined_at": "2021-04-26T16:48:13.512000+00:00",
+      "matched_role_ids": [
+        "827554967103340585"
+      ]
+    },
+    {
+      "discord_id": "739903197367238727",
+      "username": "ratronix",
+      "global_name": "Ratronix",
+      "server_name": "RatronixPl",
+      "joined_at": "2025-12-10T16:04:27.592000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "410806143670288384",
+      "username": "ricon313",
+      "global_name": "Ricon 313",
+      "server_name": "Ricon313",
+      "joined_at": "2022-05-03T17:21:46.145000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "371372063887327234",
+      "username": "ronin3636",
+      "global_name": "RONIN",
+      "server_name": "𝓡𝓞𝓝𝓘𝓥(𝓐𝓷𝓽𝔂 𝓴*𝓯𝓸𝓵𝓪)",
+      "joined_at": "2021-05-10T22:19:22.717000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "1147945090078212106",
+      "username": "salmonekxd",
+      "global_name": "SalmonekXDPL",
+      "server_name": "SalmonekXD",
+      "joined_at": "2026-03-30T14:23:59.937000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "626115777212448810",
+      "username": "sebasuchoklates",
+      "global_name": "Seba Suchoklates",
+      "server_name": "Schmetterling#2",
+      "joined_at": "2025-12-27T22:27:07.832000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "276390407565344779",
+      "username": "setlerr",
+      "global_name": "Setler",
+      "server_name": null,
+      "joined_at": "2026-06-13T15:34:29.693000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "459273083627241482",
+      "username": "slizggy",
+      "global_name": "SlizggY",
+      "server_name": null,
+      "joined_at": "2022-04-02T18:37:34.758000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "516253422803222528",
+      "username": "sniajper",
+      "global_name": null,
+      "server_name": "sniajper",
+      "joined_at": "2025-07-10T12:44:26.350000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "413359729360896010",
+      "username": "somalijskipirat",
+      "global_name": "SomalijskiPirat",
+      "server_name": null,
+      "joined_at": "2023-12-29T23:50:21.130000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "842276030793383936",
+      "username": "swimmerfilip07",
+      "global_name": "SwimmerFilip07",
+      "server_name": null,
+      "joined_at": "2021-05-13T06:19:39.656000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "385142233273204748",
+      "username": "sylwesterpietrzak",
+      "global_name": "Keller",
+      "server_name": "Sylwek998PL (serwerowy serb)",
+      "joined_at": "2021-05-25T15:54:54.124000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "644961262404501504",
+      "username": "nestredmiu",
+      "global_name": "Syzyf Van Der Pyrrus",
+      "server_name": "Syzyf Van Der Py",
+      "joined_at": "2025-08-02T23:20:31.995000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "663317729679376384",
+      "username": "szczurek_05",
+      "global_name": null,
+      "server_name": null,
+      "joined_at": "2023-11-11T20:45:45.679000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "369515285457403914",
+      "username": "jesus_protection",
+      "global_name": "Jesus_Protection",
+      "server_name": "THE_THUNDER22",
+      "joined_at": "2022-01-20T19:51:56.334000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "274218364052701184",
+      "username": "thedanny14",
+      "global_name": "Danny",
+      "server_name": null,
+      "joined_at": "2025-04-13T20:19:15.383000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "1275478010023378959",
+      "username": "fen04080",
+      "global_name": "Fen",
+      "server_name": "Tom (the real one) (Tom Perła)",
+      "joined_at": "2024-08-20T18:24:17.969000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "827083681512030218",
+      "username": "tomdir",
+      "global_name": "Tomdir",
+      "server_name": null,
+      "joined_at": "2024-03-14T19:46:29.811000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "268034805994618880",
+      "username": "kojotekk",
+      "global_name": "𝓴𝓸𝓳𝓸𝓽𝓮𝓴𝓴",
+      "server_name": "ToXic_Kojot",
+      "joined_at": "2025-05-07T19:34:52.943000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "1121104984134647898",
+      "username": "avergewtplayer",
+      "global_name": "Serdiusz",
+      "server_name": "Uber_Bobrzysko",
+      "joined_at": "2024-08-15T17:49:22.482000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "463436608620724225",
+      "username": "ventlej",
+      "global_name": "Ventlej",
+      "server_name": "Ventlej_PL",
+      "joined_at": "2021-04-25T09:34:39.004000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "908046109954420786",
+      "username": "votizpl",
+      "global_name": "VoTizpl",
+      "server_name": null,
+      "joined_at": "2025-11-30T09:16:10.267000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "278928003936026635",
+      "username": "wargroy",
+      "global_name": "Wargroy",
+      "server_name": "Wargroy",
+      "joined_at": "2024-12-16T17:31:16.623000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "989131867116695552",
+      "username": "weksik_",
+      "global_name": "Weks",
+      "server_name": "WekspL (Vex)",
+      "joined_at": "2022-11-27T16:36:40.939000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "1016698826402308106",
+      "username": "wiktoreczq_",
+      "global_name": "Wiktoreczq_",
+      "server_name": null,
+      "joined_at": "2026-08-05T18:11:53.287000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "572433071932964875",
+      "username": "wilku666.69",
+      "global_name": "Wilku666",
+      "server_name": null,
+      "joined_at": "2025-05-03T18:11:45.539000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "590851740019064849",
+      "username": "wizja",
+      "global_name": "Wizja",
+      "server_name": "Wizja",
+      "joined_at": "2025-04-29T18:35:00.604000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "394903131244462080",
+      "username": "wojtek885",
+      "global_name": "WOJTEK885",
+      "server_name": "WOJTEK885",
+      "joined_at": "2018-12-22T20:22:27.058000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "986275122149224468",
+      "username": "wrobel_ok",
+      "global_name": "Wrobel",
+      "server_name": null,
+      "joined_at": "2024-10-30T16:48:42.438000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "693541308786278440",
+      "username": "darekx",
+      "global_name": "xDarekx(stStrzelec)",
+      "server_name": "xDarekx (stStrzelec61)",
+      "joined_at": "2021-04-23T13:45:12.984000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "345685538256191488",
+      "username": "dauntless1944",
+      "global_name": "☠Dauntless♠",
+      "server_name": "XDauntlessX",
+      "joined_at": "2022-03-05T15:34:01.588000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "373911388575236096",
+      "username": "xname",
+      "global_name": "Xname",
+      "server_name": "Xname17612",
+      "joined_at": "2024-01-16T21:33:30.212000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "360859352673943552",
+      "username": "yoshiho",
+      "global_name": "Yoshiho",
+      "server_name": null,
+      "joined_at": "2026-07-30T13:08:19.693000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "500376145078910977",
+      "username": "zbeszek",
+      "global_name": "Zbeszek",
+      "server_name": "Zbeszek",
+      "joined_at": "2023-12-14T17:44:52.877000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "320980115477757963",
+      "username": "zehir7749",
+      "global_name": "zehir",
+      "server_name": "zehir0",
+      "joined_at": "2023-08-22T17:39:06.407000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "349640051346374666",
+      "username": "memento2198",
+      "global_name": "Memento",
+      "server_name": "Zero_Dwa_ExE",
+      "joined_at": "2021-04-23T14:07:57.633000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    },
+    {
+      "discord_id": "1327937063718223966",
+      "username": "chnoaaa_30235",
+      "global_name": "hustonmamyproblem",
+      "server_name": "Эдвард Гирек (czIkIta)",
+      "joined_at": "2026-01-17T15:19:56.817000+00:00",
+      "matched_role_ids": [
+        "526133207339368459"
+      ]
+    }
+  ]
+}
