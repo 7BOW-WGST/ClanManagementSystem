@@ -1,10 +1,14 @@
+import { Database } from 'bun:sqlite'
 import { describe, expect, test } from 'bun:test'
+import { mkdtempSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import {
   exportMembers,
-  joinDateFor,
   nicknameFor,
   openMemberDatabase,
   parseRoster,
+  toIsoTimestamp,
 } from './member-db'
 import type { RosterMember } from './types'
 
@@ -21,9 +25,9 @@ function member(
 }
 
 interface MemberRow {
-  id: number
+  member_id: number
   nickname: string
-  join_date: string | null
+  joined_at: string | null
 }
 
 interface AccountRow {
@@ -65,15 +69,19 @@ describe('nicknameFor', () => {
   })
 })
 
-describe('joinDateFor', () => {
-  test('converts to the Europe/Warsaw calendar date', () => {
-    expect(joinDateFor('2020-05-06T22:30:00.000000+00:00')).toBe('2020-05-07')
-    expect(joinDateFor('2020-01-01T00:00:00.000000+00:00')).toBe('2020-01-01')
-    expect(joinDateFor(null)).toBeNull()
+describe('toIsoTimestamp', () => {
+  test('normalizes timestamps to ISO 8601 UTC', () => {
+    expect(toIsoTimestamp('2020-05-06T22:30:00.000000+00:00')).toBe(
+      '2020-05-06T22:30:00.000Z',
+    )
+    expect(toIsoTimestamp('2020-01-01T00:00:00.000000+00:00')).toBe(
+      '2020-01-01T00:00:00.000Z',
+    )
+    expect(toIsoTimestamp(null)).toBeNull()
   })
 
   test('rejects invalid timestamps', () => {
-    expect(() => joinDateFor('not-a-date')).toThrow('Invalid joined_at timestamp')
+    expect(() => toIsoTimestamp('not-a-date')).toThrow('Invalid joined_at timestamp')
   })
 })
 
@@ -151,12 +159,22 @@ describe('exportMembers', () => {
       })
 
       const members = db
-        .query<MemberRow, []>('SELECT id, nickname, join_date FROM members ORDER BY id')
+        .query<MemberRow, []>(
+          'SELECT member_id, nickname, joined_at FROM members ORDER BY member_id',
+        )
         .all()
       expect(members).toEqual([
-        { id: 1, nickname: 'Server One', join_date: '2020-05-07' },
-        { id: 2, nickname: 'Global Two', join_date: '2020-01-01' },
-        { id: 3, nickname: 'user3', join_date: null },
+        {
+          member_id: 1,
+          nickname: 'Server One',
+          joined_at: '2020-05-06T22:30:00.000Z',
+        },
+        {
+          member_id: 2,
+          nickname: 'Global Two',
+          joined_at: '2020-01-01T00:00:00.000Z',
+        },
+        { member_id: 3, nickname: 'user3', joined_at: null },
       ])
 
       const accounts = db
@@ -173,7 +191,7 @@ describe('exportMembers', () => {
           username: 'user1',
           global_name: 'Global One',
           server_name: 'Server One',
-          joined_at: '2020-05-06T22:30:00.000000+00:00',
+          joined_at: '2020-05-06T22:30:00.000Z',
         },
         {
           discord_id: '2',
@@ -181,7 +199,7 @@ describe('exportMembers', () => {
           username: 'user2',
           global_name: 'Global Two',
           server_name: null,
-          joined_at: '2020-01-01T00:00:00.000000+00:00',
+          joined_at: '2020-01-01T00:00:00.000Z',
         },
         {
           discord_id: '3',
@@ -206,10 +224,14 @@ describe('exportMembers', () => {
         member({ discord_id: 'a', username: 'alpha' }),
         member({ discord_id: 'b', username: 'beta' }),
       ])
-      expect(idMap(db)).toEqual(new Map([
-        ['a', 1],
-        ['b', 2],
-      ]))
+      expect(
+        idMap(db),
+      ).toEqual(
+        new Map([
+          ['a', 1],
+          ['b', 2],
+        ]),
+      )
 
       const result = exportMembers(db, [
         member({ discord_id: 'b', username: 'beta' }),
@@ -218,13 +240,21 @@ describe('exportMembers', () => {
 
       expect(result.preservedIds).toBe(1)
       expect(result.assignedNewIds).toBe(1)
-      expect(idMap(db)).toEqual(new Map([
-        ['b', 2],
-        ['c', 3],
-      ]))
+      expect(
+        idMap(db),
+      ).toEqual(
+        new Map([
+          ['b', 2],
+          ['c', 3],
+        ]),
+      )
 
-      const members = db.query<MemberRow, []>('SELECT id, nickname, join_date FROM members ORDER BY id').all()
-      expect(members.map((row) => row.id)).toEqual([2, 3])
+      const members = db
+        .query<MemberRow, []>(
+          'SELECT member_id, nickname, joined_at FROM members ORDER BY member_id',
+        )
+        .all()
+      expect(members.map((row) => row.member_id)).toEqual([2, 3])
     } finally {
       db.close()
     }
@@ -254,6 +284,82 @@ describe('exportMembers', () => {
       ).toBe(1)
     } finally {
       db.close()
+    }
+  })
+})
+
+describe('openMemberDatabase migration', () => {
+  test('renames the old columns and preserves member IDs', () => {
+    const directory = mkdtempSync(join(tmpdir(), 'member-db-'))
+    const path = join(directory, 'members.sqlite')
+
+    try {
+      const old = new Database(path, { create: true })
+      old.exec('PRAGMA foreign_keys = ON')
+      old.exec(`
+        CREATE TABLE members (
+          id INTEGER PRIMARY KEY,
+          nickname TEXT NOT NULL,
+          join_date TEXT
+        )
+      `)
+      old.exec(`
+        CREATE TABLE discord_accounts (
+          discord_id TEXT PRIMARY KEY,
+          member_id INTEGER NOT NULL REFERENCES members(id),
+          username TEXT NOT NULL,
+          global_name TEXT,
+          server_name TEXT,
+          joined_at TEXT
+        )
+      `)
+      old.run('INSERT INTO members (id, nickname, join_date) VALUES (?, ?, ?)', [
+        7,
+        'Old Nick',
+        '2020-01-01',
+      ])
+      old.run(
+        `INSERT INTO discord_accounts (
+           discord_id, member_id, username, global_name, server_name, joined_at
+         ) VALUES (?, ?, ?, ?, ?, ?)`,
+        ['a', 7, 'alpha', null, null, '2020-01-01T00:00:00.000000+00:00'],
+      )
+      old.close()
+
+      const db = openMemberDatabase(path)
+      try {
+        const memberColumns = db
+          .query<{ name: string }, []>('PRAGMA table_info(members)')
+          .all()
+          .map((column) => column.name)
+        expect(memberColumns).toEqual(['member_id', 'nickname', 'joined_at'])
+
+        const result = exportMembers(db, [
+          member({
+            discord_id: 'a',
+            username: 'alpha',
+            joined_at: '2020-05-06T22:30:00.000000+00:00',
+          }),
+        ])
+        expect(result.preservedIds).toBe(1)
+        expect(result.assignedNewIds).toBe(0)
+
+        const row = db
+          .query<MemberRow, []>(
+            'SELECT member_id, nickname, joined_at FROM members',
+          )
+          .get()
+        expect(row).toEqual({
+          member_id: 7,
+          nickname: 'alpha',
+          joined_at: '2020-05-06T22:30:00.000Z',
+        })
+        expect(db.query<Record<string, unknown>, []>('PRAGMA foreign_key_check').all()).toEqual([])
+      } finally {
+        db.close()
+      }
+    } finally {
+      rmSync(directory, { recursive: true, force: true })
     }
   })
 })

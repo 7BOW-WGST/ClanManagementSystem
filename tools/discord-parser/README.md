@@ -117,14 +117,14 @@ This reads `output/discord-members.json` and writes `output/members.sqlite` with
 
 ```sql
 CREATE TABLE members (
-  id INTEGER PRIMARY KEY,
+  member_id INTEGER PRIMARY KEY,
   nickname TEXT NOT NULL,
-  join_date TEXT
+  joined_at TEXT
 );
 
 CREATE TABLE discord_accounts (
   discord_id TEXT PRIMARY KEY,
-  member_id INTEGER NOT NULL REFERENCES members(id),
+  member_id INTEGER NOT NULL REFERENCES members(member_id),
   username TEXT NOT NULL,
   global_name TEXT,
   server_name TEXT,
@@ -133,10 +133,20 @@ CREATE TABLE discord_accounts (
 ```
 
 - `members` is platform-neutral. Its nickname is a placeholder derived from `server_name`, then `global_name`, then `username`.
-- `members.join_date` is a `YYYY-MM-DD` date converted to `Europe/Warsaw`.
-- `discord_accounts.joined_at` keeps the raw Discord timestamp.
+- `members.joined_at` and `discord_accounts.joined_at` are full ISO 8601 UTC timestamps, e.g. `2020-05-06T22:30:00.000Z`.
 - Member IDs are preserved across exports for Discord accounts that remain in the roster. New accounts receive the next free ID.
 - Both tables are replaced on each export; unrelated tables are untouched.
+
+### Schema conventions
+
+These rules apply to this tool's SQLite output only; the main ERP schema is unchanged.
+
+- Table names are plural `snake_case`.
+- Primary keys use `<entity>_id`, e.g. `members.member_id`.
+- A natural platform identifier may be the primary key when it is already entity-specific, e.g. `discord_accounts.discord_id`.
+- Foreign keys use the referenced `<entity>_id`.
+- Timestamps are stored as ISO 8601 UTC text (`YYYY-MM-DDTHH:mm:ss.sssZ`).
+- Calendar dates, if introduced later, use ISO 8601 `YYYY-MM-DD`.
 
 Optional overrides:
 

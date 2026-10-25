@@ -22,16 +22,16 @@ interface MemberIdMap {
 
 const CREATE_MEMBERS = `
   CREATE TABLE IF NOT EXISTS members (
-    id INTEGER PRIMARY KEY,
+    member_id INTEGER PRIMARY KEY,
     nickname TEXT NOT NULL,
-    join_date TEXT
+    joined_at TEXT
   )
 `
 
 const CREATE_DISCORD_ACCOUNTS = `
   CREATE TABLE IF NOT EXISTS discord_accounts (
     discord_id TEXT PRIMARY KEY,
-    member_id INTEGER NOT NULL REFERENCES members(id),
+    member_id INTEGER NOT NULL REFERENCES members(member_id),
     username TEXT NOT NULL,
     global_name TEXT,
     server_name TEXT,
@@ -45,7 +45,7 @@ const CREATE_DISCORD_ACCOUNTS_INDEX = `
 `
 
 const INSERT_MEMBER = `
-  INSERT INTO members (id, nickname, join_date) VALUES (?, ?, ?)
+  INSERT INTO members (member_id, nickname, joined_at) VALUES (?, ?, ?)
 `
 
 const INSERT_DISCORD_ACCOUNT = `
@@ -53,13 +53,6 @@ const INSERT_DISCORD_ACCOUNT = `
     discord_id, member_id, username, global_name, server_name, joined_at
   ) VALUES (?, ?, ?, ?, ?, ?)
 `
-
-const WARSAW_DATE = new Intl.DateTimeFormat('en-US', {
-  timeZone: 'Europe/Warsaw',
-  year: 'numeric',
-  month: '2-digit',
-  day: '2-digit',
-})
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -151,28 +144,50 @@ export function nicknameFor(member: RosterMember): string {
   return firstNonEmpty(member.server_name, member.global_name, member.username) ?? member.username
 }
 
-function formatWarsawDate(date: Date): string {
-  const parts = WARSAW_DATE.formatToParts(date)
-  const year = parts.find((part) => part.type === 'year')?.value
-  const month = parts.find((part) => part.type === 'month')?.value
-  const day = parts.find((part) => part.type === 'day')?.value
-
-  if (year === undefined || month === undefined || day === undefined) {
-    throw new Error('Could not format the Discord join timestamp.')
-  }
-  return `${year}-${month}-${day}`
-}
-
-export function joinDateFor(joinedAt: string | null): string | null {
-  if (joinedAt === null) {
+export function toIsoTimestamp(value: string | null): string | null {
+  if (value === null) {
     return null
   }
 
-  const date = new Date(joinedAt)
+  const date = new Date(value)
   if (Number.isNaN(date.getTime())) {
-    throw new Error(`Invalid joined_at timestamp: ${joinedAt}`)
+    throw new Error(`Invalid joined_at timestamp: ${value}`)
   }
-  return formatWarsawDate(date)
+  return date.toISOString()
+}
+
+function tableColumns(db: Database, table: string): Set<string> {
+  const rows = db
+    .query<{ name: string }, []>(`PRAGMA table_info(${table})`)
+    .all()
+  return new Set(rows.map((row) => row.name))
+}
+
+// Migrate the first generated schema (id/join_date) without losing member IDs.
+function migrateMemberSchema(db: Database): void {
+  const columns = tableColumns(db, 'members')
+
+  if (columns.has('member_id') && columns.has('id')) {
+    throw new Error('members has both id and member_id columns; refusing to migrate.')
+  }
+  if (!columns.has('member_id')) {
+    if (!columns.has('id')) {
+      throw new Error('members is missing the id/member_id column.')
+    }
+    db.exec('ALTER TABLE members RENAME COLUMN id TO member_id')
+  }
+
+  const renamed = tableColumns(db, 'members')
+  if (renamed.has('joined_at') && renamed.has('join_date')) {
+    throw new Error('members has both join_date and joined_at columns; refusing to migrate.')
+  }
+  if (!renamed.has('joined_at')) {
+    if (renamed.has('join_date')) {
+      db.exec('ALTER TABLE members RENAME COLUMN join_date TO joined_at')
+    } else {
+      db.exec('ALTER TABLE members ADD COLUMN joined_at TEXT')
+    }
+  }
 }
 
 export function openMemberDatabase(path: string): Database {
@@ -183,6 +198,7 @@ export function openMemberDatabase(path: string): Database {
   const db = new Database(path, { create: true })
   db.exec('PRAGMA foreign_keys = ON')
   db.exec(CREATE_MEMBERS)
+  migrateMemberSchema(db)
   db.exec(CREATE_DISCORD_ACCOUNTS)
   db.exec(CREATE_DISCORD_ACCOUNTS_INDEX)
   return db
@@ -215,7 +231,7 @@ export function exportMembers(db: Database, members: RosterMember[]): ExportResu
 
   const rows = members.map((member) => {
     const existingId = existing.ids.get(member.discord_id)
-    const id = existingId ?? nextId++
+    const memberId = existingId ?? nextId++
 
     if (existingId === undefined) {
       assignedNewIds += 1
@@ -224,9 +240,9 @@ export function exportMembers(db: Database, members: RosterMember[]): ExportResu
     }
 
     return {
-      id,
+      memberId,
       nickname: nicknameFor(member),
-      joinDate: joinDateFor(member.joined_at),
+      joinedAt: toIsoTimestamp(member.joined_at),
       member,
     }
   })
@@ -236,14 +252,14 @@ export function exportMembers(db: Database, members: RosterMember[]): ExportResu
     db.run('DELETE FROM members')
 
     for (const row of rows) {
-      db.run(INSERT_MEMBER, [row.id, row.nickname, row.joinDate])
+      db.run(INSERT_MEMBER, [row.memberId, row.nickname, row.joinedAt])
       db.run(INSERT_DISCORD_ACCOUNT, [
         row.member.discord_id,
-        row.id,
+        row.memberId,
         row.member.username,
         row.member.global_name,
         row.member.server_name,
-        row.member.joined_at,
+        row.joinedAt,
       ])
     }
   })
