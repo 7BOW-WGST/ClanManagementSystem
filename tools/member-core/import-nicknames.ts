@@ -1,7 +1,7 @@
 import { resolve } from 'node:path'
-import { toolDir } from './config'
-import { openMemberDatabase } from './member-db'
+import { openMemberDatabase } from './db'
 import { importNicknameCsv } from './nicknames'
+import { defaultMemberDbPath, defaultNicknameCsvPath } from './paths'
 
 interface CliOptions {
   input?: string
@@ -67,13 +67,8 @@ async function main(): Promise<void> {
   }
 
   const inputPath =
-    cli.input === undefined
-      ? resolve(toolDir, './input/nicknames.csv')
-      : resolve(process.cwd(), cli.input)
-  const dbPath =
-    cli.db === undefined
-      ? resolve(toolDir, './output/members.sqlite')
-      : resolve(process.cwd(), cli.db)
+    cli.input === undefined ? defaultNicknameCsvPath : resolve(process.cwd(), cli.input)
+  const dbPath = cli.db === undefined ? defaultMemberDbPath : resolve(process.cwd(), cli.db)
 
   const inputFile = Bun.file(inputPath)
   if (!(await inputFile.exists())) {

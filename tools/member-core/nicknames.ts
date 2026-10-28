@@ -1,10 +1,10 @@
 import type { Database } from 'bun:sqlite'
-import {
-  nicknameFor,
-  refreshNicknamesForMembers,
-  toIsoTimestamp,
-} from './member-db'
-import type { RosterMember } from './types'
+import { refreshNicknamesForMembers, toIsoTimestamp } from './db'
+
+export interface NicknameCsvEntry {
+  discord_id: string
+  nickname: string
+}
 
 export interface NicknameCsvRow {
   line: number
@@ -184,10 +184,10 @@ export function escapeCsvField(value: string): string {
   return value
 }
 
-export function buildNicknameCsv(members: RosterMember[]): string {
+export function buildNicknameCsv(entries: NicknameCsvEntry[]): string {
   const lines = ['discord_id,nickname']
-  for (const member of members) {
-    lines.push(`${escapeCsvField(member.discord_id)},${escapeCsvField(nicknameFor(member))}`)
+  for (const entry of entries) {
+    lines.push(`${escapeCsvField(entry.discord_id)},${escapeCsvField(entry.nickname)}`)
   }
   return `${lines.join('\n')}\n`
 }

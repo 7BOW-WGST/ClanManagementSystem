@@ -1,16 +1,11 @@
-import { Database } from 'bun:sqlite'
 import { describe, expect, test } from 'bun:test'
-import { mkdtempSync, rmSync } from 'node:fs'
-import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { openMemberDatabase } from './db'
 import {
-  exportMembers,
-  nicknameFor,
-  openMemberDatabase,
+  discordPlaceholderNickname,
+  importDiscordRoster,
   parseRoster,
-  toIsoTimestamp,
-} from './member-db'
-import type { RosterMember } from './types'
+  type RosterMember,
+} from './discord-roster'
 
 function member(
   input: Partial<RosterMember> & Pick<RosterMember, 'discord_id' | 'username'>,
@@ -55,10 +50,10 @@ function count(db: ReturnType<typeof openMemberDatabase>, table: string): number
   return row?.count ?? 0
 }
 
-describe('nicknameFor', () => {
+describe('discordPlaceholderNickname', () => {
   test('prefers server name, then global name, then username', () => {
     expect(
-      nicknameFor(
+      discordPlaceholderNickname(
         member({
           discord_id: '1',
           username: 'account',
@@ -68,27 +63,13 @@ describe('nicknameFor', () => {
       ),
     ).toBe('Server')
     expect(
-      nicknameFor(
+      discordPlaceholderNickname(
         member({ discord_id: '2', username: 'account', global_name: 'Global' }),
       ),
     ).toBe('Global')
-    expect(nicknameFor(member({ discord_id: '3', username: 'account' }))).toBe('account')
-  })
-})
-
-describe('toIsoTimestamp', () => {
-  test('normalizes timestamps to ISO 8601 UTC', () => {
-    expect(toIsoTimestamp('2020-05-06T22:30:00.000000+00:00')).toBe(
-      '2020-05-06T22:30:00.000Z',
+    expect(discordPlaceholderNickname(member({ discord_id: '3', username: 'account' }))).toBe(
+      'account',
     )
-    expect(toIsoTimestamp('2020-01-01T00:00:00.000000+00:00')).toBe(
-      '2020-01-01T00:00:00.000Z',
-    )
-    expect(toIsoTimestamp(null)).toBeNull()
-  })
-
-  test('rejects invalid timestamps', () => {
-    expect(() => toIsoTimestamp('not-a-date', 'event_at')).toThrow('Invalid event_at')
   })
 })
 
@@ -133,11 +114,11 @@ describe('parseRoster', () => {
   })
 })
 
-describe('exportMembers', () => {
-  test('writes members, accounts, and placeholder provenance', () => {
+describe('importDiscordRoster', () => {
+  test('writes members, accounts, and Discord placeholders', () => {
     const db = openMemberDatabase(':memory:')
     try {
-      const result = exportMembers(db, [
+      const result = importDiscordRoster(db, [
         member({
           discord_id: '1',
           username: 'user1',
@@ -233,7 +214,7 @@ describe('exportMembers', () => {
   test('preserves historical members while keeping accounts current-only', () => {
     const db = openMemberDatabase(':memory:')
     try {
-      exportMembers(db, [
+      importDiscordRoster(db, [
         member({ discord_id: 'a', username: 'alpha' }),
         member({ discord_id: 'b', username: 'beta' }),
       ])
@@ -246,7 +227,7 @@ describe('exportMembers', () => {
         ]),
       )
 
-      const result = exportMembers(db, [
+      const result = importDiscordRoster(db, [
         member({ discord_id: 'b', username: 'beta' }),
         member({ discord_id: 'c', username: 'gamma' }),
       ])
@@ -278,7 +259,7 @@ describe('exportMembers', () => {
   test('preserves manual nicknames and refreshes placeholders', () => {
     const db = openMemberDatabase(':memory:')
     try {
-      exportMembers(db, [
+      importDiscordRoster(db, [
         member({ discord_id: 'a', username: 'alpha', server_name: 'Placeholder A' }),
         member({ discord_id: 'b', username: 'beta', server_name: 'Placeholder B' }),
       ])
@@ -300,7 +281,7 @@ describe('exportMembers', () => {
         ],
       )
 
-      exportMembers(db, [
+      importDiscordRoster(db, [
         member({ discord_id: 'a', username: 'alpha', server_name: 'Changed A' }),
         member({ discord_id: 'b', username: 'beta', server_name: 'Changed B' }),
       ])
@@ -324,124 +305,17 @@ describe('exportMembers', () => {
       db.exec('CREATE TABLE keep_me (id INTEGER PRIMARY KEY)')
       db.run('INSERT INTO keep_me (id) VALUES (1)')
 
-      exportMembers(db, [
+      importDiscordRoster(db, [
         member({ discord_id: 'a', username: 'alpha' }),
         member({ discord_id: 'b', username: 'beta' }),
       ])
-      exportMembers(db, [member({ discord_id: 'a', username: 'alpha' })])
+      importDiscordRoster(db, [member({ discord_id: 'a', username: 'alpha' })])
 
       expect(count(db, 'members')).toBe(2)
       expect(count(db, 'discord_accounts')).toBe(1)
       expect(count(db, 'keep_me')).toBe(1)
     } finally {
       db.close()
-    }
-  })
-})
-
-describe('openMemberDatabase migration', () => {
-  test('renames old columns, drops nickname provenance, and preserves member IDs', () => {
-    const directory = mkdtempSync(join(tmpdir(), 'member-db-'))
-    const path = join(directory, 'members.sqlite')
-
-    try {
-      const old = new Database(path, { create: true })
-      old.exec('PRAGMA foreign_keys = ON')
-      old.exec(`
-        CREATE TABLE members (
-          id INTEGER PRIMARY KEY,
-          nickname TEXT NOT NULL,
-          join_date TEXT,
-          nickname_source TEXT NOT NULL DEFAULT 'discord_placeholder'
-        )
-      `)
-      old.exec(`
-        CREATE TABLE discord_accounts (
-          discord_id TEXT PRIMARY KEY,
-          member_id INTEGER NOT NULL REFERENCES members(id),
-          username TEXT NOT NULL,
-          global_name TEXT,
-          server_name TEXT,
-          joined_at TEXT
-        )
-      `)
-      old.exec(`
-        CREATE TABLE nickname_events (
-          nickname_event_id INTEGER PRIMARY KEY,
-          member_id INTEGER NOT NULL,
-          nickname TEXT NOT NULL,
-          event_at TEXT NOT NULL,
-          source TEXT NOT NULL DEFAULT 'manual',
-          recorded_at TEXT NOT NULL,
-          created_by TEXT NOT NULL DEFAULT 'owner',
-          reason TEXT
-        )
-      `)
-      old.run('INSERT INTO members (id, nickname, join_date) VALUES (?, ?, ?)', [
-        7,
-        'Old Nick',
-        '2020-01-01T00:00:00.000Z',
-      ])
-      old.run(
-        `INSERT INTO discord_accounts (
-           discord_id, member_id, username, global_name, server_name, joined_at
-         ) VALUES (?, ?, ?, ?, ?, ?)`,
-        ['a', 7, 'alpha', null, null, '2020-01-01T00:00:00.000000+00:00'],
-      )
-      old.close()
-
-      const db = openMemberDatabase(path)
-      try {
-        const memberColumns = db
-          .query<{ name: string }, []>('PRAGMA table_info(members)')
-          .all()
-          .map((column) => column.name)
-        expect(memberColumns).toEqual([
-          'member_id',
-          'nickname',
-          'joined_at',
-        ])
-        expect(
-          db
-            .query<{ name: string }, []>('PRAGMA table_info(nickname_events)')
-            .all()
-            .map((column) => column.name),
-        ).toEqual([
-          'nickname_event_id',
-          'member_id',
-          'nickname',
-          'event_at',
-          'source',
-          'recorded_at',
-          'created_by',
-        ])
-
-        const result = exportMembers(db, [
-          member({
-            discord_id: 'a',
-            username: 'alpha',
-            joined_at: '2020-05-06T22:30:00.000000+00:00',
-          }),
-        ])
-        expect(result.preservedIds).toBe(1)
-        expect(result.assignedNewIds).toBe(0)
-
-        const row = db
-          .query<MemberRow, []>(
-            'SELECT member_id, nickname, joined_at FROM members',
-          )
-          .get()
-        expect(row).toEqual({
-          member_id: 7,
-          nickname: 'alpha',
-          joined_at: '2020-01-01T00:00:00.000Z',
-        })
-        expect(db.query<Record<string, unknown>, []>('PRAGMA foreign_key_check').all()).toEqual([])
-      } finally {
-        db.close()
-      }
-    } finally {
-      rmSync(directory, { recursive: true, force: true })
     }
   })
 })

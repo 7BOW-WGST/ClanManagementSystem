@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test'
-import { exportMembers, openMemberDatabase } from './member-db'
+import { openMemberDatabase } from './db'
+import { importDiscordRoster, type RosterMember } from './discord-roster'
 import {
   buildNicknameCsv,
   escapeCsvField,
@@ -7,7 +8,6 @@ import {
   importNicknameCsv,
   parseNicknameCsv,
 } from './nicknames'
-import type { RosterMember } from './types'
 
 function member(
   input: Partial<RosterMember> & Pick<RosterMember, 'discord_id' | 'username'>,
@@ -82,11 +82,11 @@ describe('CSV prefill helpers', () => {
     expect(escapeCsvField('line one\nline two')).toBe('"line one\nline two"')
   })
 
-  test('builds a two-column CSV using the nickname fallback order', () => {
+  test('builds a two-column CSV from prepared entries', () => {
     const csv = buildNicknameCsv([
-      member({ discord_id: '1', username: 'user1', server_name: 'Server One' }),
-      member({ discord_id: '2', username: 'user2', global_name: 'Global Two' }),
-      member({ discord_id: '3', username: 'user3' }),
+      { discord_id: '1', nickname: 'Server One' },
+      { discord_id: '2', nickname: 'Global Two' },
+      { discord_id: '3', nickname: 'user3' },
     ])
 
     expect(csv).toBe(
@@ -112,7 +112,7 @@ describe('importNicknameCsv', () => {
   test('imports ID/nickname rows using joined_at as event_at', () => {
     const db = openMemberDatabase(':memory:')
     try {
-      exportMembers(db, [
+      importDiscordRoster(db, [
         member({ discord_id: 'a', username: 'alpha', server_name: 'Placeholder A' }),
         member({
           discord_id: 'b',
@@ -173,7 +173,7 @@ describe('importNicknameCsv', () => {
   test('skips duplicate events on repeated imports', () => {
     const db = openMemberDatabase(':memory:')
     try {
-      exportMembers(db, [member({ discord_id: 'a', username: 'alpha' })])
+      importDiscordRoster(db, [member({ discord_id: 'a', username: 'alpha' })])
       const csv = 'discord_id,nickname\na,Manual A\n'
 
       const first = importNicknameCsv(db, csv, { dryRun: false })
@@ -191,7 +191,7 @@ describe('importNicknameCsv', () => {
   test('latest event determines the current nickname', () => {
     const db = openMemberDatabase(':memory:')
     try {
-      exportMembers(db, [member({ discord_id: 'a', username: 'alpha' })])
+      importDiscordRoster(db, [member({ discord_id: 'a', username: 'alpha' })])
       importNicknameCsv(
         db,
         'discord_id,nickname\n' +
@@ -209,7 +209,7 @@ describe('importNicknameCsv', () => {
   test('dry run validates without writing', () => {
     const db = openMemberDatabase(':memory:')
     try {
-      exportMembers(db, [member({ discord_id: 'a', username: 'alpha' })])
+      importDiscordRoster(db, [member({ discord_id: 'a', username: 'alpha' })])
       const result = importNicknameCsv(
         db,
         'discord_id,nickname\na,Manual A\n',
@@ -227,7 +227,7 @@ describe('importNicknameCsv', () => {
   test('rejects unknown or non-current Discord IDs', () => {
     const db = openMemberDatabase(':memory:')
     try {
-      exportMembers(db, [member({ discord_id: 'a', username: 'alpha' })])
+      importDiscordRoster(db, [member({ discord_id: 'a', username: 'alpha' })])
       expect(() =>
         importNicknameCsv(db, 'discord_id,nickname\nmissing,Manual\n', { dryRun: false }),
       ).toThrow('unknown or non-current Discord ID')
@@ -239,7 +239,7 @@ describe('importNicknameCsv', () => {
   test('requires joined_at for every imported member', () => {
     const db = openMemberDatabase(':memory:')
     try {
-      exportMembers(db, [
+      importDiscordRoster(db, [
         member({ discord_id: 'a', username: 'alpha', joined_at: null }),
       ])
       expect(() =>

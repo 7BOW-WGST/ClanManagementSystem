@@ -1,0 +1,16 @@
+{
+  "name": "clan-member-core",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "import-discord-roster": "bun run import-discord-roster.ts",
+    "prefill-nicknames": "bun run prefill-nicknames.ts",
+    "import-nicknames": "bun run import-nicknames.ts",
+    "typecheck": "bun x tsc --noEmit",
+    "test": "bun test"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.4",
+    "typescript": "^7.0.2"
+  }
+}

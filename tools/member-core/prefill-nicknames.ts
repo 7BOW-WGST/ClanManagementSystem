@@ -1,8 +1,8 @@
 import { mkdirSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
-import { toolDir } from './config'
-import { parseRoster } from './member-db'
+import { discordPlaceholderNickname, parseRoster } from './discord-roster'
 import { buildNicknameCsv, hasNicknameData } from './nicknames'
+import { defaultNicknameCsvPath, defaultRosterPath } from './paths'
 
 interface CliOptions {
   input?: string
@@ -13,10 +13,10 @@ interface CliOptions {
 
 const HELP = `Usage: bun run prefill-nicknames [options]
 
-Generate input/nicknames.csv from the current harvested roster.
+Generate input/nicknames.csv from the current Discord roster JSON.
 
 Options:
-  --input <path>    Roster JSON path (default: output/discord-members.json)
+  --input <path>    Roster JSON path (default: ../discord-parser/output/discord-members.json)
   --output <path>   CSV path (default: input/nicknames.csv)
   --force           Overwrite a CSV that already contains nickname rows
   -h, --help        Show this help
@@ -65,17 +65,13 @@ async function main(): Promise<void> {
   }
 
   const inputPath =
-    cli.input === undefined
-      ? resolve(toolDir, './output/discord-members.json')
-      : resolve(process.cwd(), cli.input)
+    cli.input === undefined ? defaultRosterPath : resolve(process.cwd(), cli.input)
   const outputPath =
-    cli.output === undefined
-      ? resolve(toolDir, './input/nicknames.csv')
-      : resolve(process.cwd(), cli.output)
+    cli.output === undefined ? defaultNicknameCsvPath : resolve(process.cwd(), cli.output)
 
   const inputFile = Bun.file(inputPath)
   if (!(await inputFile.exists())) {
-    throw new Error(`Roster JSON not found: ${inputPath}. Run harvest-members first.`)
+    throw new Error(`Roster JSON not found: ${inputPath}. Run discord-parser harvest-members first.`)
   }
 
   const raw: unknown = await inputFile.json()
@@ -97,7 +93,12 @@ async function main(): Promise<void> {
   }
 
   mkdirSync(dirname(outputPath), { recursive: true })
-  const csv = buildNicknameCsv(roster.members)
+  const csv = buildNicknameCsv(
+    roster.members.map((member) => ({
+      discord_id: member.discord_id,
+      nickname: discordPlaceholderNickname(member),
+    })),
+  )
   await Bun.write(outputPath, csv)
 
   console.log(`Nickname CSV written to ${outputPath}`)

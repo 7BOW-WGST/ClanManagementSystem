@@ -1,21 +1,21 @@
 import { resolve } from 'node:path'
-import { toolDir } from './config'
-import { parseRoster, writeMemberDatabase } from './member-db'
+import { parseRoster, writeDiscordRosterDatabase } from './discord-roster'
+import { defaultMemberDbPath, defaultRosterPath } from './paths'
 
 interface CliOptions {
   input?: string
-  output?: string
+  db?: string
   help: boolean
 }
 
-const HELP = `Usage: bun run export-members [options]
+const HELP = `Usage: bun run import-discord-roster [options]
 
-Export the harvested roster into the SQLite member database.
+Import the Discord roster JSON into the member SQLite database.
 
 Options:
-  --input <path>    Roster JSON path (default: output/discord-members.json)
-  --output <path>   SQLite database path (default: output/members.sqlite)
-  -h, --help        Show this help
+  --input <path>   Roster JSON path (default: ../discord-parser/output/discord-members.json)
+  --db <path>      SQLite database path (default: output/members.sqlite)
+  -h, --help       Show this help
 `
 
 function parseCli(argv: string[]): CliOptions {
@@ -31,12 +31,12 @@ function parseCli(argv: string[]): CliOptions {
         }
         options.input = argv[index]
         break
-      case '--output':
+      case '--db':
         index += 1
         if (argv[index] === undefined) {
-          throw new Error('--output requires a value.')
+          throw new Error('--db requires a value.')
         }
-        options.output = argv[index]
+        options.db = argv[index]
         break
       case '-h':
       case '--help':
@@ -58,17 +58,12 @@ async function main(): Promise<void> {
   }
 
   const inputPath =
-    cli.input === undefined
-      ? resolve(toolDir, './output/discord-members.json')
-      : resolve(process.cwd(), cli.input)
-  const outputPath =
-    cli.output === undefined
-      ? resolve(toolDir, './output/members.sqlite')
-      : resolve(process.cwd(), cli.output)
+    cli.input === undefined ? defaultRosterPath : resolve(process.cwd(), cli.input)
+  const dbPath = cli.db === undefined ? defaultMemberDbPath : resolve(process.cwd(), cli.db)
 
   const inputFile = Bun.file(inputPath)
   if (!(await inputFile.exists())) {
-    throw new Error(`Roster JSON not found: ${inputPath}. Run harvest-members first.`)
+    throw new Error(`Roster JSON not found: ${inputPath}. Run discord-parser harvest-members first.`)
   }
 
   const raw: unknown = await inputFile.json()
@@ -79,9 +74,9 @@ async function main(): Promise<void> {
     )
   }
 
-  const result = writeMemberDatabase(outputPath, roster.members)
+  const result = writeDiscordRosterDatabase(dbPath, roster.members)
 
-  console.log(`SQLite database written to ${outputPath}`)
+  console.log(`Member SQLite database written to ${dbPath}`)
   console.log(
     `members=${result.members} accounts=${result.accounts} ` +
       `preserved_ids=${result.preservedIds} new_ids=${result.assignedNewIds} ` +

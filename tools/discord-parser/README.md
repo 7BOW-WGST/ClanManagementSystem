@@ -1,8 +1,8 @@
 # Discord Roster Harvester
 
-A standalone Bun tool that fetches the current members of a Discord guild and writes a minimal player-base JSON file for later seed work.
+A standalone Bun tool that fetches the current members of a Discord guild and writes a roster JSON file.
 
-This is research tooling under `tools/discord-parser/`; it is not part of the Clan Management System runtime.
+This tool covers Discord only. Member identities, nickname history, and the member SQLite database live in `../member-core/`.
 
 ## Requirements
 
@@ -98,112 +98,25 @@ Fields:
 
 Members are sorted by server name (falling back to username), then by username and Discord ID.
 
+## Handoff to member-core
+
+The member database tool consumes this file:
+
+```text
+../member-core/
+  import-discord-roster   -> output/members.sqlite
+  prefill-nicknames       -> input/nicknames.csv
+```
+
+Run those commands from `tools/member-core/`.
+
 ## Cache
 
 Raw roster snapshots are upserted into `cache/discord.sqlite` using Bun's native `bun:sqlite`. The cache preserves `first_seen_at`, refreshes `last_seen_at`, and records each roster run. It does **not** infer departures from absence.
 
 Existing cache files are migrated automatically: missing `global_name`, `joined_at`, and `matched_role_ids_json` columns are added with `ALTER TABLE`, as is `roster_runs.role_filtered_count`. No cache wipe is required. Older rows keep `null`/empty values until the next harvest updates them.
 
-`cache/` and `output/raw/` are gitignored. The roster JSON is intended to be kept as the seed-base artifact.
-
-## Members SQLite export
-
-```cmd
-cd tools\discord-parser
-bun run export-members
-```
-
-This reads `output/discord-members.json` and writes `output/members.sqlite` with three tables:
-
-```sql
-CREATE TABLE members (
-  member_id INTEGER PRIMARY KEY,
-  nickname TEXT NOT NULL,
-  joined_at TEXT
-);
-
-CREATE TABLE discord_accounts (
-  discord_id TEXT PRIMARY KEY,
-  member_id INTEGER NOT NULL REFERENCES members(member_id),
-  username TEXT NOT NULL,
-  global_name TEXT,
-  server_name TEXT,
-  joined_at TEXT
-);
-
-CREATE TABLE nickname_events (
-  nickname_event_id INTEGER PRIMARY KEY,
-  member_id INTEGER NOT NULL REFERENCES members(member_id),
-  nickname TEXT NOT NULL,
-  event_at TEXT NOT NULL,
-  source TEXT NOT NULL DEFAULT 'manual',
-  recorded_at TEXT NOT NULL,
-  created_by TEXT NOT NULL DEFAULT 'owner'
-);
-```
-
-- `members` is platform-neutral. Its `nickname` is a convenience value.
-- Without a manual nickname event, `members.nickname` is a placeholder derived from `server_name`, then `global_name`, then `username`.
-- The Discord placeholder never creates a `nickname_events` row.
-- A manual nickname event sets `members.nickname` to the latest manual nickname.
-- Current nickname is the latest manual event by `event_at DESC`, then `recorded_at DESC`, then `nickname_event_id DESC`.
-- `nickname_events.source` is the authoritative per-event provenance. Current member source is inferred by checking whether a manual event exists; there is no separate `members.nickname_source` column.
-- Members persist across exports. Historical members remain in `members`; `discord_accounts` is replaced with the current roster only.
-- `nickname_events` is append-only and is never deleted by an export.
-- Member IDs are preserved across exports for Discord accounts that remain in the roster. New accounts receive the next free ID.
-- `members.joined_at`, `discord_accounts.joined_at`, `nickname_events.event_at`, and `nickname_events.recorded_at` are full ISO 8601 UTC timestamps.
-
-### Manual nicknames
-
-Generate a CSV pre-filled from the current roster:
-
-```cmd
-cd tools\discord-parser
-bun run prefill-nicknames
-```
-
-This writes `input/nicknames.csv` with `discord_id,nickname` and the current placeholder nickname for every current member. It refuses to overwrite a file that already contains rows unless `--force` is passed.
-
-Edit the nicknames, then import:
-
-```cmd
-bun run import-nicknames --dry-run
-bun run import-nicknames
-```
-
-CSV header:
-
-```csv
-discord_id,nickname
-123456789012345678,KKamilS
-```
-
-- `discord_id` and `nickname` are required; extra columns are ignored.
-- `event_at` defaults to the member's `joined_at` and is normalized to ISO 8601 UTC.
-- If the member has no `joined_at`, the row is rejected.
-- The importer only accepts current, known Discord IDs from `discord_accounts`.
-- Exact duplicate events are skipped, so repeated imports are safe.
-- `source` is always `manual`, `created_by` is `owner`, and `recorded_at` is generated at import time.
-- There is no `reason` field.
-
-### Schema conventions
-
-These rules apply to this tool's SQLite output only; the main ERP schema is unchanged.
-
-- Table names are plural `snake_case`.
-- Primary keys use `<entity>_id`, e.g. `members.member_id` and `nickname_events.nickname_event_id`.
-- A natural platform identifier may be the primary key when it is already entity-specific, e.g. `discord_accounts.discord_id`.
-- Foreign keys use the referenced `<entity>_id`.
-- All timestamps are full ISO 8601 UTC text (`YYYY-MM-DDTHH:mm:ss.sssZ`).
-- No date-only or date-precision columns are used.
-
-Optional overrides:
-
-```cmd
-bun run export-members --input .\output\discord-members.json --output .\output\members.sqlite
-```
-
-`output/*.sqlite` is gitignored; regenerate it from the roster JSON when needed.
+`cache/` and `output/raw/` are gitignored.
 
 ## Validation
 
