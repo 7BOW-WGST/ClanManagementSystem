@@ -33,7 +33,6 @@ const CREATE_MEMBERS = `
   CREATE TABLE IF NOT EXISTS members (
     member_id INTEGER PRIMARY KEY,
     nickname TEXT NOT NULL,
-    nickname_source TEXT NOT NULL DEFAULT 'discord_placeholder',
     joined_at TEXT
   )
 `
@@ -72,7 +71,7 @@ const CREATE_DISCORD_ACCOUNTS_INDEX = `
 `
 
 const INSERT_MEMBER = `
-  INSERT INTO members (member_id, nickname, nickname_source, joined_at) VALUES (?, ?, ?, ?)
+  INSERT INTO members (member_id, nickname, joined_at) VALUES (?, ?, ?)
 `
 
 const INSERT_DISCORD_ACCOUNT = `
@@ -216,10 +215,8 @@ function migrateMemberSchema(db: Database): void {
     }
   }
 
-  if (!renamed.has('nickname_source')) {
-    db.exec(
-      "ALTER TABLE members ADD COLUMN nickname_source TEXT NOT NULL DEFAULT 'discord_placeholder'",
-    )
+  if (renamed.has('nickname_source')) {
+    db.exec('ALTER TABLE members DROP COLUMN nickname_source')
   }
 }
 
@@ -309,7 +306,7 @@ export function refreshCurrentNicknames(
 
   for (const [memberId, nickname] of latest) {
     db.run(
-      "UPDATE members SET nickname = ?, nickname_source = 'manual' WHERE member_id = ?",
+      'UPDATE members SET nickname = ? WHERE member_id = ?',
       [nickname, memberId],
     )
   }
@@ -317,7 +314,7 @@ export function refreshCurrentNicknames(
   for (const [memberId, placeholder] of currentPlaceholders) {
     if (!latest.has(memberId)) {
       db.run(
-        "UPDATE members SET nickname = ?, nickname_source = 'discord_placeholder' WHERE member_id = ?",
+        'UPDATE members SET nickname = ? WHERE member_id = ?',
         [placeholder, memberId],
       )
     }
@@ -330,7 +327,7 @@ export function refreshNicknamesForMembers(db: Database, memberIds: Iterable<num
     const nickname = latest.get(memberId)
     if (nickname !== undefined) {
       db.run(
-        "UPDATE members SET nickname = ?, nickname_source = 'manual' WHERE member_id = ?",
+        'UPDATE members SET nickname = ? WHERE member_id = ?',
         [nickname, memberId],
       )
     }
@@ -374,7 +371,6 @@ export function exportMembers(db: Database, members: RosterMember[]): ExportResu
         db.run(INSERT_MEMBER, [
           row.memberId,
           row.placeholder,
-          'discord_placeholder',
           row.joinedAt,
         ])
       }

@@ -24,7 +24,6 @@ function member(
 interface MemberRow {
   member_id: number
   nickname: string
-  nickname_source: string
   joined_at: string | null
 }
 
@@ -39,7 +38,7 @@ interface EventRow {
 function members(db: ReturnType<typeof openMemberDatabase>): MemberRow[] {
   return db
     .query<MemberRow, []>(
-      'SELECT member_id, nickname, nickname_source, joined_at FROM members ORDER BY member_id',
+      'SELECT member_id, nickname, joined_at FROM members ORDER BY member_id',
     )
     .all()
 }
@@ -141,13 +140,11 @@ describe('importNicknameCsv', () => {
         {
           member_id: 1,
           nickname: 'Manual A',
-          nickname_source: 'manual',
           joined_at: '2020-01-01T00:00:00.000Z',
         },
         {
           member_id: 2,
           nickname: 'Manual B',
-          nickname_source: 'manual',
           joined_at: '2020-05-06T22:30:00.000Z',
         },
       ])
@@ -204,7 +201,6 @@ describe('importNicknameCsv', () => {
       )
 
       expect(members(db)[0]?.nickname).toBe('New Name')
-      expect(members(db)[0]?.nickname_source).toBe('manual')
     } finally {
       db.close()
     }
@@ -222,7 +218,7 @@ describe('importNicknameCsv', () => {
 
       expect(result.inserted).toBe(1)
       expect(events(db)).toHaveLength(0)
-      expect(members(db)[0]?.nickname_source).toBe('discord_placeholder')
+      expect(members(db)[0]?.nickname).toBe('alpha')
     } finally {
       db.close()
     }

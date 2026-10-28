@@ -119,7 +119,6 @@ This reads `output/discord-members.json` and writes `output/members.sqlite` with
 CREATE TABLE members (
   member_id INTEGER PRIMARY KEY,
   nickname TEXT NOT NULL,
-  nickname_source TEXT NOT NULL DEFAULT 'discord_placeholder',
   joined_at TEXT
 );
 
@@ -144,10 +143,11 @@ CREATE TABLE nickname_events (
 ```
 
 - `members` is platform-neutral. Its `nickname` is a convenience value.
-- Without a manual nickname event, `members.nickname` is a placeholder derived from `server_name`, then `global_name`, then `username`, and `nickname_source = 'discord_placeholder'`.
+- Without a manual nickname event, `members.nickname` is a placeholder derived from `server_name`, then `global_name`, then `username`.
 - The Discord placeholder never creates a `nickname_events` row.
-- A manual nickname event sets `members.nickname` to the latest manual nickname and `nickname_source = 'manual'`.
+- A manual nickname event sets `members.nickname` to the latest manual nickname.
 - Current nickname is the latest manual event by `event_at DESC`, then `recorded_at DESC`, then `nickname_event_id DESC`.
+- `nickname_events.source` is the authoritative per-event provenance. Current member source is inferred by checking whether a manual event exists; there is no separate `members.nickname_source` column.
 - Members persist across exports. Historical members remain in `members`; `discord_accounts` is replaced with the current roster only.
 - `nickname_events` is append-only and is never deleted by an export.
 - Member IDs are preserved across exports for Discord accounts that remain in the roster. New accounts receive the next free ID.

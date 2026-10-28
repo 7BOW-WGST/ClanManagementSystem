@@ -27,7 +27,6 @@ function member(
 interface MemberRow {
   member_id: number
   nickname: string
-  nickname_source: string
   joined_at: string | null
 }
 
@@ -169,26 +168,23 @@ describe('exportMembers', () => {
 
       const members = db
         .query<MemberRow, []>(
-          'SELECT member_id, nickname, nickname_source, joined_at FROM members ORDER BY member_id',
+          'SELECT member_id, nickname, joined_at FROM members ORDER BY member_id',
         )
         .all()
       expect(members).toEqual([
         {
           member_id: 1,
           nickname: 'Server One',
-          nickname_source: 'discord_placeholder',
           joined_at: '2020-05-06T22:30:00.000Z',
         },
         {
           member_id: 2,
           nickname: 'Global Two',
-          nickname_source: 'discord_placeholder',
           joined_at: '2020-01-01T00:00:00.000Z',
         },
         {
           member_id: 3,
           nickname: 'user3',
-          nickname_source: 'discord_placeholder',
           joined_at: null,
         },
       ])
@@ -269,7 +265,7 @@ describe('exportMembers', () => {
 
       const members = db
         .query<MemberRow, []>(
-          'SELECT member_id, nickname, nickname_source, joined_at FROM members ORDER BY member_id',
+          'SELECT member_id, nickname, joined_at FROM members ORDER BY member_id',
         )
         .all()
       expect(members.map((row) => row.member_id)).toEqual([1, 2, 3])
@@ -311,13 +307,11 @@ describe('exportMembers', () => {
 
       const rows = db
         .query<MemberRow, []>(
-          'SELECT member_id, nickname, nickname_source, joined_at FROM members ORDER BY member_id',
+          'SELECT member_id, nickname, joined_at FROM members ORDER BY member_id',
         )
         .all()
       expect(rows[0]?.nickname).toBe('Manual A')
-      expect(rows[0]?.nickname_source).toBe('manual')
       expect(rows[1]?.nickname).toBe('Changed B')
-      expect(rows[1]?.nickname_source).toBe('discord_placeholder')
       expect(count(db, 'nickname_events')).toBe(1)
     } finally {
       db.close()
@@ -346,7 +340,7 @@ describe('exportMembers', () => {
 })
 
 describe('openMemberDatabase migration', () => {
-  test('renames old columns, adds nickname provenance/events, and preserves member IDs', () => {
+  test('renames old columns, drops nickname provenance, and preserves member IDs', () => {
     const directory = mkdtempSync(join(tmpdir(), 'member-db-'))
     const path = join(directory, 'members.sqlite')
 
@@ -357,7 +351,8 @@ describe('openMemberDatabase migration', () => {
         CREATE TABLE members (
           id INTEGER PRIMARY KEY,
           nickname TEXT NOT NULL,
-          join_date TEXT
+          join_date TEXT,
+          nickname_source TEXT NOT NULL DEFAULT 'discord_placeholder'
         )
       `)
       old.exec(`
@@ -405,7 +400,6 @@ describe('openMemberDatabase migration', () => {
           'member_id',
           'nickname',
           'joined_at',
-          'nickname_source',
         ])
         expect(
           db
@@ -434,13 +428,12 @@ describe('openMemberDatabase migration', () => {
 
         const row = db
           .query<MemberRow, []>(
-            'SELECT member_id, nickname, nickname_source, joined_at FROM members',
+            'SELECT member_id, nickname, joined_at FROM members',
           )
           .get()
         expect(row).toEqual({
           member_id: 7,
           nickname: 'alpha',
-          nickname_source: 'discord_placeholder',
           joined_at: '2020-01-01T00:00:00.000Z',
         })
         expect(db.query<Record<string, unknown>, []>('PRAGMA foreign_key_check').all()).toEqual([])
