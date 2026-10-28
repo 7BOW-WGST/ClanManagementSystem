@@ -27,6 +27,7 @@ function member(
 interface MemberRow {
   member_id: number
   nickname: string
+  nickname_source: string
   joined_at: string | null
 }
 
@@ -46,6 +47,13 @@ function idMap(db: ReturnType<typeof openMemberDatabase>): Map<string, number> {
     )
     .all()
   return new Map(rows.map((row) => [row.discord_id, row.member_id]))
+}
+
+function count(db: ReturnType<typeof openMemberDatabase>, table: string): number {
+  const row = db
+    .query<{ count: number }, []>(`SELECT COUNT(*) AS count FROM ${table}`)
+    .get()
+  return row?.count ?? 0
 }
 
 describe('nicknameFor', () => {
@@ -81,7 +89,7 @@ describe('toIsoTimestamp', () => {
   })
 
   test('rejects invalid timestamps', () => {
-    expect(() => toIsoTimestamp('not-a-date')).toThrow('Invalid joined_at timestamp')
+    expect(() => toIsoTimestamp('not-a-date', 'event_at')).toThrow('Invalid event_at')
   })
 })
 
@@ -127,7 +135,7 @@ describe('parseRoster', () => {
 })
 
 describe('exportMembers', () => {
-  test('writes members and Discord accounts with fallback values', () => {
+  test('writes members, accounts, and placeholder provenance', () => {
     const db = openMemberDatabase(':memory:')
     try {
       const result = exportMembers(db, [
@@ -156,25 +164,33 @@ describe('exportMembers', () => {
         accounts: 3,
         preservedIds: 0,
         assignedNewIds: 3,
+        historicalMembers: 0,
       })
 
       const members = db
         .query<MemberRow, []>(
-          'SELECT member_id, nickname, joined_at FROM members ORDER BY member_id',
+          'SELECT member_id, nickname, nickname_source, joined_at FROM members ORDER BY member_id',
         )
         .all()
       expect(members).toEqual([
         {
           member_id: 1,
           nickname: 'Server One',
+          nickname_source: 'discord_placeholder',
           joined_at: '2020-05-06T22:30:00.000Z',
         },
         {
           member_id: 2,
           nickname: 'Global Two',
+          nickname_source: 'discord_placeholder',
           joined_at: '2020-01-01T00:00:00.000Z',
         },
-        { member_id: 3, nickname: 'user3', joined_at: null },
+        {
+          member_id: 3,
+          nickname: 'user3',
+          nickname_source: 'discord_placeholder',
+          joined_at: null,
+        },
       ])
 
       const accounts = db
@@ -211,13 +227,14 @@ describe('exportMembers', () => {
         },
       ])
 
+      expect(count(db, 'nickname_events')).toBe(0)
       expect(db.query<Record<string, unknown>, []>('PRAGMA foreign_key_check').all()).toEqual([])
     } finally {
       db.close()
     }
   })
 
-  test('preserves existing member IDs and assigns new ones', () => {
+  test('preserves historical members while keeping accounts current-only', () => {
     const db = openMemberDatabase(':memory:')
     try {
       exportMembers(db, [
@@ -240,6 +257,7 @@ describe('exportMembers', () => {
 
       expect(result.preservedIds).toBe(1)
       expect(result.assignedNewIds).toBe(1)
+      expect(result.historicalMembers).toBe(1)
       expect(
         idMap(db),
       ).toEqual(
@@ -251,16 +269,62 @@ describe('exportMembers', () => {
 
       const members = db
         .query<MemberRow, []>(
-          'SELECT member_id, nickname, joined_at FROM members ORDER BY member_id',
+          'SELECT member_id, nickname, nickname_source, joined_at FROM members ORDER BY member_id',
         )
         .all()
-      expect(members.map((row) => row.member_id)).toEqual([2, 3])
+      expect(members.map((row) => row.member_id)).toEqual([1, 2, 3])
+      expect(count(db, 'discord_accounts')).toBe(2)
     } finally {
       db.close()
     }
   })
 
-  test('replaces table contents and leaves unrelated tables alone', () => {
+  test('preserves manual nicknames and refreshes placeholders', () => {
+    const db = openMemberDatabase(':memory:')
+    try {
+      exportMembers(db, [
+        member({ discord_id: 'a', username: 'alpha', server_name: 'Placeholder A' }),
+        member({ discord_id: 'b', username: 'beta', server_name: 'Placeholder B' }),
+      ])
+      const ids = idMap(db)
+      const memberA = ids.get('a')
+      if (memberA === undefined) {
+        throw new Error('Expected member a to have an ID.')
+      }
+
+      db.run(
+        `INSERT INTO nickname_events (
+           member_id, nickname, event_at, source, recorded_at, created_by
+         ) VALUES (?, ?, ?, 'manual', ?, 'owner')`,
+        [
+          memberA,
+          'Manual A',
+          '2020-01-01T00:00:00.000Z',
+          '2020-01-02T00:00:00.000Z',
+        ],
+      )
+
+      exportMembers(db, [
+        member({ discord_id: 'a', username: 'alpha', server_name: 'Changed A' }),
+        member({ discord_id: 'b', username: 'beta', server_name: 'Changed B' }),
+      ])
+
+      const rows = db
+        .query<MemberRow, []>(
+          'SELECT member_id, nickname, nickname_source, joined_at FROM members ORDER BY member_id',
+        )
+        .all()
+      expect(rows[0]?.nickname).toBe('Manual A')
+      expect(rows[0]?.nickname_source).toBe('manual')
+      expect(rows[1]?.nickname).toBe('Changed B')
+      expect(rows[1]?.nickname_source).toBe('discord_placeholder')
+      expect(count(db, 'nickname_events')).toBe(1)
+    } finally {
+      db.close()
+    }
+  })
+
+  test('replaces current accounts and leaves unrelated tables alone', () => {
     const db = openMemberDatabase(':memory:')
     try {
       db.exec('CREATE TABLE keep_me (id INTEGER PRIMARY KEY)')
@@ -272,16 +336,9 @@ describe('exportMembers', () => {
       ])
       exportMembers(db, [member({ discord_id: 'a', username: 'alpha' })])
 
-      expect(
-        db.query<{ count: number }, []>('SELECT COUNT(*) AS count FROM members').get()?.count,
-      ).toBe(1)
-      expect(
-        db.query<{ count: number }, []>('SELECT COUNT(*) AS count FROM discord_accounts').get()
-          ?.count,
-      ).toBe(1)
-      expect(
-        db.query<{ count: number }, []>('SELECT COUNT(*) AS count FROM keep_me').get()?.count,
-      ).toBe(1)
+      expect(count(db, 'members')).toBe(2)
+      expect(count(db, 'discord_accounts')).toBe(1)
+      expect(count(db, 'keep_me')).toBe(1)
     } finally {
       db.close()
     }
@@ -289,7 +346,7 @@ describe('exportMembers', () => {
 })
 
 describe('openMemberDatabase migration', () => {
-  test('renames the old columns and preserves member IDs', () => {
+  test('renames old columns, adds nickname provenance/events, and preserves member IDs', () => {
     const directory = mkdtempSync(join(tmpdir(), 'member-db-'))
     const path = join(directory, 'members.sqlite')
 
@@ -313,10 +370,22 @@ describe('openMemberDatabase migration', () => {
           joined_at TEXT
         )
       `)
+      old.exec(`
+        CREATE TABLE nickname_events (
+          nickname_event_id INTEGER PRIMARY KEY,
+          member_id INTEGER NOT NULL,
+          nickname TEXT NOT NULL,
+          event_at TEXT NOT NULL,
+          source TEXT NOT NULL DEFAULT 'manual',
+          recorded_at TEXT NOT NULL,
+          created_by TEXT NOT NULL DEFAULT 'owner',
+          reason TEXT
+        )
+      `)
       old.run('INSERT INTO members (id, nickname, join_date) VALUES (?, ?, ?)', [
         7,
         'Old Nick',
-        '2020-01-01',
+        '2020-01-01T00:00:00.000Z',
       ])
       old.run(
         `INSERT INTO discord_accounts (
@@ -332,7 +401,26 @@ describe('openMemberDatabase migration', () => {
           .query<{ name: string }, []>('PRAGMA table_info(members)')
           .all()
           .map((column) => column.name)
-        expect(memberColumns).toEqual(['member_id', 'nickname', 'joined_at'])
+        expect(memberColumns).toEqual([
+          'member_id',
+          'nickname',
+          'joined_at',
+          'nickname_source',
+        ])
+        expect(
+          db
+            .query<{ name: string }, []>('PRAGMA table_info(nickname_events)')
+            .all()
+            .map((column) => column.name),
+        ).toEqual([
+          'nickname_event_id',
+          'member_id',
+          'nickname',
+          'event_at',
+          'source',
+          'recorded_at',
+          'created_by',
+        ])
 
         const result = exportMembers(db, [
           member({
@@ -346,13 +434,14 @@ describe('openMemberDatabase migration', () => {
 
         const row = db
           .query<MemberRow, []>(
-            'SELECT member_id, nickname, joined_at FROM members',
+            'SELECT member_id, nickname, nickname_source, joined_at FROM members',
           )
           .get()
         expect(row).toEqual({
           member_id: 7,
           nickname: 'alpha',
-          joined_at: '2020-05-06T22:30:00.000Z',
+          nickname_source: 'discord_placeholder',
+          joined_at: '2020-01-01T00:00:00.000Z',
         })
         expect(db.query<Record<string, unknown>, []>('PRAGMA foreign_key_check').all()).toEqual([])
       } finally {

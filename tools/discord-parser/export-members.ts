@@ -10,7 +10,7 @@ interface CliOptions {
 
 const HELP = `Usage: bun run export-members [options]
 
-Export the harvested roster into a two-table SQLite database.
+Export the harvested roster into the SQLite member database.
 
 Options:
   --input <path>    Roster JSON path (default: output/discord-members.json)
@@ -84,7 +84,8 @@ async function main(): Promise<void> {
   console.log(`SQLite database written to ${outputPath}`)
   console.log(
     `members=${result.members} accounts=${result.accounts} ` +
-      `preserved_ids=${result.preservedIds} new_ids=${result.assignedNewIds}`,
+      `preserved_ids=${result.preservedIds} new_ids=${result.assignedNewIds} ` +
+      `historical=${result.historicalMembers}`,
   )
 }
 

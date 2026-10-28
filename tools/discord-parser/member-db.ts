@@ -13,19 +13,46 @@ export interface ExportResult {
   accounts: number
   preservedIds: number
   assignedNewIds: number
+  historicalMembers: number
 }
 
-interface MemberIdMap {
-  ids: Map<string, number>
-  maxId: number
+interface MemberState {
+  idsByDiscord: Map<string, number>
+  existingMemberIds: Set<number>
+  maxMemberId: number
+}
+
+interface CurrentMemberRow {
+  memberId: number
+  placeholder: string
+  joinedAt: string | null
+  member: RosterMember
 }
 
 const CREATE_MEMBERS = `
   CREATE TABLE IF NOT EXISTS members (
     member_id INTEGER PRIMARY KEY,
     nickname TEXT NOT NULL,
+    nickname_source TEXT NOT NULL DEFAULT 'discord_placeholder',
     joined_at TEXT
   )
+`
+
+const CREATE_NICKNAME_EVENTS = `
+  CREATE TABLE IF NOT EXISTS nickname_events (
+    nickname_event_id INTEGER PRIMARY KEY,
+    member_id INTEGER NOT NULL REFERENCES members(member_id),
+    nickname TEXT NOT NULL,
+    event_at TEXT NOT NULL,
+    source TEXT NOT NULL DEFAULT 'manual',
+    recorded_at TEXT NOT NULL,
+    created_by TEXT NOT NULL DEFAULT 'owner'
+  )
+`
+
+const CREATE_NICKNAME_EVENTS_INDEX = `
+  CREATE INDEX IF NOT EXISTS idx_nickname_events_member
+  ON nickname_events(member_id, event_at, recorded_at)
 `
 
 const CREATE_DISCORD_ACCOUNTS = `
@@ -45,7 +72,7 @@ const CREATE_DISCORD_ACCOUNTS_INDEX = `
 `
 
 const INSERT_MEMBER = `
-  INSERT INTO members (member_id, nickname, joined_at) VALUES (?, ?, ?)
+  INSERT INTO members (member_id, nickname, nickname_source, joined_at) VALUES (?, ?, ?, ?)
 `
 
 const INSERT_DISCORD_ACCOUNT = `
@@ -139,19 +166,19 @@ function firstNonEmpty(...values: Array<string | null>): string | null {
   return null
 }
 
-// Placeholder nickname until general clan nicknames are entered manually.
+// Convenience placeholder until a manual clan nickname event exists.
 export function nicknameFor(member: RosterMember): string {
   return firstNonEmpty(member.server_name, member.global_name, member.username) ?? member.username
 }
 
-export function toIsoTimestamp(value: string | null): string | null {
+export function toIsoTimestamp(value: string | null, label = 'timestamp'): string | null {
   if (value === null) {
     return null
   }
 
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) {
-    throw new Error(`Invalid joined_at timestamp: ${value}`)
+    throw new Error(`Invalid ${label}: ${value}`)
   }
   return date.toISOString()
 }
@@ -163,7 +190,7 @@ function tableColumns(db: Database, table: string): Set<string> {
   return new Set(rows.map((row) => row.name))
 }
 
-// Migrate the first generated schema (id/join_date) without losing member IDs.
+// Migrate earlier generated schemas without losing member IDs or nicknames.
 function migrateMemberSchema(db: Database): void {
   const columns = tableColumns(db, 'members')
 
@@ -188,6 +215,19 @@ function migrateMemberSchema(db: Database): void {
       db.exec('ALTER TABLE members ADD COLUMN joined_at TEXT')
     }
   }
+
+  if (!renamed.has('nickname_source')) {
+    db.exec(
+      "ALTER TABLE members ADD COLUMN nickname_source TEXT NOT NULL DEFAULT 'discord_placeholder'",
+    )
+  }
+}
+
+function migrateNicknameEventsSchema(db: Database): void {
+  const columns = tableColumns(db, 'nickname_events')
+  if (columns.has('reason')) {
+    db.exec('ALTER TABLE nickname_events DROP COLUMN reason')
+  }
 }
 
 export function openMemberDatabase(path: string): Database {
@@ -199,38 +239,117 @@ export function openMemberDatabase(path: string): Database {
   db.exec('PRAGMA foreign_keys = ON')
   db.exec(CREATE_MEMBERS)
   migrateMemberSchema(db)
+  db.exec(CREATE_NICKNAME_EVENTS)
+  migrateNicknameEventsSchema(db)
+  db.exec(CREATE_NICKNAME_EVENTS_INDEX)
   db.exec(CREATE_DISCORD_ACCOUNTS)
   db.exec(CREATE_DISCORD_ACCOUNTS_INDEX)
   return db
 }
 
-function readMemberIdMap(db: Database): MemberIdMap {
-  const rows = db
+function readMemberState(db: Database): MemberState {
+  const accounts = db
     .query<{ discord_id: string; member_id: number }, []>(
       'SELECT discord_id, member_id FROM discord_accounts',
     )
     .all()
+  const memberRows = db
+    .query<{ member_id: number }, []>('SELECT member_id FROM members')
+    .all()
 
-  const ids = new Map<string, number>()
-  let maxId = 0
-  for (const row of rows) {
-    ids.set(row.discord_id, row.member_id)
-    if (row.member_id > maxId) {
-      maxId = row.member_id
+  const existingMemberIds = new Set(memberRows.map((row) => row.member_id))
+  const idsByDiscord = new Map<string, number>()
+  let maxMemberId = 0
+
+  for (const row of accounts) {
+    if (!existingMemberIds.has(row.member_id)) {
+      throw new Error(
+        `Discord account ${row.discord_id} references missing member ${row.member_id}.`,
+      )
+    }
+    idsByDiscord.set(row.discord_id, row.member_id)
+  }
+  for (const memberId of existingMemberIds) {
+    if (memberId > maxMemberId) {
+      maxMemberId = memberId
     }
   }
-  return { ids, maxId }
+
+  return { idsByDiscord, existingMemberIds, maxMemberId }
 }
 
-// Replace both tables while preserving member IDs for Discord accounts seen previously.
+// Latest manual nickname event per member. event_at/recorded_at are normalized UTC ISO strings,
+// so lexicographic ordering is chronological.
+export function latestNicknameEvents(db: Database): Map<number, string> {
+  const rows = db
+    .query<{ member_id: number; nickname: string }, []>(
+      `SELECT member_id, nickname
+       FROM nickname_events
+       WHERE source = 'manual'
+       ORDER BY member_id ASC, event_at DESC, recorded_at DESC, nickname_event_id DESC`,
+    )
+    .all()
+
+  const latest = new Map<number, string>()
+  for (const row of rows) {
+    if (!latest.has(row.member_id)) {
+      latest.set(row.member_id, row.nickname)
+    }
+  }
+  return latest
+}
+
+// Apply manual events to current and historical members; fall back to placeholders only for the
+// current roster when no manual event exists.
+export function refreshCurrentNicknames(
+  db: Database,
+  currentPlaceholders: ReadonlyMap<number, string>,
+): void {
+  const latest = latestNicknameEvents(db)
+
+  for (const [memberId, nickname] of latest) {
+    db.run(
+      "UPDATE members SET nickname = ?, nickname_source = 'manual' WHERE member_id = ?",
+      [nickname, memberId],
+    )
+  }
+
+  for (const [memberId, placeholder] of currentPlaceholders) {
+    if (!latest.has(memberId)) {
+      db.run(
+        "UPDATE members SET nickname = ?, nickname_source = 'discord_placeholder' WHERE member_id = ?",
+        [placeholder, memberId],
+      )
+    }
+  }
+}
+
+export function refreshNicknamesForMembers(db: Database, memberIds: Iterable<number>): void {
+  const latest = latestNicknameEvents(db)
+  for (const memberId of memberIds) {
+    const nickname = latest.get(memberId)
+    if (nickname !== undefined) {
+      db.run(
+        "UPDATE members SET nickname = ?, nickname_source = 'manual' WHERE member_id = ?",
+        [nickname, memberId],
+      )
+    }
+  }
+}
+
+// Add missing members, refresh current placeholders, replace current accounts, and preserve
+// historical members plus nickname events.
 export function exportMembers(db: Database, members: RosterMember[]): ExportResult {
-  const existing = readMemberIdMap(db)
-  let nextId = existing.maxId + 1
+  const state = readMemberState(db)
+  let nextId = state.maxMemberId + 1
   let preservedIds = 0
   let assignedNewIds = 0
 
-  const rows = members.map((member) => {
-    const existingId = existing.ids.get(member.discord_id)
+  const rows: CurrentMemberRow[] = []
+  const currentPlaceholders = new Map<number, string>()
+
+  for (const member of members) {
+    const existingId = state.idsByDiscord.get(member.discord_id)
     const memberId = existingId ?? nextId++
 
     if (existingId === undefined) {
@@ -239,20 +358,30 @@ export function exportMembers(db: Database, members: RosterMember[]): ExportResu
       preservedIds += 1
     }
 
-    return {
+    const placeholder = nicknameFor(member)
+    rows.push({
       memberId,
-      nickname: nicknameFor(member),
-      joinedAt: toIsoTimestamp(member.joined_at),
+      placeholder,
+      joinedAt: toIsoTimestamp(member.joined_at, 'joined_at'),
       member,
-    }
-  })
+    })
+    currentPlaceholders.set(memberId, placeholder)
+  }
 
-  const replace = db.transaction(() => {
-    db.run('DELETE FROM discord_accounts')
-    db.run('DELETE FROM members')
-
+  const write = db.transaction(() => {
     for (const row of rows) {
-      db.run(INSERT_MEMBER, [row.memberId, row.nickname, row.joinedAt])
+      if (!state.existingMemberIds.has(row.memberId)) {
+        db.run(INSERT_MEMBER, [
+          row.memberId,
+          row.placeholder,
+          'discord_placeholder',
+          row.joinedAt,
+        ])
+      }
+    }
+
+    db.run('DELETE FROM discord_accounts')
+    for (const row of rows) {
       db.run(INSERT_DISCORD_ACCOUNT, [
         row.member.discord_id,
         row.memberId,
@@ -262,15 +391,21 @@ export function exportMembers(db: Database, members: RosterMember[]): ExportResu
         row.joinedAt,
       ])
     }
+
+    refreshCurrentNicknames(db, currentPlaceholders)
   })
 
-  replace()
+  write()
+
+  const totalMembers =
+    db.query<{ n: number }, []>('SELECT COUNT(*) AS n FROM members').get()?.n ?? 0
 
   return {
     members: rows.length,
     accounts: rows.length,
     preservedIds,
     assignedNewIds,
+    historicalMembers: totalMembers - rows.length,
   }
 }
 

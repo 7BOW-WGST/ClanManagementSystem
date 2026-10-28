@@ -5,6 +5,8 @@
   "scripts": {
     "harvest-members": "bun run harvest-members.ts",
     "export-members": "bun run export-members.ts",
+    "prefill-nicknames": "bun run prefill-nicknames.ts",
+    "import-nicknames": "bun run import-nicknames.ts",
     "typecheck": "bun x tsc --noEmit",
     "test": "bun test"
   },

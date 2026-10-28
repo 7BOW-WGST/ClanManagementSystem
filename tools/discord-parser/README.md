@@ -113,12 +113,13 @@ cd tools\discord-parser
 bun run export-members
 ```
 
-This reads `output/discord-members.json` and writes `output/members.sqlite` with two tables:
+This reads `output/discord-members.json` and writes `output/members.sqlite` with three tables:
 
 ```sql
 CREATE TABLE members (
   member_id INTEGER PRIMARY KEY,
   nickname TEXT NOT NULL,
+  nickname_source TEXT NOT NULL DEFAULT 'discord_placeholder',
   joined_at TEXT
 );
 
@@ -130,23 +131,71 @@ CREATE TABLE discord_accounts (
   server_name TEXT,
   joined_at TEXT
 );
+
+CREATE TABLE nickname_events (
+  nickname_event_id INTEGER PRIMARY KEY,
+  member_id INTEGER NOT NULL REFERENCES members(member_id),
+  nickname TEXT NOT NULL,
+  event_at TEXT NOT NULL,
+  source TEXT NOT NULL DEFAULT 'manual',
+  recorded_at TEXT NOT NULL,
+  created_by TEXT NOT NULL DEFAULT 'owner'
+);
 ```
 
-- `members` is platform-neutral. Its nickname is a placeholder derived from `server_name`, then `global_name`, then `username`.
-- `members.joined_at` and `discord_accounts.joined_at` are full ISO 8601 UTC timestamps, e.g. `2020-05-06T22:30:00.000Z`.
+- `members` is platform-neutral. Its `nickname` is a convenience value.
+- Without a manual nickname event, `members.nickname` is a placeholder derived from `server_name`, then `global_name`, then `username`, and `nickname_source = 'discord_placeholder'`.
+- The Discord placeholder never creates a `nickname_events` row.
+- A manual nickname event sets `members.nickname` to the latest manual nickname and `nickname_source = 'manual'`.
+- Current nickname is the latest manual event by `event_at DESC`, then `recorded_at DESC`, then `nickname_event_id DESC`.
+- Members persist across exports. Historical members remain in `members`; `discord_accounts` is replaced with the current roster only.
+- `nickname_events` is append-only and is never deleted by an export.
 - Member IDs are preserved across exports for Discord accounts that remain in the roster. New accounts receive the next free ID.
-- Both tables are replaced on each export; unrelated tables are untouched.
+- `members.joined_at`, `discord_accounts.joined_at`, `nickname_events.event_at`, and `nickname_events.recorded_at` are full ISO 8601 UTC timestamps.
+
+### Manual nicknames
+
+Generate a CSV pre-filled from the current roster:
+
+```cmd
+cd tools\discord-parser
+bun run prefill-nicknames
+```
+
+This writes `input/nicknames.csv` with `discord_id,nickname` and the current placeholder nickname for every current member. It refuses to overwrite a file that already contains rows unless `--force` is passed.
+
+Edit the nicknames, then import:
+
+```cmd
+bun run import-nicknames --dry-run
+bun run import-nicknames
+```
+
+CSV header:
+
+```csv
+discord_id,nickname
+123456789012345678,KKamilS
+```
+
+- `discord_id` and `nickname` are required; extra columns are ignored.
+- `event_at` defaults to the member's `joined_at` and is normalized to ISO 8601 UTC.
+- If the member has no `joined_at`, the row is rejected.
+- The importer only accepts current, known Discord IDs from `discord_accounts`.
+- Exact duplicate events are skipped, so repeated imports are safe.
+- `source` is always `manual`, `created_by` is `owner`, and `recorded_at` is generated at import time.
+- There is no `reason` field.
 
 ### Schema conventions
 
 These rules apply to this tool's SQLite output only; the main ERP schema is unchanged.
 
 - Table names are plural `snake_case`.
-- Primary keys use `<entity>_id`, e.g. `members.member_id`.
+- Primary keys use `<entity>_id`, e.g. `members.member_id` and `nickname_events.nickname_event_id`.
 - A natural platform identifier may be the primary key when it is already entity-specific, e.g. `discord_accounts.discord_id`.
 - Foreign keys use the referenced `<entity>_id`.
-- Timestamps are stored as ISO 8601 UTC text (`YYYY-MM-DDTHH:mm:ss.sssZ`).
-- Calendar dates, if introduced later, use ISO 8601 `YYYY-MM-DD`.
+- All timestamps are full ISO 8601 UTC text (`YYYY-MM-DDTHH:mm:ss.sssZ`).
+- No date-only or date-precision columns are used.
 
 Optional overrides:
 
