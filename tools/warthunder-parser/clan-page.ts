@@ -47,6 +47,18 @@ function parseNumber(value: string): number | null {
   return Number(cleaned)
 }
 
+const ROLE_ALIASES: Record<string, string> = {
+  'clan/sergeant': 'Sergeant',
+}
+
+export function normalizeSquadronRole(value: string): string | null {
+  const cleaned = cleanText(value)
+  if (cleaned === '') {
+    return null
+  }
+  return ROLE_ALIASES[cleaned.toLocaleLowerCase('en')] ?? cleaned
+}
+
 export function parseClanDate(value: string): string {
   const cleaned = value.trim()
   const match = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(cleaned)
@@ -103,12 +115,12 @@ export function parseClanPage(html: string, clanUrl: string): ClanPage {
       continue
     }
 
-    const role = cleanText(match[6] ?? '')
+    const role = normalizeSquadronRole(match[6] ?? '')
     const joinedAt = parseClanDate(cleanText(match[7] ?? ''))
 
     members.push({
       username,
-      squadronRole: role === '' ? null : role,
+      squadronRole: role,
       squadronJoinedAt: joinedAt,
       personalClanRating: parseNumber(match[4] ?? ''),
       activity: parseNumber(match[5] ?? ''),

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { parseClanDate, parseClanPage } from './clan-page'
+import { normalizeSquadronRole, parseClanDate, parseClanPage } from './clan-page'
 
 function memberRow(input: {
   index: number
@@ -38,6 +38,15 @@ describe('parseClanDate', () => {
   })
 })
 
+describe('normalizeSquadronRole', () => {
+  test('maps clan/sergeant to Sergeant and leaves other roles unchanged', () => {
+    expect(normalizeSquadronRole('clan/sergeant')).toBe('Sergeant')
+    expect(normalizeSquadronRole('CLAN/SERGEANT')).toBe('Sergeant')
+    expect(normalizeSquadronRole(' Private ')).toBe('Private')
+    expect(normalizeSquadronRole('')).toBeNull()
+  })
+})
+
 describe('parseClanPage', () => {
   test('parses clan metadata and member rows including noindex wrappers', () => {
     const html = `
@@ -59,7 +68,7 @@ describe('parseClanPage', () => {
           hrefNickname: 'LION%20OF%20JUDAH',
           rating: '0',
           activity: 'N/A',
-          role: 'Private',
+          role: 'clan/sergeant',
           date: '02.08.2024',
           noindex: true,
         })}
@@ -81,7 +90,7 @@ describe('parseClanPage', () => {
       },
       {
         username: 'LION OF JUDAH',
-        squadronRole: 'Private',
+        squadronRole: 'Sergeant',
         squadronJoinedAt: '2024-08-02T00:00:00.000Z',
         personalClanRating: 0,
         activity: null,
