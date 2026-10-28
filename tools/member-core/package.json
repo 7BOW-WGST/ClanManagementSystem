@@ -5,6 +5,8 @@
   "scripts": {
     "import-discord-roster": "bun run import-discord-roster.ts",
     "import-warthunder-accounts": "bun run import-warthunder-accounts.ts",
+    "prefill-warthunder-links": "bun run prefill-warthunder-links.ts",
+    "import-warthunder-links": "bun run import-warthunder-links.ts",
     "prefill-nicknames": "bun run prefill-nicknames.ts",
     "import-nicknames": "bun run import-nicknames.ts",
     "typecheck": "bun x tsc --noEmit",

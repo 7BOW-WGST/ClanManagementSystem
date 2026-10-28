@@ -105,6 +105,39 @@ Default input: `../warthunder-parser/output/warthunder-accounts.json`.
 - `squadron_joined_at` is a full ISO 8601 UTC timestamp.
 - Manually correcting `member_id` or `ownership_type` in SQLite survives future imports.
 
+### Manual links and ownership
+
+Generate a CSV containing only unresolved accounts:
+
+```cmd
+bun run prefill-warthunder-links
+```
+
+This writes `input/warthunder-links.csv`:
+
+```csv
+wt_id,username,member_id,ownership_type
+29369140,R0NIV,,
+58755252,LION OF JUDAH,,
+```
+
+Fill in `member_id` and/or `ownership_type`, then apply:
+
+```cmd
+bun run import-warthunder-links --dry-run
+bun run import-warthunder-links
+```
+
+- `wt_id` is required and must exist in `warthunder_accounts`.
+- `username` is informational; a mismatch produces a warning.
+- `member_id` must reference an existing member.
+- `ownership_type` must be `main`, `alt`, or `borrowed`.
+- Blank fields leave the existing value unchanged.
+- No-op rows are skipped.
+- Multiple `main` accounts for one member produce warnings but are not blocked.
+- Existing manual values survive future `import-warthunder-accounts` runs.
+- `prefill-warthunder-links` refuses to overwrite a populated CSV unless `--force` is passed.
+
 ## Schema Conventions
 
 - Table names are plural `snake_case`.

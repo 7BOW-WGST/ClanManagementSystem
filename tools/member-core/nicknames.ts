@@ -1,4 +1,5 @@
 import type { Database } from 'bun:sqlite'
+import { escapeCsvField, parseCsv } from './csv'
 import { refreshNicknamesForMembers, toIsoTimestamp } from './db'
 
 export interface NicknameCsvEntry {
@@ -17,11 +18,6 @@ export interface ImportResult {
   inserted: number
   skipped: number
   dryRun: boolean
-}
-
-interface ParsedCsvRow {
-  line: number
-  values: string[]
 }
 
 interface MemberLookup {
@@ -48,83 +44,6 @@ const FIND_NICKNAME_EVENT = `
   WHERE member_id = ? AND nickname = ? AND event_at = ? AND source = 'manual'
   LIMIT 1
 `
-
-// Minimal RFC 4180-style parser: quoted fields, escaped quotes, commas, and newlines.
-function parseCsv(text: string): ParsedCsvRow[] {
-  const input = text.charCodeAt(0) === 0xfeff ? text.slice(1) : text
-  const rows: ParsedCsvRow[] = []
-  let values: string[] = []
-  let value = ''
-  let inQuotes = false
-  let line = 1
-  let rowStartLine = 1
-  let index = 0
-
-  const pushValue = (): void => {
-    values.push(value)
-    value = ''
-  }
-
-  const pushRow = (): void => {
-    pushValue()
-    rows.push({ line: rowStartLine, values })
-    values = []
-  }
-
-  while (index < input.length) {
-    const character = input[index]
-
-    if (inQuotes) {
-      if (character === '"') {
-        if (input[index + 1] === '"') {
-          value += '"'
-          index += 2
-          continue
-        }
-        inQuotes = false
-        index += 1
-        continue
-      }
-      if (character === '\n') {
-        line += 1
-      }
-      value += character
-      index += 1
-      continue
-    }
-
-    if (character === '"') {
-      inQuotes = true
-      index += 1
-      continue
-    }
-    if (character === ',') {
-      pushValue()
-      index += 1
-      continue
-    }
-    if (character === '\r') {
-      index += 1
-      continue
-    }
-    if (character === '\n') {
-      pushRow()
-      line += 1
-      rowStartLine = line
-      index += 1
-      continue
-    }
-
-    value += character
-    index += 1
-  }
-
-  if (value !== '' || values.length > 0) {
-    pushRow()
-  }
-
-  return rows
-}
 
 export function parseNicknameCsv(text: string): NicknameCsvRow[] {
   const rows = parseCsv(text).filter((row) => row.values.some((entry) => entry.trim() !== ''))
@@ -175,13 +94,6 @@ export function parseNicknameCsv(text: string): NicknameCsvRow[] {
   }
 
   return result
-}
-
-export function escapeCsvField(value: string): string {
-  if (/[",\r\n]/.test(value)) {
-    return `"${value.replaceAll('"', '""')}"`
-  }
-  return value
 }
 
 export function buildNicknameCsv(entries: NicknameCsvEntry[]): string {

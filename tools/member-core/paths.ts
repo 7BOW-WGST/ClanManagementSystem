@@ -8,3 +8,4 @@ export const defaultWarthunderAccountsPath = resolve(
 )
 export const defaultMemberDbPath = resolve(toolDir, './output/members.sqlite')
 export const defaultNicknameCsvPath = resolve(toolDir, './input/nicknames.csv')
+export const defaultWarthunderLinksPath = resolve(toolDir, './input/warthunder-links.csv')

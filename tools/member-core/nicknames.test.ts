@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'bun:test'
 import { openMemberDatabase } from './db'
 import { importDiscordRoster, type RosterMember } from './discord-roster'
+import { escapeCsvField } from './csv'
 import {
   buildNicknameCsv,
-  escapeCsvField,
   hasNicknameData,
   importNicknameCsv,
   parseNicknameCsv,
