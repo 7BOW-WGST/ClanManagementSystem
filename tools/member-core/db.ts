@@ -58,6 +58,25 @@ const CREATE_DISCORD_ACCOUNTS_INDEX = `
   ON discord_accounts(member_id)
 `
 
+const CREATE_WARTHUNDER_ACCOUNTS = `
+  CREATE TABLE IF NOT EXISTS warthunder_accounts (
+    wt_id TEXT PRIMARY KEY,
+    member_id INTEGER REFERENCES members(member_id),
+    username TEXT NOT NULL,
+    ownership_type TEXT NOT NULL DEFAULT 'main'
+      CHECK (ownership_type IN ('main', 'alt', 'borrowed')),
+    squadron TEXT
+      CHECK (squadron IN ('7BOW', '7BOWs', '7BOWr')),
+    squadron_role TEXT,
+    squadron_joined_at TEXT
+  )
+`
+
+const CREATE_WARTHUNDER_ACCOUNTS_INDEX = `
+  CREATE INDEX IF NOT EXISTS idx_warthunder_accounts_member_id
+  ON warthunder_accounts(member_id)
+`
+
 const INSERT_MEMBER = `
   INSERT INTO members (member_id, nickname, joined_at) VALUES (?, ?, ?)
 `
@@ -139,6 +158,8 @@ export function openMemberDatabase(path: string): Database {
   db.exec(CREATE_NICKNAME_EVENTS_INDEX)
   db.exec(CREATE_DISCORD_ACCOUNTS)
   db.exec(CREATE_DISCORD_ACCOUNTS_INDEX)
+  db.exec(CREATE_WARTHUNDER_ACCOUNTS)
+  db.exec(CREATE_WARTHUNDER_ACCOUNTS_INDEX)
   return db
 }
 

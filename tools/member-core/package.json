@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "import-discord-roster": "bun run import-discord-roster.ts",
+    "import-warthunder-accounts": "bun run import-warthunder-accounts.ts",
     "prefill-nicknames": "bun run prefill-nicknames.ts",
     "import-nicknames": "bun run import-nicknames.ts",
     "typecheck": "bun x tsc --noEmit",

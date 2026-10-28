@@ -1,8 +1,8 @@
 # Member Core
 
-A standalone Bun tool for the member SQLite seed database: general member identities, Discord account links, and manual nickname events. It does not call the Discord API.
+A standalone Bun tool for the member SQLite seed database: general member identities, Discord and War Thunder account projections, and manual nickname events. It does not call Discord or War Thunder APIs.
 
-The Discord-specific harvester lives in `../discord-parser/` and writes `../discord-parser/output/discord-members.json`. This tool consumes that file.
+The platform harvesters live in `../discord-parser/` and `../warthunder-parser/`. This tool consumes their JSON output.
 
 ## Commands
 
@@ -10,16 +10,18 @@ The Discord-specific harvester lives in `../discord-parser/` and writes `../disc
 cd tools\member-core
 bun install
 bun run import-discord-roster
+bun run import-warthunder-accounts
 bun run prefill-nicknames
 bun run import-nicknames --dry-run
 bun run import-nicknames
 ```
 
 - `import-discord-roster` — imports the Discord roster JSON into `output/members.sqlite`.
+- `import-warthunder-accounts` — imports the War Thunder account JSON.
 - `prefill-nicknames` — writes `input/nicknames.csv` from the current roster placeholders.
 - `import-nicknames` — imports manual nickname events from `input/nicknames.csv`.
 
-Both roster-consuming commands accept `--input` to override the default Discord JSON path.
+The roster importers accept `--input` to override their default JSON paths.
 
 ## Tables
 
@@ -48,6 +50,18 @@ CREATE TABLE nickname_events (
   recorded_at TEXT NOT NULL,
   created_by TEXT NOT NULL DEFAULT 'owner'
 );
+
+CREATE TABLE warthunder_accounts (
+  wt_id TEXT PRIMARY KEY,
+  member_id INTEGER REFERENCES members(member_id),
+  username TEXT NOT NULL,
+  ownership_type TEXT NOT NULL DEFAULT 'main'
+    CHECK (ownership_type IN ('main', 'alt', 'borrowed')),
+  squadron TEXT
+    CHECK (squadron IN ('7BOW', '7BOWs', '7BOWr')),
+  squadron_role TEXT,
+  squadron_joined_at TEXT
+);
 ```
 
 - `members.nickname` is a convenience current value. Until a manual event exists, the Discord importer fills it with `server_name ?? global_name ?? username`.
@@ -55,6 +69,7 @@ CREATE TABLE nickname_events (
 - The current nickname is the latest manual event by `event_at DESC`, then `recorded_at DESC`, then `nickname_event_id DESC`.
 - `members` and `nickname_events` persist across imports. Historically seen members stay in `members`; `discord_accounts` is replaced with the current roster only.
 - `discord_accounts.member_id` links current platform accounts to general members.
+- `warthunder_accounts` is the current War Thunder projection. `member_id` may be null until an account is matched or manually linked. New accounts default to `ownership_type = 'main'`; re-imports preserve manual `member_id` and `ownership_type` changes.
 - All timestamps are full ISO 8601 UTC text.
 
 ## Nickname CSV
@@ -73,11 +88,28 @@ discord_id,nickname
 - Duplicate events are skipped, so repeated imports are safe.
 - `prefill-nicknames` refuses to overwrite a CSV with data unless `--force` is passed.
 
+## War Thunder Accounts
+
+```cmd
+bun run import-warthunder-accounts --dry-run
+bun run import-warthunder-accounts
+```
+
+Default input: `../warthunder-parser/output/warthunder-accounts.json`.
+
+- Accounts are matched by exact WT username against `members.nickname`, then case-insensitive matches, then `discord_accounts` names.
+- Unmatched or ambiguous accounts keep `member_id NULL`; the CLI lists them for manual resolution.
+- Existing non-null `member_id` and `ownership_type` values are preserved on re-import.
+- New accounts default to `ownership_type = 'main'`.
+- Updates refresh `username`, `squadron`, `squadron_role`, and `squadron_joined_at`.
+- `squadron_joined_at` is a full ISO 8601 UTC timestamp.
+- Manually correcting `member_id` or `ownership_type` in SQLite survives future imports.
+
 ## Schema Conventions
 
 - Table names are plural `snake_case`.
 - Primary keys use `<entity>_id`.
-- Natural platform identifiers may be primary keys when already entity-specific (`discord_accounts.discord_id`).
+- Natural platform identifiers may be primary keys when already entity-specific (`discord_accounts.discord_id`, `warthunder_accounts.wt_id`).
 - Foreign keys use the referenced `<entity>_id`.
 - All timestamps are full ISO 8601 UTC text.
 
